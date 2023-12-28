@@ -1,32 +1,43 @@
 // const END_POINT = 'http://192.168.0.196:5000/graphql';
 // const MIXMATE_DOMAIN = 'http://192.168.0.196:5173';
 
+import { AlertColor } from '@mui/material/Alert';
+
 const END_POINT = "http://localhost:3000/api";
 const MIXMATE_DOMAIN = 'http://localhost:3000';
 
-const SEVERITY =
-{
-    Error: 'Error',
-    Warning: 'Warning',
-    Info: 'Info',
-    Success: 'Success'
-}
-
+const SEVERITY: Record<string, AlertColor> = {
+  Info: 'info',
+  Success: 'success',
+  Warning: 'warning',
+  Error: 'error'
+};
 const MAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
 const APPLICATION_PAGE =
 {
     root: '/',
-    home: '/home',
+    home: '/',
     mongo: '/mongo',
     profile: '/profile',
     recipes: '/recipes',
     myMixMate: '/mymixmate',
     favourites: '/favourites',
-    myRecipes: '/myRecipes',
+    myRecipes: '/myrecipes',
     social: '/social',
     sharedPublic: '/sharedpublic',
     resetPassword: '/resetpassword'
+}
+
+const API_ROUTES={
+  user: '/user'
+}
+
+const REQ_METHODS={
+  get: "GET" as "GET",
+  post: "POST" as "POST",
+  delete: "DELETE" as "DELETE",
+  put: "PUT" as "PUT"
 }
 const ingredientsByAlcoholic = {
     Alcoholic: [
@@ -135,4 +146,4 @@ const ingredientsByAlcoholic = {
       "7-Up",
     ],
   };
-export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic }
+export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES }

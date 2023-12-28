@@ -1,9 +1,12 @@
 import { END_POINT } from "./constants";
-function jsonToQueryString(baseUrl, apiRoute, params) {
-  const url = new URL(apiRoute, baseUrl);
-  url.search = new URLSearchParams(params).toString();
-  return url.href;
+
+
+interface FetchOptions {
+  method: string;
+  headers?: Record<string, string>;
+  body?: string;
 }
+
 const doPost = (api, data, funOk, funErr = null) => {
   let query =
     'query {server(api: "' +
@@ -22,31 +25,72 @@ const doPost = (api, data, funOk, funErr = null) => {
     .catch((error) => (funErr ? funErr(error) : alert(error.message)));
 };
 
-const makeRequest = async (apiRoute, method, data, funOk, funErr = null)=>{
-  switch(method){
-    case "GET" :{
-      const fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
-      console.log(fullUrl);
-      try {
-        const response = await fetch(fullUrl);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const responseData = await response.json();
-        if (funOk) {
-            funOk(responseData);
-        }
-    } catch (error) {
-        if (funErr) {
-            funErr(error);
-        } else {
-            console.error('Fetch error:', error);
-        }
+
+interface FetchOptions {
+  method: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
+interface FetchResponse {
+  data: any;
+  status: number;
+}
+
+
+function jsonToQueryString(baseUrl: string, apiRoute: string, params: Record<string, string> | null = null): string {
+  const url = new URL("api" + apiRoute, baseUrl);
+  url.search = new URLSearchParams(params).toString();
+  return url.href;
+}
+
+async function executeFetch(url: string, options: RequestInit, funOk?: (data: any) => void, funErr?: (error: Error) => void): Promise<void> {
+  try {
+    const response = await fetch(url, options);
+    const responseData = await response.json();
+    if (!response.ok) {
+      throw new Error(responseData.message || responseData.error || 'Network response was not ok');
     }
-      break;
-    }
+    funOk?.(responseData);
+  } catch (error) {
+      throw error;  
   }
 }
+
+const makeRequest = async (
+  apiRoute: string, 
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE', 
+  data: any, 
+  funOk?: (data: any) => void, 
+  funErr?: (error: Error) => void
+): Promise<void> => {
+  let fullUrl: string;
+  let fetchOptions: FetchOptions = { method };
+
+  switch (method) {
+    case "GET":
+      fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
+      break;
+    case "POST":
+    case "PUT":
+      fullUrl = `${END_POINT}/${apiRoute}`;
+      fetchOptions.headers = { "Content-Type": "application/json" };
+      fetchOptions.body = JSON.stringify(data);
+      break;
+    case "DELETE":
+      fullUrl = `${END_POINT}/${apiRoute}`;
+      break;
+    default:
+      throw new Error('Unsupported HTTP method');
+  }
+
+  try {
+    await executeFetch(fullUrl, fetchOptions, funOk, funErr);
+  } catch (error) {
+    throw error;
+  }
+}
+
 const isSet = (value) => {
   if (value === undefined || value === null || value === false) return false;
   else if (typeof value === "string" && value.trim() === "") return false;
@@ -98,4 +142,6 @@ function capitalizeWords(str) {
   // Rejoin the words into a single string
   return words.join(" ");
 }
+
+
 export { doPost, isSet, isNotSet, makeRequest, capitalizeWords };

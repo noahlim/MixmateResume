@@ -31,7 +31,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/layout.js"  ],
+, "src/app/layout.js", "src/app/_utilities/_server/database/db_routines.ts"  ],
   "exclude": [
     "node_modules"
   ]
