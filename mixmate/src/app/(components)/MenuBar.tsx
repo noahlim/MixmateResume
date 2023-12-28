@@ -42,6 +42,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import StorageIcon from "@mui/icons-material/Storage";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useDispatch, useSelector } from "react-redux";
 import {
   SEVERITY,
   MAIL_REGEX,
@@ -51,7 +52,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { useRouter } from "next/navigation";
 import { AlertColor } from "@mui/material/Alert";
-
+import { userInfoActions } from "redux/userInfoSlice";
 const USER_SESSION = "userSession";
 
 function MenuBar() {
@@ -61,6 +62,7 @@ function MenuBar() {
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
   const router = useRouter();
+  const dispatch = useDispatch();
   const showToastMessage = (
     title: string,
     message: string,
@@ -87,31 +89,45 @@ function MenuBar() {
     // Validate form
     let hasErrors = false;
     if (isNotSet(loginUserInfo.nickname) || isNotSet(loginUserInfo.password)) {
-      showToastMessage("Login", "Enter user and password");
+      showToastMessage("Log In", "Enter user and password");
       hasErrors = true;
     }
 
     if (isNotSet(hasErrors)) {
-      showToastMessage("Login", "Login user...", SEVERITY.Info);
+      showToastMessage("Log In", "Logging in...", SEVERITY.Info);
       makeRequest(
         API_ROUTES.user,
         REQ_METHODS.get,
         loginUserInfo,
         (serverResponse) => {
           if (serverResponse.isOk) {
-            showToastMessage("Login", "Login OK!!!", SEVERITY.Success);
-            localStorage.setItem(USER_SESSION, loginUserInfo.nickname);
+            showToastMessage(
+              "Log In",
+              `Welcome to MixMate, ${loginUserInfo.nickname}!`,
+              SEVERITY.Success
+            );
+
+            //assigning usernickname (will be replaced with user token or something equivalent in future)
+            dispatch(userInfoActions.setUserNickname(loginUserInfo.nickname));
+            //localStorage.setItem(USER_SESSION, loginUserInfo.nickname);
+
+            //navigating to the profile page
             router.push(APPLICATION_PAGE.profile);
           } else
-            showToastMessage("Login", serverResponse.message, SEVERITY.Warning);
+            showToastMessage(
+              "Log In",
+              serverResponse.message,
+              SEVERITY.Warning
+            );
         }
       );
     }
-    //console.log("Login clicked");
   };
   const logoutUser_onClick = () => {
-    // // Destroy session and go to default page
-    localStorage.removeItem(USER_SESSION);
+    //Destroy session and go to default page
+    //will be replaced with user token or something equivalent in future
+    dispatch(userInfoActions.setUserNickname(""));
+
     isNotValidSession();
     //console.log("Logout clicked");
   };
@@ -172,7 +188,7 @@ function MenuBar() {
 
       makeRequest(
         API_ROUTES.user,
-        REQ_METHODS.get,
+        REQ_METHODS.post,
         newUserInfo,
         (serverResponse) => {
           // Handle success
@@ -200,9 +216,7 @@ function MenuBar() {
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-
-  //if(isSet(localStorage.getItem(USER_SESSION)))
-  if (true) {
+  if (isSet(useSelector((state: any) => state.userInfo.userNickname))) {
     // Set menu icon
     menuIcon = (
       <>
@@ -325,7 +339,6 @@ function MenuBar() {
       </>
     );
   }
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Snackbar
@@ -487,7 +500,7 @@ function MenuBar() {
 function isNotValidSession() {
   const router = useRouter();
   // Validate user session
-  if (isNotSet(localStorage.getItem(USER_SESSION))) {
+  if (isNotSet(useSelector((state: any) => state.userInfo.userNickname))) {
     router.push(APPLICATION_PAGE.home);
     return true;
   }

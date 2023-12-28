@@ -1,8 +1,11 @@
-"use client";
+"use client"
 import { useEffect } from "react";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
-
+import MenuBar from "./(components)/MenuBar";
+import ReduxProvider from "../redux/provider"
+import { useRouter, usePathname } from "next/navigation";
+import HomePage from "./(components)/HomePage";
 function registerNewUserObject() {
   return {
     nickname: "",
@@ -34,26 +37,37 @@ async function addMeetupHandler() {
     console.log("Success callback:", data);
   }).catch((error) => {
     // Handle errors that occur during the request
-    if(error.message === "Nickname already in use"){
+    if (error.message === "Nickname already in use") {
       console.log("You suck");
-    }else{
+    } else {
       console.log("Network Error!~");
     }
   });
 }
 
-function HomePage() {
-  useEffect(() => {
-    addMeetupHandler();
-  }, []);
-  const backgroundImage = {
-    backgroundImage: `url(/HomePage.png)`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    height: "100vh",
-  };
 
-  return <div style={backgroundImage}></div>;
+function RootPage({ children }) {
+  const router = useRouter();
+
+  // Check if the current route is the home page
+  if (usePathname() === '/') {
+    return (
+      <ReduxProvider>
+      <MenuBar />
+
+        <HomePage />
+      </ReduxProvider>
+    );
+  }
+
+  // For all other routes, render the children normally
+  return (
+    <ReduxProvider>
+      <MenuBar />
+
+      {children}
+    </ReduxProvider>
+  );
 }
 
-export default HomePage;
+export default RootPage;
