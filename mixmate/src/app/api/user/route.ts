@@ -11,9 +11,11 @@ import { userCollection } from '@/app/_utilities/_server/database/config';
 export async function GET(req: NextRequest, res: NextResponse) {
 
   //fetching the nickname query from the request url
-  //http://localhost:3000/api/user?nickname=Harry
+  //http://localhost:3000/api/user?nickname=Harry&password=password
   //and the nickname variable value will be "Harry"
   const nickname = req.nextUrl.searchParams.get('nickname');
+  const password = req.nextUrl.searchParams.get('password');
+  console.log(password);
   let result = new Result();
 
   // // Get user info by nickname
@@ -21,13 +23,17 @@ export async function GET(req: NextRequest, res: NextResponse) {
   let userInfo = await dbRtns.findOne(db, userCollection, {
     nickname: nickname,
   });
+  console.log(userInfo);
   if (isSet(userInfo)) {
+    if (userInfo.password !== password) {
+      result.setFalse("Invalid password.");
+      return NextResponse.json(result);
+    }
     result.setTrue();
     result.data = userInfo;
-  } else result.setFalse("User do not exist");
+  } else result.setFalse("User does not exist");
 
-  let response = NextResponse
-  return response.json(result);
+  return NextResponse.json(result);
 
 }
 

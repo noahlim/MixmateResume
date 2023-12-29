@@ -35,8 +35,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 export async function POST(req: NextRequest, res: NextResponse) {
   if (req.body) {
     const body = await readRequestBody(req.body);
-
-    let result = new Result();
+    let result = new Result(true);
 
     // Get user info by nickname
     let db = await dbRtns.getDBInstance();
@@ -54,9 +53,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return NextResponse.json(result, { status: 409 });
     }
     // Update database
+
+    // {
+    //   acknowledged: true,
+    //   modifiedCount: 1,
+    //   upsertedId: null,
+    //   upsertedCount: 0,
+    //   matchedCount: 1
+    // }
+    const response = await dbRtns.updateOne(db, userCollection, { _id: userInfo._id }, { password: body.newPassword });
+    if (response.acknowledged)
+      result.setTrue('New password has been saved.');
     else
-      await dbRtns.updateOne(db, userCollection, { _id: userInfo._id }, { password: body.newPassword });
-    result.setTrue('New password has been saved.');
+      result.setFalse("Failed to update the password.");
     // Done
     return NextResponse.json(result, { status: 201 });
 

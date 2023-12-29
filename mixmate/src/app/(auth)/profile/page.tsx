@@ -97,7 +97,7 @@ function Profile() {
     else if (passInfo.newPassword !== passInfo.repeatPassword)
       showToastMessage(
         "Password",
-        "Your new passwords does not match",
+        "Your new passwords do not match",
         SEVERITY.Error
       );
     else {
