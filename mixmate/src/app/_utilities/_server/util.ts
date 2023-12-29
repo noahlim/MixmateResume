@@ -13,19 +13,33 @@ const isNotSet = (value) =>
   return !isSet(value);
 }
 
-function Result(_isOk = false)
-{
-  this.isOk = _isOk;
-  this.message = '';
-  this.data = false;
+interface IResult {
+  isOk: boolean;
+  message: string;
+  data: boolean | any; // 'any' type can be replaced with a more specific type if known
 
-  this.setTrue = (msg = '') =>
-  {
+  setTrue(msg?: string): void;
+  setFalse(msg?: string): void;
+}
+
+// Implementing the interface
+class Result implements IResult {
+  isOk: boolean;
+  message: string;
+  data: any;
+
+  constructor(_isOk: boolean = false) {
+    this.isOk = _isOk;
+    this.message = '';
+    this.data = null;
+  }
+
+  setTrue(msg: string = ''): void {
     this.isOk = true;
     this.message = msg;
   }
-  this.setFalse = (msg = '') =>
-  {
+
+  setFalse(msg: string = ''): void {
     this.isOk = false;
     this.message = msg;
   }
@@ -39,6 +53,8 @@ function recipeIngredientsComplete(recipe, userIngredients) {
   }
   return true;
 }
+
+
 
 async function readRequestBody(readableStream: ReadableStream<Uint8Array>): Promise<any> {
   const reader = readableStream.getReader();

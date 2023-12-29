@@ -1,11 +1,12 @@
-"use client"
+"use client";
 import { useEffect } from "react";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
 import MenuBar from "./(components)/MenuBar";
-import ReduxProvider from "../redux/provider"
+import ReduxProvider from "../redux/provider";
 import { useRouter, usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
+import { useSelector } from "react-redux";
 function registerNewUserObject() {
   return {
     nickname: "",
@@ -45,15 +46,14 @@ async function addMeetupHandler() {
   });
 }
 
-
 function RootPage({ children }) {
   const router = useRouter();
 
   // Check if the current route is the home page
-  if (usePathname() === '/') {
+  if (usePathname() === "/") {
     return (
       <ReduxProvider>
-      <MenuBar />
+        <MenuBar />
 
         <HomePage />
       </ReduxProvider>

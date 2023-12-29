@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -17,7 +16,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import {
-  doPost,
   isSet,
   isNotSet,
   makeRequest,
@@ -35,14 +33,13 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import HomeIcon from "@mui/icons-material/Home";
-import MailIcon from "@mui/icons-material/Mail";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import StorageIcon from "@mui/icons-material/Storage";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   SEVERITY,
   MAIL_REGEX,
@@ -57,6 +54,7 @@ const USER_SESSION = "userSession";
 
 function MenuBar() {
   // Toast Message
+  const userInfo = useSelector((state: any) => state.userInfo.userInfo)
   const [openToasMessage, setOpenToasMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
@@ -85,6 +83,16 @@ function MenuBar() {
     setLoginUserInfo(new loginUserObject());
     setModalLoginOpen(false);
   };
+
+  const handleKeyDown = (event) => {
+    // Check if the Enter key is pressed
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      loginUser_onClick();
+    }
+  }
+
+
   const loginUser_onClick = () => {
     // Validate form
     let hasErrors = false;
@@ -106,9 +114,10 @@ function MenuBar() {
               `Welcome to MixMate, ${loginUserInfo.nickname}!`,
               SEVERITY.Success
             );
-
+            console.log(serverResponse);
+            setModalLoginOpen(false);
             //assigning usernickname (will be replaced with user token or something equivalent in future)
-            dispatch(userInfoActions.setUserNickname(loginUserInfo.nickname));
+            dispatch(userInfoActions.setUserInfo(serverResponse.data));
             //localStorage.setItem(USER_SESSION, loginUserInfo.nickname);
 
             //navigating to the profile page
@@ -126,10 +135,12 @@ function MenuBar() {
   const logoutUser_onClick = () => {
     //Destroy session and go to default page
     //will be replaced with user token or something equivalent in future
-    dispatch(userInfoActions.setUserNickname(""));
+    dispatch(userInfoActions.setUserInfo(null));
 
-    isNotValidSession();
-    //console.log("Logout clicked");
+    if (isNotSet(userInfo)) 
+     return true;
+
+    router.push(APPLICATION_PAGE.home);
   };
 
   // Register user modal
@@ -216,7 +227,7 @@ function MenuBar() {
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (isSet(useSelector((state: any) => state.userInfo.userNickname))) {
+  if (userInfo !== null) {
     // Set menu icon
     menuIcon = (
       <>
@@ -367,12 +378,13 @@ function MenuBar() {
       {userMenu}
 
       {/* Login Modal */}
-      <Dialog onClose={() => closeLoginUser_onClick()} open={modalLoginOpen}>
+      
+      <Dialog onClose={() => closeLoginUser_onClick()} open={modalLoginOpen}   onKeyDown={handleKeyDown}>
         <DialogTitle>User Login</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
-            label="Email Adress"
+            label="Nickname"
             type="email"
             fullWidth
             variant="standard"
@@ -393,7 +405,10 @@ function MenuBar() {
           <Button
             onClick={() => loginUser_onClick()}
             color="success"
-            variant="contained"
+            //issue that buttons appear as blank when the variant value is set to contained
+            //temporarily set to outlined
+            //variant="contained"
+            variant="outlined"
             startIcon={<VpnKeyIcon />}
           >
             Login
@@ -401,7 +416,7 @@ function MenuBar() {
           <Button
             onClick={() => closeLoginUser_onClick()}
             color="error"
-            variant="contained"
+            variant="outlined"
             startIcon={<ClearIcon />}
           >
             Cancel
@@ -497,17 +512,7 @@ function MenuBar() {
   );
 }
 
-function isNotValidSession() {
-  const router = useRouter();
-  // Validate user session
-  if (isNotSet(useSelector((state: any) => state.userInfo.userNickname))) {
-    router.push(APPLICATION_PAGE.home);
-    return true;
-  }
-
-  return false;
-}
 
 export default MenuBar;
 
-export { isNotValidSession, USER_SESSION };
+export {USER_SESSION };

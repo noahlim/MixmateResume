@@ -30,7 +30,8 @@ const APPLICATION_PAGE =
 }
 
 const API_ROUTES={
-  user: '/user'
+  user: '/user',
+  password: '/user/password'
 }
 
 const REQ_METHODS={
