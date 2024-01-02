@@ -46,19 +46,42 @@ import {
   APPLICATION_PAGE,
   API_ROUTES,
   REQ_METHODS,
+  MIXMATE_DOMAIN,
 } from "@/app/_utilities/_client/constants";
 import { useRouter } from "next/navigation";
 import { AlertColor } from "@mui/material/Alert";
 import { userInfoActions } from "redux/userInfoSlice";
+import Cookies from "js-cookie";
 const USER_SESSION = "userSession";
 
 function MenuBar() {
   // Toast Message
-  const userInfo = useSelector((state: any) => state.userInfo.userInfo)
+  const userInfo = useSelector((state: any) => state.userInfo.userInfo);
   const [openToasMessage, setOpenToasMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
+  const [isSessionValid, setIsSessionValid] = useState<boolean>(false);
+  useEffect(() => {
+    const token = Cookies.get("token");
+    console.log(token);
+    if(isSet(token)){
+      makeRequest(API_ROUTES.tokenVerify, REQ_METHODS.post, { token: token }, (data) => {
+        setIsSessionValid(true);
+      }).catch((error) => {
+        if (error.message ==='Your log in session expired. Please log in again.') {
+          showToastMessage("Log In",error.message, SEVERITY.Info);
+
+        } else if (error.message === "Invalid attempt.")
+          //when the token key does  not match
+          showToastMessage("Log In","Invalid log in session. Please log in again.", SEVERITY.Warning);
+        else {
+          showToastMessage("Log In","Network error occured while verifying the session.", SEVERITY.Warning);
+        }
+      });
+    }
+  }, [Cookies.get("token")]);
+
   const router = useRouter();
   const dispatch = useDispatch();
   const showToastMessage = (
@@ -86,12 +109,11 @@ function MenuBar() {
 
   const handleKeyDown = (event) => {
     // Check if the Enter key is pressed
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       loginUser_onClick();
     }
-  }
-
+  };
 
   const loginUser_onClick = () => {
     // Validate form
@@ -104,8 +126,8 @@ function MenuBar() {
     if (isNotSet(hasErrors)) {
       showToastMessage("Log In", "Logging in...", SEVERITY.Info);
       makeRequest(
-        API_ROUTES.user,
-        REQ_METHODS.get,
+        API_ROUTES.login,
+        REQ_METHODS.post,
         loginUserInfo,
         (serverResponse) => {
           if (serverResponse.isOk) {
@@ -114,14 +136,18 @@ function MenuBar() {
               `Welcome to MixMate, ${loginUserInfo.nickname}!`,
               SEVERITY.Success
             );
-            console.log(serverResponse);
             setModalLoginOpen(false);
-            //assigning usernickname (will be replaced with user token or something equivalent in future)
-            dispatch(userInfoActions.setUserInfo(serverResponse.data));
+            Cookies.set("token", serverResponse.data.token, {
+              expires: 1,
+              secure: true,
+              domain: MIXMATE_DOMAIN,
+            });
+            console.log(serverResponse.data);
+            dispatch(userInfoActions.setUserInfo(serverResponse.data.userInfo));
             //localStorage.setItem(USER_SESSION, loginUserInfo.nickname);
 
             //navigating to the profile page
-            router.push(APPLICATION_PAGE.profile);
+            router.push(APPLICATION_PAGE.root);
           } else
             showToastMessage(
               "Log In",
@@ -136,9 +162,8 @@ function MenuBar() {
     //Destroy session and go to default page
     //will be replaced with user token or something equivalent in future
     dispatch(userInfoActions.setUserInfo(null));
-
-    if (isNotSet(userInfo)) 
-     return true;
+    Cookies.remove("token", { domain: MIXMATE_DOMAIN });
+    if (isNotSet(userInfo)) return true;
 
     router.push(APPLICATION_PAGE.home);
   };
@@ -227,7 +252,7 @@ function MenuBar() {
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (userInfo !== null) {
+  if (isSet(userInfo)) {
     // Set menu icon
     menuIcon = (
       <>
@@ -378,8 +403,12 @@ function MenuBar() {
       {userMenu}
 
       {/* Login Modal */}
-      
-      <Dialog onClose={() => closeLoginUser_onClick()} open={modalLoginOpen}   onKeyDown={handleKeyDown}>
+
+      <Dialog
+        onClose={() => closeLoginUser_onClick()}
+        open={modalLoginOpen}
+        onKeyDown={handleKeyDown}
+      >
         <DialogTitle>User Login</DialogTitle>
         <DialogContent>
           <TextField
@@ -512,7 +541,6 @@ function MenuBar() {
   );
 }
 
-
 export default MenuBar;
 
-export {USER_SESSION };
+export { USER_SESSION };

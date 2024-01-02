@@ -4,7 +4,7 @@
 import { AlertColor } from '@mui/material/Alert';
 
 const END_POINT = "http://localhost:3000/api";
-const MIXMATE_DOMAIN = 'http://localhost:3000';
+const MIXMATE_DOMAIN = 'localhost';
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
@@ -31,7 +31,9 @@ const APPLICATION_PAGE =
 
 const API_ROUTES={
   user: '/user',
-  password: '/user/password'
+  password: '/user/password',
+  login: '/login',
+  tokenVerify: '/verifytoken'
 }
 
 const REQ_METHODS={

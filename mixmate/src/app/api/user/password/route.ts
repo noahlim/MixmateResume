@@ -35,6 +35,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
 export async function POST(req: NextRequest, res: NextResponse) {
   if (req.body) {
     const body = await readRequestBody(req.body);
+
+    
+    if(!body){
+      return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
+    }
+    
     let result = new Result(true);
 
     // Get user info by nickname

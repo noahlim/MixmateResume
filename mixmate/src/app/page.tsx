@@ -18,6 +18,7 @@ function registerNewUserObject() {
   };
 }
 
+//This is a testing function, you have seen nothing :)
 async function addMeetupHandler() {
   //this will send GET reqeust to /api/usern  route
   //check api/user/route.ts file  to check how it works
@@ -33,7 +34,7 @@ async function addMeetupHandler() {
   // });
   let newUser = registerNewUserObject();
   newUser.nickname = "asdfadarrsssy";
-  makeRequest(API_ROUTES.user, REQ_METHODS.post, newUser, (data) => {
+  makeRequest(API_ROUTES.login, REQ_METHODS.post, { lol: "sick" }, (data) => {
     // Handle success
     console.log("Success callback:", data);
   }).catch((error) => {
@@ -47,8 +48,9 @@ async function addMeetupHandler() {
 }
 
 function RootPage({ children }) {
-  const router = useRouter();
-
+  useEffect(() => {
+    //addMeetupHandler();
+  }, []);
   // Check if the current route is the home page
   if (usePathname() === "/") {
     return (

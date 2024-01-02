@@ -5,8 +5,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Result, isSet, readRequestBody } from '@/app/_utilities/_server/util';
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection } from '@/app/_utilities/_server/database/config';
+import { userCollection, saltRounds } from '@/app/_utilities/_server/database/config';
 
+import bcrypt from "bcrypt"
 //GET method : Fetch user data from the database
 export async function GET(req: NextRequest, res: NextResponse) {
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
   //and the nickname variable value will be "Harry"
   const nickname = req.nextUrl.searchParams.get('nickname');
   const password = req.nextUrl.searchParams.get('password');
-  console.log(password);
+  
   let result = new Result();
 
   // // Get user info by nickname
@@ -23,13 +24,15 @@ export async function GET(req: NextRequest, res: NextResponse) {
   let userInfo = await dbRtns.findOne(db, userCollection, {
     nickname: nickname,
   });
-  console.log(userInfo);
   if (isSet(userInfo)) {
-    if (userInfo.password !== password) {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    if (userInfo.password !== hashedPassword) {
       result.setFalse("Invalid password.");
       return NextResponse.json(result);
     }
     result.setTrue();
+
     result.data = userInfo;
   } else result.setFalse("User does not exist");
 
@@ -42,12 +45,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
   if (req.body) {
     const body = await readRequestBody(req.body);
 
+    if (!body) {
+      return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
+    }
     let result = new Result(true);
 
     // Validate if user already exist
     let db = await dbRtns.getDBInstance();
     let userExist = await dbRtns.findOne(db, userCollection, { nickname: body.nickname });
-    console.log(userExist);
+
     if (isSet(userExist)) {
       result.setFalse('Nickname already in use');
       return NextResponse.json(result, { status: 409 });
@@ -55,15 +61,27 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // Save new user
     if (result.isOk) {
-      delete body.passwordConfirm;
-      await dbRtns.addOne(db, userCollection, body);
-      result.setTrue('User [ ' + body.nickname + ' ] added!');
+      try {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(body.password, saltRounds);
+        body.password = hashedPassword;
+        delete body.passwordConfirm;        
+        console.log(body);
+        // Save the user with the hashed password
+        await dbRtns.addOne(db, userCollection, body);0
+
+        result.setTrue('User [ ' + body.nickname + ' ] added!');
+
+      } catch (error) {
+        // Handle potential errors in the hashing process
+        return NextResponse.json({ error: 'Error hashing password' });
+      }
+      return NextResponse.json(result, { status: 201 });
+
+
+    } else {
+      return NextResponse.json({ error: 'Failed to add user' }, { status: 400 });
     }
-    return NextResponse.json(result, { status: 201 });
-
-
-  } else {
-    return NextResponse.json({ error: 'Failed to add user' }, { status: 400 });
   }
 }
 

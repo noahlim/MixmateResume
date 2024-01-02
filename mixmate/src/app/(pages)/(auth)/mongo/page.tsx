@@ -1,6 +1,6 @@
 function Page  ()  {
     return (
-        <h1>This is a page</h1>
+        <h1>This is the mongo page</h1>
     )
 }
 

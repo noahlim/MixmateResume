@@ -55,7 +55,8 @@ function recipeIngredientsComplete(recipe, userIngredients) {
 }
 
 
-
+//Utility function that reads the body of the POST request
+//don't ask me how it works cuz i don't know too :(
 async function readRequestBody(readableStream: ReadableStream<Uint8Array>): Promise<any> {
   const reader = readableStream.getReader();
   let chunks: Uint8Array[] = [];
@@ -92,7 +93,9 @@ function concatUint8Arrays(chunks: Uint8Array[]): Uint8Array {
 
   return result;
 }
+
+
 export
 {
-  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody 
+  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody
 }
