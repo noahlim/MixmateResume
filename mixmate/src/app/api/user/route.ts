@@ -65,12 +65,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
         // Hash the password
         const hashedPassword = await bcrypt.hash(body.password, saltRounds);
         body.password = hashedPassword;
-        delete body.passwordConfirm;        
-        console.log(body);
-        // Save the user with the hashed password
-        await dbRtns.addOne(db, userCollection, body);0
+        delete body.passwordConfirm;   
 
-        result.setTrue('User [ ' + body.nickname + ' ] added!');
+        body.createdOn = new Date().toLocaleString();
+        body.updatedOn = "";
+        // Save the user with the hashed password
+        await dbRtns.addOne(db, userCollection, body);
+
+        result.setTrue(`User [${body.nickname} added!`);
 
       } catch (error) {
         // Handle potential errors in the hashing process

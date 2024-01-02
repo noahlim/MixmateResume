@@ -33,7 +33,8 @@ const API_ROUTES={
   user: '/user',
   password: '/user/password',
   login: '/login',
-  tokenVerify: '/verifytoken'
+  tokenVerify: '/verifytoken',
+  logout: '/logout'
 }
 
 const REQ_METHODS={

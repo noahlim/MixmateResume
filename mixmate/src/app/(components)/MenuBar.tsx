@@ -61,26 +61,25 @@ function MenuBar() {
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
-  const [isSessionValid, setIsSessionValid] = useState<boolean>(false);
-  useEffect(() => {
-    const token = Cookies.get("token");
-    console.log(token);
-    if(isSet(token)){
-      makeRequest(API_ROUTES.tokenVerify, REQ_METHODS.post, { token: token }, (data) => {
-        setIsSessionValid(true);
-      }).catch((error) => {
-        if (error.message ==='Your log in session expired. Please log in again.') {
-          showToastMessage("Log In",error.message, SEVERITY.Info);
+  // useEffect(() => {
+  //   const token = Cookies.get("token");
+  //   console.log(token);
+  //   if(isSet(token)){
+  //     makeRequest(API_ROUTES.tokenVerify, REQ_METHODS.post, { token: token }, (data) => {
+  //       setIsSessionValid(true);
+  //     }).catch((error) => {
+  //       if (error.message ==='Your log in session expired. Please log in again.') {
+  //         showToastMessage("Log In",error.message, SEVERITY.Info);
 
-        } else if (error.message === "Invalid attempt.")
-          //when the token key does  not match
-          showToastMessage("Log In","Invalid log in session. Please log in again.", SEVERITY.Warning);
-        else {
-          showToastMessage("Log In","Network error occured while verifying the session.", SEVERITY.Warning);
-        }
-      });
-    }
-  }, [Cookies.get("token")]);
+  //       } else if (error.message === "Invalid attempt.")
+  //         //when the token key does  not match
+  //         showToastMessage("Log In","Invalid log in session. Please log in again.", SEVERITY.Warning);
+  //       else {
+  //         showToastMessage("Log In","Network error occured while verifying the session.", SEVERITY.Warning);
+  //       }
+  //     });
+  //   }
+  // }, [Cookies.get("token")]);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -138,7 +137,7 @@ function MenuBar() {
             );
             setModalLoginOpen(false);
             Cookies.set("token", serverResponse.data.token, {
-              expires: 1,
+              expires: 3/24, //3 hours
               secure: true,
               domain: MIXMATE_DOMAIN,
             });
@@ -158,12 +157,11 @@ function MenuBar() {
       );
     }
   };
-  const logoutUser_onClick = () => {
+  const logoutUser_onClick = async () => {
     //Destroy session and go to default page
     //will be replaced with user token or something equivalent in future
     dispatch(userInfoActions.setUserInfo(null));
-    Cookies.remove("token", { domain: MIXMATE_DOMAIN });
-    if (isNotSet(userInfo)) return true;
+    await fetch('/api/logout', { method: 'POST' });
 
     router.push(APPLICATION_PAGE.home);
   };

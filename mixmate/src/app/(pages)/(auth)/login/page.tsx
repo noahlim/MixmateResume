@@ -1,59 +1,60 @@
 "use client";
 import { useState } from "react";
 import { makeRequest, isSet } from "@/app/_utilities/_client/utilities";
-import { API_ROUTES, REQ_METHODS, MIXMATE_DOMAIN } from "@/app/_utilities/_client/constants";
+import {
+  API_ROUTES,
+  REQ_METHODS,
+  MIXMATE_DOMAIN,
+} from "@/app/_utilities/_client/constants";
 import jwt from "jsonwebtoken";
 import Cookies from "js-cookie";
-
+import { useDispatch } from "react-redux";
+import { userInfoActions } from "redux/userInfoSlice";
 function Page() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [nickname, setnickname] = useState("ddongp");
+  const [password, setPassword] = useState("ljw234");
+  const dispatch = useDispatch();
 
   const verifyToken = (event) => {
     event.preventDefault();
-
-    const token = Cookies.get("token");
-    if (isSet(token))
-      makeRequest("/jwttestapi", "POST", { token: token }, (data) => {
-        console.log("Success callback:", data);
-      }).catch((error) => {
-        if (error.message ==='Your log in session expired. Please log in again.') {
-          console.log(error.message);
-        } else if (error.message === "Invalid attempt.")
-          //when the token key does  not match
-          console.log("Invalid log in session. Please log in again.");
-        else {
-          console.log("Network error occured while verifying the session.");
-        }
-      });
-      else{
-
+    makeRequest(API_ROUTES.tokenVerify, REQ_METHODS.get, {}, (data) => {
+      console.log("Success callback:", data);
+    }).catch((error) => {
+      if (error.message === "Unauthorized: Invalid or expired token.") {
+        console.log(error.message);
+      } else {
+        console.log("Network error occured while verifying the session.");
       }
-  }
+    });
+  };
+
+  const RemoveToken = async(event) => {
+    event.preventDefault();
+    await fetch('/api/logout', { method: 'POST' });
+    dispatch(userInfoActions.setUserInfo(null));
+
+  };
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevents the default form submission behavior
 
-    const loginData = { username, password };
+    const loginData = { nickname: nickname, password: password };
 
-    makeRequest(API_ROUTES.login, REQ_METHODS.post, loginData, (data) => {
-      // Handle success
-      console.log("Success callback:", data);
-      const token = data.token;
-      Cookies.set("token", token, { expires: 1, secure: true, domain: MIXMATE_DOMAIN});
-
-      if (token) {
-        const json = jwt.decode(token) as { [key: string]: string };
-        console.log(
-          `Welcome ${json.username} your password is ${json.password}`
-        );
-      } else {
-        console.log("you suck");
+    makeRequest(
+      API_ROUTES.login,
+      REQ_METHODS.post,
+      loginData,
+      (serverResponse) => {
+        // Handle success
+        console.log(serverResponse);
+        if (serverResponse.isOk) {
+          dispatch(userInfoActions.setUserInfo(serverResponse.data));
+        }
       }
-    }).catch((error) => {
+    ).catch((error) => {
       if (error.message === "Invalid credentials") {
         console.log("You suck");
       } else {
-        console.log("Network Error!~");
+        console.log(error.message);
       }
     });
   };
@@ -63,9 +64,9 @@ function Page() {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          name="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          name="nickname"
+          value={nickname}
+          onChange={(e) => setnickname(e.target.value)}
         />
         <br />
         <input
@@ -79,6 +80,9 @@ function Page() {
       </form>
       <form onSubmit={verifyToken}>
         <input type="submit" value="Verify" />
+      </form>
+      <form onSubmit={RemoveToken}>
+        <input type="submit" value="Logout" />
       </form>
     </div>
   );

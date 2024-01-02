@@ -40,12 +40,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
     delete userInfo.password;
     delete userInfo._id;
 
-    //result.data = { token: token, userInfo: userInfo }
-    //const cookie = `token=${token}; HttpOnly; Path=/; Max-Age=${3 * 60 * 60}`;
+    result.data =  userInfo 
+    const cookie = `token=${token.token}; HttpOnly; Path=/; Max-Age=${3 * 60 * 60}`;
 
-    //return NextResponse.json({test:"test"}, {status:200});
-    //return NextResponse.json({nickname:"nickname", message:"Test"}, {status:200});
-    return NextResponse.json(result, {status:200});
-    
+    return NextResponse.json(result, {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json',
+            'Set-Cookie': cookie
+        }
+    });
+
 
 }
