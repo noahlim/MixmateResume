@@ -8,23 +8,24 @@ import { userCollection } from "@/app/_utilities/_server/database/config";
 import bcrypt from "bcrypt"
 export async function POST(req: NextRequest, res: NextResponse) {
     const body = await readRequestBody(req.body);
-    let result = new Result();
+    let result = new Result(true);
     // // Get user info by nickname
     let db = await dbRtns.getDBInstance();
     let userInfo = await dbRtns.findOne(db, userCollection, {
         nickname: body.nickname,
     });
     if (isSet(userInfo)) {
-    const match = await bcrypt.compare(userInfo.password, body.password);
-    
-        if (match) {
+        const match = await bcrypt.compare(body.password, userInfo.password);
+        if (!match) {
             result.setFalse("Invalid password.");
-            return NextResponse.json(result);
+            return NextResponse.json(result, { status: 409 });
         }
-        result.setTrue();
+        result.setTrue("Log in was successful.");
         result.data = userInfo;
-    } else result.setFalse("User does not exist");
-
+    } else {
+        result.setFalse("User does not exist")
+        return NextResponse.json(result, { status: 401 });
+    };
 
     const token = {
         token: jwt.sign({
@@ -33,14 +34,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
             password: body.password,
         }, jwtSecretKey, {
             expiresIn: "3h",
-            issuer: "Harry"
+            issuer: "Mixmate"
         })
     }
     delete userInfo.password;
     delete userInfo._id;
 
-    result.data = {token:token, userInfo:userInfo}
+    //result.data = { token: token, userInfo: userInfo }
+    //const cookie = `token=${token}; HttpOnly; Path=/; Max-Age=${3 * 60 * 60}`;
 
-    return NextResponse.json(result, {status:200})
-  
+    //return NextResponse.json({test:"test"}, {status:200});
+    //return NextResponse.json({nickname:"nickname", message:"Test"}, {status:200});
+    return NextResponse.json(result, {status:200});
+    
+
 }
