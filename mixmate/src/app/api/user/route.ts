@@ -7,7 +7,6 @@ import { Result, isSet, readRequestBody } from '@/app/_utilities/_server/util';
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
 import { userCollection, saltRounds } from '@/app/_utilities/_server/database/config';
 
-import bcrypt from "bcrypt"
 //GET method : Fetch user data from the database
 export async function GET(req: NextRequest, res: NextResponse) {
 

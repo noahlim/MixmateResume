@@ -32,11 +32,22 @@ const APPLICATION_PAGE =
 const API_ROUTES={
   user: '/user',
   password: '/user/password',
-  login: '/login',
+  login: '/api/auth/login',
   tokenVerify: '/verifytoken',
-  logout: '/logout'
+  logout: '/api/auth/logout',
+  drinks: '/drinks',
+  favourite: '/api/favourites',
+  drinkid: '/api/drinkid'
 }
 
+const API_DRINK_ROUTES ={
+  alcoholicTypes: 'alcoholicTypes',
+  glassTypes: 'glassTypes',
+  ingredients: 'ingredients',
+  allRecipes: 'allRecipes',
+  drinkCategories: 'drinkCategories',  
+  filteredDrinks: 'filteredDrinks'
+}
 const REQ_METHODS={
   get: "GET" as "GET",
   post: "POST" as "POST",
@@ -150,4 +161,4 @@ const ingredientsByAlcoholic = {
       "7-Up",
     ],
   };
-export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES }
+export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES, API_DRINK_ROUTES }

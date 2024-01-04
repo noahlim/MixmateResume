@@ -8,5 +8,4 @@ export const userCollection = process.env.USERCOLLECTION;
 export const recipeCollection = process.env.RECIPECOLLECTION;
 export const userRecipeCollection = process.env.USER_RECIPECOLLECTION;
 export const userIngredientCollection = process.env.USER_INGREDIENTCOLLECTION;
-export const jwtSecretKey = process.env.JWT_SECRET_KEY;
-export const saltRounds = parseInt(process.env.SALT_ROUNDS)
+export const userFavouriteCollection = process.env.USER_FAVOURITES;

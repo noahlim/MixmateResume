@@ -6,8 +6,6 @@ import {
   REQ_METHODS,
   MIXMATE_DOMAIN,
 } from "@/app/_utilities/_client/constants";
-import jwt from "jsonwebtoken";
-import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { userInfoActions } from "redux/userInfoSlice";
 function Page() {

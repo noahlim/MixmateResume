@@ -6,7 +6,9 @@ import MenuBar from "./(components)/MenuBar";
 import ReduxProvider from "../redux/provider";
 import { useRouter, usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
-import { useSelector } from "react-redux";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { useDispatch } from "react-redux";
+import { userInfoActions } from "redux/userInfoSlice";
 function registerNewUserObject() {
   return {
     nickname: "",
@@ -47,10 +49,11 @@ async function addMeetupHandler() {
   });
 }
 
+
 function RootPage({ children }) {
-  useEffect(() => {
-    //addMeetupHandler();
-  }, []);
+ 
+ 
+  
   // Check if the current route is the home page
   if (usePathname() === "/") {
     return (

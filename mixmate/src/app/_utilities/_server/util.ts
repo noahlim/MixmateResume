@@ -94,8 +94,29 @@ function concatUint8Arrays(chunks: Uint8Array[]): Uint8Array {
   return result;
 }
 
+//function that helps fetching data from the 3rd party database
+async function fetchFromCocktailDbApi(parameter) {
+  let result = new Result();
+
+  // Get all available categories from API
+  try {
+    let api = await fetch(
+      "https://www.thecocktaildb.com/api/json/v1/1/" + parameter
+    );
+    if (api.ok) {
+      result.data = await api.json();
+      result.setTrue();
+    } else result.setFalse("API Status: " + api.status);
+  } catch (ex) {
+    result.setFalse("API Exception: " + ex.message);
+    result.data = [];
+  }
+
+  // Done
+  return result;
+}
 
 export
 {
-  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody
+  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody, fetchFromCocktailDbApi
 }

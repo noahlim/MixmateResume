@@ -6,20 +6,8 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import PersonIcon from "@mui/icons-material/Person";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import TextField from "@mui/material/TextField";
-import AddReactionIcon from "@mui/icons-material/AddReaction";
-import ClearIcon from "@mui/icons-material/Clear";
-import VpnKeyIcon from "@mui/icons-material/VpnKey";
-import HowToRegIcon from "@mui/icons-material/HowToReg";
-import {
-  isSet,
-  isNotSet,
-  makeRequest,
-} from "@/app/_utilities/_client/utilities";
+
+import { isSet, makeRequest } from "@/app/_utilities/_client/utilities";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -42,7 +30,6 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import {
   SEVERITY,
-  MAIL_REGEX,
   APPLICATION_PAGE,
   API_ROUTES,
   REQ_METHODS,
@@ -51,7 +38,10 @@ import {
 import { useRouter } from "next/navigation";
 import { AlertColor } from "@mui/material/Alert";
 import { userInfoActions } from "redux/userInfoSlice";
-import Cookies from "js-cookie";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { notFound } from "next/navigation";
+
+import Link from "next/link";
 const USER_SESSION = "userSession";
 
 function MenuBar() {
@@ -61,28 +51,47 @@ function MenuBar() {
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
-  // useEffect(() => {
-  //   const token = Cookies.get("token");
-  //   console.log(token);
-  //   if(isSet(token)){
-  //     makeRequest(API_ROUTES.tokenVerify, REQ_METHODS.post, { token: token }, (data) => {
-  //       setIsSessionValid(true);
-  //     }).catch((error) => {
-  //       if (error.message ==='Your log in session expired. Please log in again.') {
-  //         showToastMessage("Log In",error.message, SEVERITY.Info);
-
-  //       } else if (error.message === "Invalid attempt.")
-  //         //when the token key does  not match
-  //         showToastMessage("Log In","Invalid log in session. Please log in again.", SEVERITY.Warning);
-  //       else {
-  //         showToastMessage("Log In","Network error occured while verifying the session.", SEVERITY.Warning);
-  //       }
-  //     });
-  //   }
-  // }, [Cookies.get("token")]);
 
   const router = useRouter();
   const dispatch = useDispatch();
+  const userSession = useUser();
+  useEffect(() => {
+    if (userSession.error) {
+      notFound();
+    }
+
+    if (userSession.user) {
+      if (!userInfo) {
+        loginHandleMongo(userSession.user);
+        showToastMessage(
+          "Log In",
+          `Welcome to Mixmate, ${userSession.user.nickname}!`
+        );
+      }
+      dispatch(userInfoActions.setUserInfo(userSession.user));
+    }
+  }, [userSession.user]);
+
+  const loginHandleMongo = async (userInfoData) => {
+    try {
+      makeRequest(
+        API_ROUTES.login,
+        REQ_METHODS.post,
+        userInfoData,
+        (serverResponse) => {
+          if (serverResponse.isOk) {
+          } else
+            showToastMessage(
+              "Log In",
+              serverResponse.message,
+              SEVERITY.Warning
+            );
+        }
+      );
+    } catch (err) {
+      showToastMessage("Error", err.message, SEVERITY.warning);
+    }
+  };
   const showToastMessage = (
     title: string,
     message: string,
@@ -94,163 +103,12 @@ function MenuBar() {
     setOpenToasMessage(true);
   };
 
-  // Login user modal
-  function loginUserObject() {
-    this.nickname = "";
-    this.password = "";
-  }
-  const [modalLoginOpen, setModalLoginOpen] = useState(false);
-  const [loginUserInfo, setLoginUserInfo] = useState(new loginUserObject());
-  const closeLoginUser_onClick = () => {
-    setLoginUserInfo(new loginUserObject());
-    setModalLoginOpen(false);
-  };
-
-  const handleKeyDown = (event) => {
-    // Check if the Enter key is pressed
-    if (event.key === "Enter") {
-      event.preventDefault();
-      loginUser_onClick();
-    }
-  };
-
-  const loginUser_onClick = () => {
-    // Validate form
-    let hasErrors = false;
-    if (isNotSet(loginUserInfo.nickname) || isNotSet(loginUserInfo.password)) {
-      showToastMessage("Log In", "Enter user and password");
-      hasErrors = true;
-    }
-
-    if (isNotSet(hasErrors)) {
-      showToastMessage("Log In", "Logging in...", SEVERITY.Info);
-      makeRequest(
-        API_ROUTES.login,
-        REQ_METHODS.post,
-        loginUserInfo,
-        (serverResponse) => {
-          if (serverResponse.isOk) {
-            showToastMessage(
-              "Log In",
-              `Welcome to MixMate, ${loginUserInfo.nickname}!`,
-              SEVERITY.Success
-            );
-            setModalLoginOpen(false);
-            Cookies.set("token", serverResponse.data.token, {
-              expires: 3/24, //3 hours
-              secure: true,
-              domain: MIXMATE_DOMAIN,
-            });
-            console.log(serverResponse.data);
-            dispatch(userInfoActions.setUserInfo(serverResponse.data.userInfo));
-            //localStorage.setItem(USER_SESSION, loginUserInfo.nickname);
-
-            //navigating to the profile page
-            router.push(APPLICATION_PAGE.root);
-          } else
-            showToastMessage(
-              "Log In",
-              serverResponse.message,
-              SEVERITY.Warning
-            );
-        }
-      );
-    }
-  };
-  const logoutUser_onClick = async () => {
-    //Destroy session and go to default page
-    //will be replaced with user token or something equivalent in future
-    dispatch(userInfoActions.setUserInfo(null));
-    await fetch('/api/logout', { method: 'POST' });
-
-    router.push(APPLICATION_PAGE.home);
-  };
-
-  // Register user modal
-  function registerNewUserObject() {
-    this.nickname = "";
-    this.password = "";
-    this.passwordConfirm = "";
-    this.name = "";
-    this.lastName = "";
-    this.email = "";
-  }
-  const [modalRegisterUserOpen, setModalRegisterUserOpen] = useState(false);
-  const [newUserInfo, setNewUserInfo] = useState(new registerNewUserObject());
-  const closeNewUser_onClick = () => {
-    setNewUserInfo(new registerNewUserObject());
-    setModalRegisterUserOpen(false);
-  };
-  const registerNewUser_onClick = () => {
-    // Validate form
-    let hasErrors = false;
-    if (isNotSet(newUserInfo.nickname)) {
-      showToastMessage(
-        "Nickname",
-        "Enter a nickname for your account",
-        SEVERITY.Error
-      );
-      hasErrors = true;
-    } else if (
-      isNotSet(newUserInfo.password) ||
-      isNotSet(newUserInfo.passwordConfirm)
-    ) {
-      showToastMessage(
-        "Password",
-        "Enter a password and confirmation",
-        SEVERITY.Error
-      );
-      hasErrors = true;
-    } else if (newUserInfo.password !== newUserInfo.passwordConfirm) {
-      showToastMessage(
-        "Password Confirmation",
-        "Password and password confirmation are different",
-        SEVERITY.Error
-      );
-      hasErrors = true;
-    } else if (
-      isSet(newUserInfo.email) &&
-      MAIL_REGEX.test(newUserInfo.email) === false
-    ) {
-      showToastMessage("Email", "Enter a valid email", SEVERITY.Error);
-      hasErrors = true;
-    }
-
-    // Save new user
-    if (hasErrors === false) {
-      showToastMessage("New Account", "Registering new user...", SEVERITY.Info);
-
-      makeRequest(
-        API_ROUTES.user,
-        REQ_METHODS.post,
-        newUserInfo,
-        (serverResponse) => {
-          // Handle success
-          showToastMessage(
-            "New Account",
-            serverResponse.message,
-            SEVERITY.Success
-          );
-          closeNewUser_onClick();
-        }
-      ).catch((error) => {
-        // Handle errors that occur during the request
-        if (error.message === "Nickname already in use") {
-          showToastMessage("New Account", error.message, SEVERITY.Error);
-        } else {
-          console.log("Network Error!~");
-        }
-      });
-    }
-    console.log("new user clicked");
-  };
-
   // Validate if there's user session
   let loginControls = null;
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (isSet(userInfo)) {
+  if (isSet(userSession.user)) {
     // Set menu icon
     menuIcon = (
       <>
@@ -330,12 +188,18 @@ function MenuBar() {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => logoutUser_onClick()}>
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary={"Logout"} />
-              </ListItemButton>
+              <a href={API_ROUTES.logout}>
+                <ListItemButton
+                  onClick={() => {
+                    dispatch(userInfoActions.setUserInfo(null));
+                  }}
+                >
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={"Logout"} />
+                </ListItemButton>
+              </a>
             </ListItem>
           </List>
         </Box>
@@ -344,32 +208,35 @@ function MenuBar() {
 
     // Set buttons for logout
     loginControls = (
-      <Button
-        color="inherit"
-        onClick={() => logoutUser_onClick()}
-        startIcon={<LogoutIcon />}
-      >
-        Logout
-      </Button>
+      <>
+        <a href={API_ROUTES.logout}>
+          <Button
+            color="inherit"
+            onClick={() => {
+              dispatch(userInfoActions.setUserInfo(null));
+            }}
+            startIcon={<LogoutIcon />}
+          >
+            Logout
+          </Button>
+        </a>
+        <a href="/api/auth/me">
+          <img
+            className="w-10 h-10 ml-5 rounded-full object-cover"
+            src={userSession.user.picture}
+          />
+        </a>
+      </>
     );
   } else {
     // No user session yet
     loginControls = (
       <>
-        <Button
-          color="inherit"
-          onClick={() => setModalLoginOpen(true)}
-          startIcon={<PersonIcon />}
-        >
-          Login
-        </Button>
-        <Button
-          color="inherit"
-          onClick={() => setModalRegisterUserOpen(true)}
-          startIcon={<AddReactionIcon />}
-        >
-          Register
-        </Button>
+        <a href={API_ROUTES.login}>
+          <Button color="inherit" startIcon={<PersonIcon />}>
+            Login
+          </Button>
+        </a>
       </>
     );
   }
@@ -391,7 +258,7 @@ function MenuBar() {
         <Toolbar>
           {menuIcon}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            MixMate
+            <Link href={APPLICATION_PAGE.home}>MixMate</Link>
           </Typography>
           {loginControls}
         </Toolbar>
@@ -399,142 +266,6 @@ function MenuBar() {
 
       {/* Main menu */}
       {userMenu}
-
-      {/* Login Modal */}
-
-      <Dialog
-        onClose={() => closeLoginUser_onClick()}
-        open={modalLoginOpen}
-        onKeyDown={handleKeyDown}
-      >
-        <DialogTitle>User Login</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            label="Nickname"
-            type="email"
-            fullWidth
-            variant="standard"
-            name={"nickname"}
-            onChange={(e) => (loginUserInfo[e.target.name] = e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Password"
-            type="password"
-            fullWidth
-            variant="standard"
-            name={"password"}
-            onChange={(e) => (loginUserInfo[e.target.name] = e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => loginUser_onClick()}
-            color="success"
-            //issue that buttons appear as blank when the variant value is set to contained
-            //temporarily set to outlined
-            //variant="contained"
-            variant="outlined"
-            startIcon={<VpnKeyIcon />}
-          >
-            Login
-          </Button>
-          <Button
-            onClick={() => closeLoginUser_onClick()}
-            color="error"
-            variant="outlined"
-            startIcon={<ClearIcon />}
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Register User Modal */}
-      <Dialog
-        onClose={() => closeNewUser_onClick()}
-        open={modalRegisterUserOpen}
-      >
-        <DialogTitle>* New Account (Required info)</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            label="Nickname"
-            type="text"
-            fullWidth
-            variant="standard"
-            name={"nickname"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Password"
-            type="password"
-            fullWidth
-            variant="standard"
-            name={"password"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Confirm Password"
-            type="password"
-            fullWidth
-            variant="standard"
-            name={"passwordConfirm"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-        </DialogContent>
-        <DialogTitle>Personal Info (Optional)</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            name={"name"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Last Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            name={"lastName"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            type="email"
-            fullWidth
-            variant="standard"
-            name={"email"}
-            onChange={(e) => (newUserInfo[e.target.name] = e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => registerNewUser_onClick()}
-            color="primary"
-            variant="contained"
-            startIcon={<HowToRegIcon />}
-          >
-            Register
-          </Button>
-          <Button
-            onClick={() => closeNewUser_onClick()}
-            color="error"
-            variant="contained"
-            startIcon={<ClearIcon />}
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
