@@ -35,9 +35,11 @@ const API_ROUTES={
   login: '/api/auth/login',
   tokenVerify: '/verifytoken',
   logout: '/api/auth/logout',
+  userJson: '/api/auth/me',
   drinks: '/drinks',
-  favourite: '/api/favourites',
-  drinkid: '/api/drinkid'
+  favourite: '/user/favourite',
+  drinkid: '/drinkid',
+  mongoLogin: '/auth/loginmongo'
 }
 
 const API_DRINK_ROUTES ={
