@@ -143,5 +143,18 @@ function capitalizeWords(str) {
   return words.join(" ");
 }
 
-
-export { doPost, isSet, isNotSet, makeRequest, capitalizeWords };
+function getCallerLine() {
+  const err = new Error();
+  const stack = err.stack.split("\n");
+  // Depending on the environment, you may need to adjust the line index
+  const callerLine = stack[3]; // This might be the line where the function was called
+  return callerLine.match(/:(\d+):\d+\)?$/)?.[1]; // Extracts line number
+}// a function used to determine where is the function be called from
+  // const filterSetter = (data) => {
+  //   const callerLine = getCallerLine();
+  //   console.log(`filterSetter was called from line: ${callerLine}`);
+  //   console.log(data[0]);
+  //   setRecipesFiltered(data);
+  // };
+  // Loading recipe options
+export { doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine };

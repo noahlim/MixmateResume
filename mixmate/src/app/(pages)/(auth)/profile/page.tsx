@@ -40,7 +40,7 @@ function Profile() {
 //   }, [userInfo, router, user]);
 
   // Toast Message
-  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -52,7 +52,7 @@ function Profile() {
     setToast_severity(severity);
     setToast_title(title);
     setToast_message(message);
-    setOpenToasMessage(true);
+    setOpenToastMessage(true);
   };
   // Variables
   const [loadingPage, setLoadingPage] = useState(true);
@@ -148,9 +148,9 @@ function Profile() {
 
       {/* Toast message */}
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToasMessage(false)}
+        onClose={() => setOpenToastMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>

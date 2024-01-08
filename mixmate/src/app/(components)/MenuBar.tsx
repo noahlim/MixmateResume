@@ -47,7 +47,7 @@ const USER_SESSION = "userSession";
 function MenuBar() {
   // Toast Message
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
-  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -100,7 +100,7 @@ function MenuBar() {
     setToast_severity(severity);
     setToast_title(title);
     setToast_message(message);
-    setOpenToasMessage(true);
+    setOpenToastMessage(true);
   };
 
   // Validate if there's user session
@@ -245,9 +245,9 @@ function MenuBar() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToasMessage(false)}
+        onClose={() => setOpenToastMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>

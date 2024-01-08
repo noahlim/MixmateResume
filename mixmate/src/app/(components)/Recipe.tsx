@@ -37,13 +37,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { recipeActions } from "redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
-function getCallerLine() {
-  const err = new Error();
-  const stack = err.stack.split("\n");
-  // Depending on the environment, you may need to adjust the line index
-  const callerLine = stack[3]; // This might be the line where the function was called
-  return callerLine.match(/:(\d+):\d+\)?$/)?.[1]; // Extracts line number
-}
+
 function RecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
@@ -52,7 +46,7 @@ function RecipesComponent() {
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
 
   // Toast Message
-  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -60,7 +54,7 @@ function RecipesComponent() {
     setToast_severity(severity);
     setToast_title(title);
     setToast_message(message);
-    setOpenToasMessage(true);
+    setOpenToastMessage(true);
   };
 
   // Variables
@@ -83,15 +77,9 @@ function RecipesComponent() {
   const [recipesFiltered, setRecipesFiltered] = useState(null);
 
   const recipeNameRef = useRef(null);
-  //let [recipeName, setRecipeName] = useState("");
   const dispatch = useDispatch();
-  const filterSetter = (data) => {
-    const callerLine = getCallerLine();
-    console.log(`filterSetter was called from line: ${callerLine}`);
-    console.log(data[0]);
-    setRecipesFiltered(data);
-  };
-  // Loading recipe options
+
+  
   let loadAllRecipes = () => {
     if (recipeAllRecipes.length === 0) {
       makeRequest(
@@ -102,7 +90,7 @@ function RecipesComponent() {
           dispatch(recipeActions.setRecipes(response.data));
           console.log("Did you mean this?");
 
-          filterSetter(response.data);
+          setRecipesFiltered(response.data);
 
           // Done
           setLoadingPage(false);
@@ -110,7 +98,7 @@ function RecipesComponent() {
       );
     } else {
       setLoadingPage(false);
-      filterSetter(recipeAllRecipes);
+      setRecipesFiltered(recipeAllRecipes);
     }
   };
   let loadAlcoholicTypes = () =>
@@ -208,7 +196,7 @@ function RecipesComponent() {
     setSelectedAlcoholicType("");
     recipeNameRef.current ? (recipeNameRef.current.value = "") : {};
 
-    filterSetter(recipeAllRecipes);
+    setRecipesFiltered(recipeAllRecipes);
   };
   let btnFind_onClick = async () => {
     if (
@@ -223,13 +211,11 @@ function RecipesComponent() {
 
       switch (selectedFilter) {
         case "Alcoholic Type": {
-          console.log("Did you mean this?");
-
           if (selectedAlcoholicType !== "") {
             const filtered = recipeAllRecipes.filter(
               (recipe) => recipe.strAlcoholic === selectedAlcoholicType
             );
-            filterSetter(filtered);
+            setRecipesFiltered(filtered);
           } else
             showToastMessage(
               "Filter",
@@ -240,13 +226,11 @@ function RecipesComponent() {
           break;
         }
         case "Category": {
-          console.log("Did you mean this?");
-
           if (selectedCategory !== "") {
             const filtered = recipeAllRecipes.filter(
               (recipe) => recipe.strCategory === selectedCategory
             );
-            filterSetter(filtered);
+            setRecipesFiltered(filtered);
           } else
             showToastMessage(
               "Filter",
@@ -257,14 +241,12 @@ function RecipesComponent() {
           break;
         }
         case "Glass": {
-          console.log("Did you mean this?");
-
           if (selectedGlass !== "") {
             console.log(selectedGlass);
             const filtered = recipeAllRecipes.filter(
               (recipe) => recipe.strGlass === selectedGlass
             );
-            filterSetter(filtered);
+            setRecipesFiltered(filtered);
           } else
             showToastMessage(
               "Filter",
@@ -275,14 +257,13 @@ function RecipesComponent() {
           break;
         }
         case "Ingredient": {
-          console.log("Did you mean this?");
           if (selectedIngredient !== "") {
             const filtered = recipeAllRecipes.filter((recipe) =>
               recipe.ingredients.some(
                 (ing) => ing.ingredient === selectedIngredient
               )
             );
-            filterSetter(filtered);
+            setRecipesFiltered(filtered);
           } else
             showToastMessage(
               "Filter",
@@ -293,16 +274,13 @@ function RecipesComponent() {
           break;
         }
         case "Recipe Name": {
-          console.log("Did you mean this?");
-
           if (recipeNameRef.current?.value !== "") {
-            console.log(recipeNameRef);
             const searchText = recipeNameRef.current.value.toLowerCase();
 
             const matchedRecipes = recipeAllRecipes.filter((recipe) =>
               recipe.strDrink.toLowerCase().includes(searchText)
             );
-            filterSetter(matchedRecipes);
+            setRecipesFiltered(matchedRecipes);
           } else
             showToastMessage(
               "Filter",
@@ -355,9 +333,9 @@ function RecipesComponent() {
     <>
       {/* Toast message */}
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToasMessage(false)}
+        onClose={() => setOpenToastMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>
