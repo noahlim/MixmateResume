@@ -1,5 +1,5 @@
 import { END_POINT } from "./constants";
-
+import { GetAccessToken } from "@auth0/nextjs-auth0";
 
 interface FetchOptions {
   method: string;
@@ -77,8 +77,9 @@ const makeRequest = async (
       fetchOptions.headers = { "Content-Type": "application/json" };
       fetchOptions.body = JSON.stringify(data);
       break;
-    case "DELETE":
-      fullUrl = `${END_POINT}/${apiRoute}`;
+    case "DELETE":      
+      fullUrl = `${END_POINT}/${apiRoute}/${data}`;
+      console.log(fullUrl);
       break;
     default:
       throw new Error('Unsupported HTTP method');

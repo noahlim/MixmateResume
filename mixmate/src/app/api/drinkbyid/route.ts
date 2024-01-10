@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
     }
     //fetching the drink query from the request url
-    //http://localhost:3000/api/user/password/?drinkid=123123
+    //http://localhost:3000/api/user/drinkbyid?drinkid=123123
     //and the drinkId variable value will be '123123'
     const drinkId = req.nextUrl.searchParams.get('drinkid');
 

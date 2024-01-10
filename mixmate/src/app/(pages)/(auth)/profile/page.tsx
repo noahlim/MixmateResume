@@ -10,14 +10,13 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import Button from "@mui/material/Button";
 import {
-  doPost,
   isNotSet,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
-import {  USER_SESSION } from "@/app/(components)/MenuBar";
-import { Card, CardContent, Typography, Avatar } from "@mui/material";
-import avatar from "boy.png";
+
+import {CardContent, Typography, Avatar } from "@mui/material";
+
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
@@ -27,12 +26,13 @@ import { SEVERITY } from "@/app/_utilities/_client/constants";
 import { useSelector } from "react-redux";
 import { AlertColor } from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 function Profile() {
   // Validate session
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
   const router = useRouter();
   const {user, error, isLoading} = useUser()
+
 //   useEffect(() => {
 //     if (isNotSet(user)) {
 //       router.push("/");
@@ -259,4 +259,4 @@ function Profile() {
     </>
   );
 }
-export default Profile;
+export default withPageAuthRequired(Profile);

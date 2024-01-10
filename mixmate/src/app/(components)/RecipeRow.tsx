@@ -1,15 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
-import {
-  makeRequest,
-  isNotSet,
-  isSet,
-} from "@/app/_utilities/_client/utilities";
+import React, { useState } from "react";
+import { isSet } from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Backdrop, CircularProgress, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
@@ -31,11 +26,9 @@ function RecipeRow(props): React.ReactNode {
   const { drink } = props;
   const [rowOpen, setRowOpen] = useState(false);
   const [drinkInfo, setDrinkInfo] = useState(null);
-  const [loadingPage, setLoadingPage] = useState(true);
   // Functions
   let loadDrinkInfo = () => {
     // Load drink info
-    setLoadingPage(true);
 
     let drinkDetails;
     if (isSet(drink)) {
@@ -162,9 +155,7 @@ function RecipeRow(props): React.ReactNode {
     }
     setDrinkInfo(drinkDetails);
 
-    setLoadingPage(false);
     // Done
-
     setRowOpen(!rowOpen);
   };
   return (

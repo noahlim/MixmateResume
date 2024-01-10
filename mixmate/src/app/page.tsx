@@ -1,14 +1,11 @@
 "use client";
-import { useEffect } from "react";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
 import MenuBar from "./(components)/MenuBar";
 import ReduxProvider from "../redux/provider";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
-import { useUser } from "@auth0/nextjs-auth0/client";
-import { useDispatch } from "react-redux";
-import { userInfoActions } from "redux/userInfoSlice";
+
 function registerNewUserObject() {
   return {
     nickname: "",

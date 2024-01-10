@@ -1,6 +1,3 @@
-// const END_POINT = 'http://192.168.0.196:5000/graphql';
-// const MIXMATE_DOMAIN = 'http://192.168.0.196:5173';
-
 import { AlertColor } from '@mui/material/Alert';
 
 const END_POINT = "http://localhost:3000/api";
@@ -38,8 +35,10 @@ const API_ROUTES={
   userJson: '/api/auth/me',
   drinks: '/drinks',
   favourite: '/user/favourite',
-  drinkid: '/drinkid',
-  mongoLogin: '/auth/loginmongo'
+  drinkbyid: '/drinkbyid',
+  mongoLogin: '/auth/loginmongo',
+  recipeReviews: '/social/recipereviews',
+  recipeshare: '/social/recipeshare'
 }
 
 const API_DRINK_ROUTES ={

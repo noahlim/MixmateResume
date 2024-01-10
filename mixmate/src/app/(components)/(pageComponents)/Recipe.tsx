@@ -88,8 +88,6 @@ function RecipesComponent() {
         { criteria: API_DRINK_ROUTES.allRecipes },
         (response) => {
           dispatch(recipeActions.setRecipes(response.data));
-          console.log("Did you mean this?");
-
           setRecipesFiltered(response.data);
 
           // Done

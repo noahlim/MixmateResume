@@ -1,19 +1,30 @@
-import dynamic from "next/dynamic";
-import Preloader from "@/app/(components)/Preloader";
-import { Backdrop, CircularProgress } from "@mui/material";
+'use client'
+import dynamic from 'next/dynamic';
+import { Backdrop, CircularProgress } from '@mui/material';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
+
+// Define the backdrop style
 const backdropStyle = {
-  color: "#fff",
-  zIndex: 1300, // Replace with an appropriate fixed value
+  color: '#fff',
+  zIndex: 1300 // Replace with an appropriate fixed value
 };
 
-const RecipeLazyLoaded = dynamic(() => import("@/app/(components)/Recipe"), {
-  loading: () => (
-    <Backdrop open={true} sx={backdropStyle}>
-      <CircularProgress color="inherit" />
-    </Backdrop>
-  ),
-});
+// Dynamically import the Recipe component with a preloader
+const RecipeLazyLoaded = dynamic(
+  () => import('@/app/(components)/(pageComponents)/Recipe'),
+  {
+    loading: () => (
+      <Backdrop open={true} sx={backdropStyle}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    ),
+  }
+);
 
-export default function Recipe() {
+// Define the Recipe page component
+function RecipePage() {
   return <RecipeLazyLoaded />;
 }
+
+// Wrap the component with withPageAuthRequired HOC
+export default withPageAuthRequired(RecipePage);

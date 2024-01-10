@@ -8,4 +8,5 @@ export const userCollection = process.env.USERCOLLECTION;
 export const recipeCollection = process.env.RECIPECOLLECTION;
 export const userRecipeCollection = process.env.USER_RECIPECOLLECTION;
 export const userIngredientCollection = process.env.USER_INGREDIENTCOLLECTION;
-export const userFavouriteCollection = process.env.USER_FAVOURITES;
+export const userFavouriteCollection = process.env.USER_FAVOURITES_COLLECTION;
+export const sharedRecipeCollection = process.env.RECIPES_SHARED_COLLECTION;

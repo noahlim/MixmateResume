@@ -9,18 +9,26 @@ import {
 import { useDispatch } from "react-redux";
 import { userInfoActions } from "redux/userInfoSlice";
 function Page() {
- 
+  const deleteFavouriteTest = async () => {
+    makeRequest(
+      "user/favourite",
+      "DELETE",
+      "659cab74b6f700730c55194a",
+      (res) => {
+        console.log(res);
+      }
+    );
+  };
   const textRef = useRef(null);
   return (
     <div>
-     
-        <input
-          type="password"
-          name="password"
-          ref={textRef}
-        />
-        <br />
-     <button onClick={()=>{console.log(textRef.current.value)}}>TestButton</button>
+      <input type="password" name="password" ref={textRef} />
+      <br />
+      <button
+        onClick={deleteFavouriteTest}
+      >
+        TestButton
+      </button>
     </div>
   );
 }
