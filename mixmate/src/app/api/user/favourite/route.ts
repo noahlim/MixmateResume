@@ -59,7 +59,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
 }
 )
 
-export const GET = withApiAuthRequired(async function getAllFavourites(req: NextRequest) {
+export async function GET(req: NextRequest) {
   //rate limiting
   if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
     return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
@@ -68,18 +68,19 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
   try {
 
     const { user } = await getSession();
-
+   
     let db = await dbRtns.getDBInstance();
 
     let response = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {});
 
     //response is the object deleted
     const result = new Result(true);
-    result.data(response);
+    result.data = response;
     result.message = response.length > 0 ? `${response.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
-    return NextResponse.json({ error: err }, { status: 400 });
+    console.log(err);
+    return NextResponse.json({ error: err.message }, { status: 400 });
 
   }
-});
+}

@@ -83,7 +83,7 @@ function MyMixMate()
             </Box>
 
             {/* Tabs content */}
-            { selectedTab === 0 && <TestPage /> }
+            { selectedTab === 0 && <Favourites /> }
             { selectedTab === 1 && <TestPage/> }
             { selectedTab === 2 && <TestPage/> }
             { selectedTab === 3 && <TestPage/> }

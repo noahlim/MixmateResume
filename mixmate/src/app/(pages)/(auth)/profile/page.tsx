@@ -194,7 +194,7 @@ function Profile() {
           <Button
             onClick={() => btnChangePassword_onClick()}
             color="success"
-            variant="contained"
+            variant="outlined"
             startIcon={<VpnKeyIcon />}
           >
             Reset
@@ -202,7 +202,7 @@ function Profile() {
           <Button
             onClick={() => closeModalChangePass()}
             color="error"
-            variant="contained"
+            variant="outlined"
             startIcon={<ClearIcon />}
           >
             Cancel
@@ -249,7 +249,7 @@ function Profile() {
         <Button
           onClick={() => setModalLoginOpen(true)}
           color="primary"
-          variant="contained"
+          variant="outlined"
           startIcon={<LockResetIcon />}
           style={{ marginLeft: 7 }}
         >

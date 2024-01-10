@@ -131,7 +131,7 @@ function Recipe_Component(props) {
     setModalShareRecipeOpen(true);
   };
   let copySharedToClipboard = () => {
-    let urlParams = user.email.split("@")[0]+ "|" + selectedRecipeToShare.id;
+    let urlParams = user.email.split("@")[0] + "|" + selectedRecipeToShare.id;
     urlParams = "?s=" + window.btoa(urlParams);
     clipboard(MIXMATE_DOMAIN + APPLICATION_PAGE.sharedPublic + urlParams);
     showToastMessage("Social", "Link copied to clipboard!", SEVERITY.Success);
@@ -222,7 +222,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => btnRemoveRecipe_onClick()}
               color="error"
-              variant="contained"
+              variant="outlined"
               startIcon={<DeleteForeverIcon />}
             >
               Yes, remove
@@ -230,7 +230,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => setModalDeleteRecipeOpen(false)}
               color="primary"
-              variant="contained"
+              variant="outlined"
               startIcon={<ClearIcon />}
             >
               No, cancel
@@ -238,7 +238,6 @@ function Recipe_Component(props) {
           </DialogActions>
         </Dialog>
       )}
-
 
       {/* Share recipes */}
       {showShareOption && (
@@ -265,7 +264,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => btnShareInSocial_onclick()}
               color="success"
-              variant="contained"
+              variant="outlined"
               startIcon={<ShareIcon />}
             >
               Share in social
@@ -273,7 +272,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => setModalShareRecipeOpen(false)}
               color="error"
-              variant="contained"
+              variant="outlined"
               startIcon={<ClearIcon />}
             >
               Cancel
@@ -305,18 +304,12 @@ function Recipe_Component(props) {
             {/* Print recipes on screen */}
             {recipes?.map((drink) => {
               // Format ingredients
-              let ingredients = [];
-              for (let x = 0; x <= 99; x++) {
-                if (isSet(drink.recipeIngredients[x]))
-                  ingredients.push(
-                    <Typography className="margin-left-35px">
-                      {drink.recipeIngredients[x]}{" "}
-                      <i>({drink.recipeMeasure[x]})</i>
-                    </Typography>
-                  );
-                else break;
-              }
-
+              const ingredientsList = drink.ingredients?.map((ing) => 
+                <Typography className="margin-left-35px" key={ing.ingredient}>
+                  {ing.ingredient} <i>({ing.measure})</i>
+                </Typography>
+              );
+              console.log(ingredientsList);
               // Title icon
               let recipeIconItem = (
                 <FavoriteIcon
@@ -331,7 +324,8 @@ function Recipe_Component(props) {
               if (pathName === APPLICATION_PAGE.social) {
                 recipeIconItem = (
                   <Tooltip
-                    title={"Shared by: " + drink.userNickname}
+                    //title={"Shared by: " + drink.userNickname}
+                    title="Test User"
                     placement="top"
                   >
                     <InfoIcon color={"success"} className="margin-left-20px" />
@@ -343,16 +337,17 @@ function Recipe_Component(props) {
               let recipeComplementaryInfo = (
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                   <InputLabel>Ingredients:</InputLabel>
-                  {ingredients}
+                  {ingredientsList}
                   <br></br>
                   <InputLabel>How to prepare:</InputLabel>
                   <Typography className="margin-left-35px">
-                    {drink.recipeInstructions}
+                    {drink.strInstructions}
                   </Typography>
                   <br></br>
                   <InputLabel>Author:</InputLabel>
                   <Typography className="margin-left-35px margin-bottom-15px">
-                    {drink.recipeAuthor}
+                    {/* {drink.recipeAuthor} */}
+                    {"Test author"}
                   </Typography>
                 </Grid>
               );
@@ -387,7 +382,7 @@ function Recipe_Component(props) {
               }
 
               return (
-                <React.Fragment>
+                <React.Fragment key={drink.idDrink}>
                   <TableRow sx={{ "& > *": { borderTop: 0 } }}>
                     <TableCell
                       style={{ paddingBottom: 0, paddingTop: 0 }}
@@ -398,7 +393,7 @@ function Recipe_Component(props) {
                           <Grid item xs={12} sm={12} md={6} lg={4}>
                             <img
                               style={{ width: "90%", borderRadius: "7%" }}
-                              src={drink.recipePicture}
+                              src={drink.strDrinkThumb}
                             ></img>
                           </Grid>
                           <Grid item xs={12} sm={12} md={6} lg={8}>
@@ -419,7 +414,7 @@ function Recipe_Component(props) {
                                     <ClassIcon />
                                   </InputAdornment>
                                 }
-                                value={drink.recipeCategory}
+                                value={drink.strCategory}
                               />
                             </FormControl>
                             <br />
@@ -437,7 +432,7 @@ function Recipe_Component(props) {
                                     <LocalBarIcon />
                                   </InputAdornment>
                                 }
-                                value={drink.recipeAlcoholicType}
+                                value={drink.strAlcoholic}
                               />
                             </FormControl>
                             <br />
@@ -455,7 +450,7 @@ function Recipe_Component(props) {
                                     <LocalDrinkIcon />
                                   </InputAdornment>
                                 }
-                                value={drink.recipeGlass}
+                                value={drink.strGlass}
                               />
                             </FormControl>
                             <br />

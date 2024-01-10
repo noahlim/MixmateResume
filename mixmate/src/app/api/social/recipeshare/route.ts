@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection, userFavouriteCollection } from "@/app/_utilities/_server/database/config";
+import { userCollection,sharedRecipeCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-export const POST = withApiAuthRequired(async function postFavourite(req: NextRequest) {
+export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: NextRequest) {
     //rate limiting
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
@@ -40,13 +40,8 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
             favouriteRecipe.created_at = new Date().toISOString();
             favouriteRecipe.nickname = user.nickname;
 
-            let favouriteExist = await dbRtns.findOne(db, userFavouriteCollection, { sub: body.user.sub, idDrink: body.recipe.idDrink });
-
-            if (isSet(favouriteExist)) {
-                result.setFalse("The recipe is already on your favourite list.")
-                return NextResponse.json(result, { status: 201 });
-            }
-            await dbRtns.addOne(db, userFavouriteCollection, favouriteRecipe);
+          
+            await dbRtns.addOne(db, sharedRecipeCollection, favouriteRecipe);
 
             result.setTrue(`The recipe has been added to your favourite!`);
 
