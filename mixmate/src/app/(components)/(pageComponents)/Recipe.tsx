@@ -79,7 +79,6 @@ function RecipesComponent() {
   const recipeNameRef = useRef(null);
   const dispatch = useDispatch();
 
-  
   let loadAllRecipes = () => {
     if (recipeAllRecipes.length === 0) {
       makeRequest(
@@ -168,15 +167,15 @@ function RecipesComponent() {
         }
       }
     );
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(APPLICATION_PAGE.root);
     }
   }, [isLoading, user, router]);
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   // Filter recipes controls
   let filterBy_onChange = (value) => {
     setSelectedFilter(value);

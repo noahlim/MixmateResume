@@ -46,7 +46,6 @@ import ClassIcon from "@mui/icons-material/Class";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import AddEditRecipe_Component from "./AddEditRecipe_Component";
 import clipboard from "clipboard-copy";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
@@ -73,7 +72,7 @@ function Recipe_Component(props) {
   const { user, error, isLoading } = useUser();
 
   // Variables to display elements on screen
-  const [showDeleteRecipes] = useState();
+  const [showDeleteRecipes] = useState(isFavouritePage);
   const [showAddEditRecipes] = useState(isFavouritePage);
   const [showTableHeaders] = useState(isFavouritePage);
   const [showShareOption] = useState(isFavouritePage);
@@ -132,7 +131,7 @@ function Recipe_Component(props) {
     setModalShareRecipeOpen(true);
   };
   let copySharedToClipboard = () => {
-    let urlParams = user.sub + "|" + selectedRecipeToShare.id;
+    let urlParams = user.email.split("@")[0]+ "|" + selectedRecipeToShare.id;
     urlParams = "?s=" + window.btoa(urlParams);
     clipboard(MIXMATE_DOMAIN + APPLICATION_PAGE.sharedPublic + urlParams);
     showToastMessage("Social", "Link copied to clipboard!", SEVERITY.Success);
@@ -240,20 +239,6 @@ function Recipe_Component(props) {
         </Dialog>
       )}
 
-      {/* Add or edit recipe modal */}
-      {showAddEditRecipes && (
-        <AddEditRecipe_Component
-          openModal={openAddEditRecipeModal}
-          closeModal={modalAddEditRecipe_onClose}
-          showToastMessage={showToastMessage}
-          setLoadingPage={setLoadingPage}
-          reloadPage={() => reloadRecipes()}
-          recipeCategories={recipeCategories}
-          recipeAlcoholicTypes={recipeAlcoholicTypes}
-          recipeGlasses={recipeGlasses}
-          recipeId={selectedRecipeIdAddEdit}
-        />
-      )}
 
       {/* Share recipes */}
       {showShareOption && (

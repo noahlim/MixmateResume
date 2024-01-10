@@ -11,7 +11,7 @@ import { APPLICATION_PAGE, SEVERITY } from '@/app/_utilities/_client/constants';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-// import Favorites from './Favorites';
+import Favourites from '@/app/(components)/(pageComponents)/Favourites';
 // import CustomRecipes from './CustomRecipes';
 // import Social from './Social';
 import FavoriteIcon from '@mui/icons-material/Favorite';
