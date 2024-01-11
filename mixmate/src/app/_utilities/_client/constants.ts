@@ -38,7 +38,7 @@ const API_ROUTES={
   drinkbyid: '/drinkbyid',
   mongoLogin: '/auth/loginmongo',
   recipeReviews: '/social/recipereviews',
-  recipeshare: '/social/recipeshare'
+  recipeShare: '/social/recipeshare'
 }
 
 const API_DRINK_ROUTES ={

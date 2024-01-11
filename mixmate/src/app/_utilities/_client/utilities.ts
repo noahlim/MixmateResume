@@ -1,6 +1,12 @@
 import { END_POINT } from "./constants";
 import { GetAccessToken } from "@auth0/nextjs-auth0";
-
+// const AWS = require('aws-sdk');
+// const s3 = new AWS.S3();
+// (async () => {await s3.putObject({
+//   Body:'hello world',
+//   Bucket: 'mixmatebucket',
+//   Key:'helloworld.txt'
+// }).promise(); })();
 interface FetchOptions {
   method: string;
   headers?: Record<string, string>;

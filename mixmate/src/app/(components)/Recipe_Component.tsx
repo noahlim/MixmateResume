@@ -303,13 +303,14 @@ function Recipe_Component(props) {
           <TableBody>
             {/* Print recipes on screen */}
             {recipes?.map((drink) => {
+              //console.log(drink);
               // Format ingredients
               const ingredientsList = drink.ingredients?.map((ing) => 
                 <Typography className="margin-left-35px" key={ing.ingredient}>
                   {ing.ingredient} <i>({ing.measure})</i>
                 </Typography>
               );
-              console.log(ingredientsList);
+              //console.log(ingredientsList);
               // Title icon
               let recipeIconItem = (
                 <FavoriteIcon
@@ -346,8 +347,7 @@ function Recipe_Component(props) {
                   <br></br>
                   <InputLabel>Author:</InputLabel>
                   <Typography className="margin-left-35px margin-bottom-15px">
-                    {/* {drink.recipeAuthor} */}
-                    {"Test author"}
+                    {isSet(drink.strAuthor) ? drink.strAuthor : "www.cocktailDB.com"}
                   </Typography>
                 </Grid>
               );
@@ -393,12 +393,12 @@ function Recipe_Component(props) {
                           <Grid item xs={12} sm={12} md={6} lg={4}>
                             <img
                               style={{ width: "90%", borderRadius: "7%" }}
-                              src={drink.strDrinkThumb}
+                              src={drink.strDrinkThumb? drink.strDrinkThumb :'not-found-icon.png'}
                             ></img>
                           </Grid>
                           <Grid item xs={12} sm={12} md={6} lg={8}>
                             <div className="text-tangerine text-55px margin-left-35px">
-                              {drink.recipeName}
+                              {drink.strDrink}
                               {recipeIconItem}
                             </div>
 

@@ -21,6 +21,7 @@ import { AlertColor } from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
 import TestPage from '@/app/(components)/(pageComponents)/TestPage';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
+import CustomRecipes from '@/app/(components)/(pageComponents)/CustomRecipes';
 //import MyIngredients from './MyIngredient/MyIngredients'
 function MyMixMate()
 {
@@ -84,7 +85,7 @@ function MyMixMate()
 
             {/* Tabs content */}
             { selectedTab === 0 && <Favourites /> }
-            { selectedTab === 1 && <TestPage/> }
+            { selectedTab === 1 && <CustomRecipes/> }
             { selectedTab === 2 && <TestPage/> }
             { selectedTab === 3 && <TestPage/> }
         </Box>

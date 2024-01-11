@@ -316,7 +316,7 @@ function RecipesComponent() {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { user: user, recipe: recipe },
+      { recipe },
       (response) => {
         if (response.isOk)
           showToastMessage("Recipe", response.message, SEVERITY.Success);

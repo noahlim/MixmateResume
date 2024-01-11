@@ -16,14 +16,12 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
     }
     else {
-      if (!body.user)
-        return NextResponse.json({ error: 'No user data passed' }, { status: 404 });
       if (!body.recipe)
         return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
     }
     let result = new Result(true);
     const { user } = await getSession();
-
+ 
     try {
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
@@ -59,7 +57,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
 }
 )
 
-export async function GET(req: NextRequest) {
+export const GET = withApiAuthRequired(async function GET(req: NextRequest) {
   //rate limiting
   if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
     return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
@@ -83,4 +81,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 400 });
 
   }
-}
+});
