@@ -67,7 +67,6 @@ function Recipe_Component(props) {
     title ==="My Favourite Recipes" ||
     pathName === APPLICATION_PAGE.myRecipes;    
   const { user, error, isLoading } = useUser();
-  console.log(isFavouritePage);
 
   // Variables to display elements on screen
   const [showDeleteRecipes] = useState(isFavouritePage);

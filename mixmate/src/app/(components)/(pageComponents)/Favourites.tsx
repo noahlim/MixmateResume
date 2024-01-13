@@ -45,6 +45,7 @@ function Favourites() {
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const dispatch = useDispatch();
 
+  // Loading recipe options
   let loadFavoriteRecipes = () => {
     makeRequest(
       API_ROUTES.favourite,

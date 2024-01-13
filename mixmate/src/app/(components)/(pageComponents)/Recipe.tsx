@@ -14,7 +14,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { Typography, CardContent } from "@mui/material";
+import { Typography, CardContent, Pagination, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -79,6 +79,19 @@ function RecipesComponent() {
   const recipeNameRef = useRef(null);
   const dispatch = useDispatch();
 
+  //pagination
+  const itemsPerPage = 11; // Adjust as needed
+  const [page, setPage] = useState(1);
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const displayedRecipes = recipesFiltered?.slice(startIndex, endIndex);
+
   let loadAllRecipes = () => {
     if (recipeAllRecipes.length === 0) {
       makeRequest(
@@ -92,7 +105,9 @@ function RecipesComponent() {
           // Done
           setLoadingPage(false);
         }
-      );
+      ).catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      });
     } else {
       setLoadingPage(false);
       setRecipesFiltered(recipeAllRecipes);
@@ -111,7 +126,9 @@ function RecipesComponent() {
           loadAllRecipes();
         }
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+    });
   let loadIngredients = () => {
     if (allIngredients.length === 0) {
       makeRequest(
@@ -134,7 +151,9 @@ function RecipesComponent() {
             loadAlcoholicTypes();
           }
         }
-      );
+      ).catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      });
     } else {
       setRecipeIngredients(allIngredients.map((x) => x.strIngredient1).sort());
       loadAlcoholicTypes();
@@ -151,7 +170,9 @@ function RecipesComponent() {
           loadIngredients();
         }
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+    });
 
   let loadCategories = () =>
     makeRequest(
@@ -166,7 +187,9 @@ function RecipesComponent() {
           loadGlasses();
         }
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+    });
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(APPLICATION_PAGE.root);
@@ -316,14 +339,16 @@ function RecipesComponent() {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { recipe },
+      { user: user, recipe: recipe },
       (response) => {
         if (response.isOk)
           showToastMessage("Recipe", response.message, SEVERITY.Success);
         else showToastMessage("Recipe", response.message, SEVERITY.Warning);
         setLoadingPage(false);
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+    });
   };
 
   return (
@@ -561,8 +586,8 @@ function RecipesComponent() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {recipesFiltered?.length > 0 ? (
-                  recipesFiltered?.map((drink) => (
+                {displayedRecipes?.length > 0 ? (
+                  displayedRecipes?.map((drink) => (
                     <RecipeRow
                       key={drink.idDrink}
                       drink={drink}
@@ -590,6 +615,16 @@ function RecipesComponent() {
           </div>
         </Grid>
       </Grid>
+      <Stack
+        spacing={2}
+        style={{ justifyContent: "center", marginTop: "20px" }}
+      >
+        <Pagination
+          count={Math.ceil(recipesFiltered?.length / itemsPerPage)}
+          page={page}
+          onChange={handleChange}
+        />
+      </Stack>
     </>
   );
 }

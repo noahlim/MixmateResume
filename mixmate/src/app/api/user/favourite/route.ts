@@ -22,7 +22,6 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
     }
     let result = new Result(true);
     const { user } = await getSession();
-    console.log(user);
     try {
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
@@ -58,7 +57,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
 }
 )
 
-export const GET = withApiAuthRequired(async function GET(req: NextRequest) {
+export const GET = withApiAuthRequired(async function getAllFavourites(req: NextRequest) {
   //rate limiting
   if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
     return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
