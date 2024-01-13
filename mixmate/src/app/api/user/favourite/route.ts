@@ -4,6 +4,7 @@ import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
 import { userCollection, userFavouriteCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
+import { ObjectId } from "mongodb";
 export const POST = withApiAuthRequired(async function postFavourite(req: NextRequest) {
   //rate limiting
   if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
@@ -16,14 +17,11 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
     }
     else {
-      if (!body.user)
-        return NextResponse.json({ error: 'No user data passed' }, { status: 404 });
       if (!body.recipe)
         return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
     }
     let result = new Result(true);
     const { user } = await getSession();
-
     try {
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
@@ -40,7 +38,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       favouriteRecipe.created_at = new Date().toISOString();
       favouriteRecipe.nickname = user.nickname;
 
-      let favouriteExist = await dbRtns.findOne(db, userFavouriteCollection, { sub: body.user.sub, idDrink: body.recipe.idDrink });
+      let favouriteExist = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub, idDrink: body.recipe.idDrink });
 
       if (isSet(favouriteExist)) {
         result.setFalse("The recipe is already on your favourite list.")
@@ -75,11 +73,53 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     //response is the object deleted
     const result = new Result(true);
-    result.data(response);
+    result.data = response;
     result.message = response.length > 0 ? `${response.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
-    return NextResponse.json({ error: err }, { status: 400 });
+    console.log(err);
+    return NextResponse.json({ error: err.message }, { status: 400 });
 
   }
+});
+export const DELETE = withApiAuthRequired(async function deleteFavourite(req: NextRequest) {
+  //rate limiting
+  if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
+    return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+  }
+
+  const drinkId = new ObjectId(req.nextUrl.searchParams.get('_id'));
+
+  if (!drinkId) {
+    return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
+  }
+  const { user } = await getSession();
+
+
+  try {
+    let db = await dbRtns.getDBInstance();
+
+    let response = await dbRtns.findOne(db, userFavouriteCollection, { _id: drinkId });
+    if (!response) {
+      return NextResponse.json({ error: 'Selected recipe does not exist on your list.' }, { status: 404 })
+    }
+    //when the unique id of the user and the id of the user who created
+    //the favourite list do not match    
+    console.log(response);
+    if (user.sub !== response.sub) {
+      return NextResponse.json({ error: "The user is not authorized to delete this recipe." }, { status: 401 });
+    }
+    
+    //response is the object deleted
+    response = await dbRtns.deleteOne(db, userFavouriteCollection, { _id: drinkId });
+    if (response) {
+      const result = new Result(true);
+      result.message = "Selected recipe has been deleted successfully";
+      return NextResponse.json(result, { status: 200 });
+    }
+  } catch (err) {
+    return NextResponse.json({error:err}, { status: 400 });
+
+  }
+
 });

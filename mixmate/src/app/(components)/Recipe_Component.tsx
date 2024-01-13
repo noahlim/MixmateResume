@@ -60,15 +60,12 @@ function Recipe_Component(props) {
     setLoadingPage,
     showToastMessage,
     reloadRecipes,
-    recipeCategories,
-    recipeAlcoholicTypes,
-    recipeGlasses,
   } = props;
 
   const pathName = usePathname();
   const isFavouritePage =
-    pathName === APPLICATION_PAGE.favourites ||
-    pathName === APPLICATION_PAGE.myRecipes;
+    title ==="My Favourite Recipes" ||
+    pathName === APPLICATION_PAGE.myRecipes;    
   const { user, error, isLoading } = useUser();
 
   // Variables to display elements on screen
@@ -82,7 +79,7 @@ function Recipe_Component(props) {
   const [modalDeleteRecipeOpen, setModalDeleteRecipeOpen] = useState(false);
   const [infoRecipeToDelete, setInfoRecipeToDelete] = useState(null);
   let messageBoxDeleteRecipe = (id, recipeName) => {
-    setInfoRecipeToDelete({ id, recipeName });
+    setInfoRecipeToDelete({ _id:id, recipeName });
     setModalDeleteRecipeOpen(true);
   };
   let btnRemoveRecipe_onClick = () => {
@@ -93,7 +90,7 @@ function Recipe_Component(props) {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.delete,
-      infoRecipeToDelete.id,
+      {_id:infoRecipeToDelete._id},
       (response) => {
         showToastMessage("Favorites", response.message, SEVERITY.Success);
         setInfoRecipeToDelete(null);
@@ -131,7 +128,7 @@ function Recipe_Component(props) {
     setModalShareRecipeOpen(true);
   };
   let copySharedToClipboard = () => {
-    let urlParams = user.email.split("@")[0]+ "|" + selectedRecipeToShare.id;
+    let urlParams = user.email.split("@")[0] + "|" + selectedRecipeToShare.id;
     urlParams = "?s=" + window.btoa(urlParams);
     clipboard(MIXMATE_DOMAIN + APPLICATION_PAGE.sharedPublic + urlParams);
     showToastMessage("Social", "Link copied to clipboard!", SEVERITY.Success);
@@ -222,7 +219,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => btnRemoveRecipe_onClick()}
               color="error"
-              variant="contained"
+              variant="outlined"
               startIcon={<DeleteForeverIcon />}
             >
               Yes, remove
@@ -230,7 +227,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => setModalDeleteRecipeOpen(false)}
               color="primary"
-              variant="contained"
+              variant="outlined"
               startIcon={<ClearIcon />}
             >
               No, cancel
@@ -238,7 +235,6 @@ function Recipe_Component(props) {
           </DialogActions>
         </Dialog>
       )}
-
 
       {/* Share recipes */}
       {showShareOption && (
@@ -265,7 +261,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => btnShareInSocial_onclick()}
               color="success"
-              variant="contained"
+              variant="outlined"
               startIcon={<ShareIcon />}
             >
               Share in social
@@ -273,7 +269,7 @@ function Recipe_Component(props) {
             <Button
               onClick={() => setModalShareRecipeOpen(false)}
               color="error"
-              variant="contained"
+              variant="outlined"
               startIcon={<ClearIcon />}
             >
               Cancel
@@ -304,19 +300,14 @@ function Recipe_Component(props) {
           <TableBody>
             {/* Print recipes on screen */}
             {recipes?.map((drink) => {
+              //console.log(drink);
               // Format ingredients
-              let ingredients = [];
-              for (let x = 0; x <= 99; x++) {
-                if (isSet(drink.recipeIngredients[x]))
-                  ingredients.push(
-                    <Typography className="margin-left-35px">
-                      {drink.recipeIngredients[x]}{" "}
-                      <i>({drink.recipeMeasure[x]})</i>
-                    </Typography>
-                  );
-                else break;
-              }
-
+              const ingredientsList = drink.ingredients?.map((ing, index) => (
+                <Typography className="margin-left-35px" key={index}>
+                  {ing.ingredient} <i>({ing.measure})</i>
+                </Typography>
+              ));
+              //console.log(ingredientsList);
               // Title icon
               let recipeIconItem = (
                 <FavoriteIcon
@@ -331,7 +322,8 @@ function Recipe_Component(props) {
               if (pathName === APPLICATION_PAGE.social) {
                 recipeIconItem = (
                   <Tooltip
-                    title={"Shared by: " + drink.userNickname}
+                    //title={"Shared by: " + drink.userNickname}
+                    title="Test User"
                     placement="top"
                   >
                     <InfoIcon color={"success"} className="margin-left-20px" />
@@ -343,16 +335,18 @@ function Recipe_Component(props) {
               let recipeComplementaryInfo = (
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                   <InputLabel>Ingredients:</InputLabel>
-                  {ingredients}
+                  {ingredientsList}
                   <br></br>
                   <InputLabel>How to prepare:</InputLabel>
                   <Typography className="margin-left-35px">
-                    {drink.recipeInstructions}
+                    {drink.strInstructions}
                   </Typography>
                   <br></br>
                   <InputLabel>Author:</InputLabel>
                   <Typography className="margin-left-35px margin-bottom-15px">
-                    {drink.recipeAuthor}
+                    {isSet(drink.strAuthor)
+                      ? drink.strAuthor
+                      : "www.cocktailDB.com"}
                   </Typography>
                 </Grid>
               );
@@ -387,216 +381,219 @@ function Recipe_Component(props) {
               }
 
               return (
-                <React.Fragment>
-                  <TableRow sx={{ "& > *": { borderTop: 0 } }}>
-                    <TableCell
-                      style={{ paddingBottom: 0, paddingTop: 0 }}
-                      colSpan={2}
-                    >
-                      <Box sx={{ margin: 3 }}>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={12} md={6} lg={4}>
-                            <img
-                              style={{ width: "90%", borderRadius: "7%" }}
-                              src={drink.recipePicture}
-                            ></img>
-                          </Grid>
-                          <Grid item xs={12} sm={12} md={6} lg={8}>
-                            <div className="text-tangerine text-55px margin-left-35px">
-                              {drink.recipeName}
-                              {recipeIconItem}
-                            </div>
+                <TableRow
+                  sx={{ "& > *": { borderTop: 0 } }}
+                  key={drink.idDrink}
+                >
+                  <TableCell
+                    style={{ paddingBottom: 0, paddingTop: 0 }}
+                    colSpan={2}
+                  >
+                    <Box sx={{ margin: 3 }}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={12} md={6} lg={4}>
+                          <img
+                            style={{ width: "90%", borderRadius: "7%" }}
+                            src={
+                              drink.strDrinkThumb
+                                ? drink.strDrinkThumb
+                                : "not-found-icon.png"
+                            }
+                          ></img>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={8}>
+                          <div className="text-tangerine text-55px margin-left-35px">
+                            {drink.strDrink}
+                            {recipeIconItem}
+                          </div>
 
-                            {/* Category */}
-                            <FormControl variant="standard">
-                              <InputLabel htmlFor="input-with-icon-adornment">
-                                Category
-                              </InputLabel>
-                              <Input
-                                id="input-with-icon-adornment"
-                                startAdornment={
-                                  <InputAdornment position="start">
-                                    <ClassIcon />
-                                  </InputAdornment>
+                          {/* Category */}
+                          <FormControl variant="standard">
+                            <InputLabel htmlFor="input-with-icon-adornment">
+                              Category
+                            </InputLabel>
+                            <Input
+                              id="input-with-icon-adornment"
+                              startAdornment={
+                                <InputAdornment position="start">
+                                  <ClassIcon />
+                                </InputAdornment>
+                              }
+                              value={drink.strCategory}
+                            />
+                          </FormControl>
+                          <br />
+                          <br />
+
+                          {/* Alcoholic type */}
+                          <FormControl variant="standard">
+                            <InputLabel htmlFor="input-with-icon-adornment">
+                              Alcoholic type
+                            </InputLabel>
+                            <Input
+                              id="input-with-icon-adornment"
+                              startAdornment={
+                                <InputAdornment position="start">
+                                  <LocalBarIcon />
+                                </InputAdornment>
+                              }
+                              value={drink.strAlcoholic}
+                            />
+                          </FormControl>
+                          <br />
+                          <br />
+
+                          {/* Glass type */}
+                          <FormControl variant="standard">
+                            <InputLabel htmlFor="input-with-icon-adornment">
+                              Glass
+                            </InputLabel>
+                            <Input
+                              id="input-with-icon-adornment"
+                              startAdornment={
+                                <InputAdornment position="start">
+                                  <LocalDrinkIcon />
+                                </InputAdornment>
+                              }
+                              value={drink.strGlass}
+                            />
+                          </FormControl>
+                          <br />
+                          <br />
+                        </Grid>
+
+                        {recipeComplementaryInfo}
+                        {showReviewsOption && reviewComments}
+
+                        <Grid
+                          container
+                          justifyContent="end"
+                          item
+                          xs={12}
+                          sm={12}
+                          md={12}
+                          lg={12}
+                          xl={12}
+                        >
+                          {showDeleteRecipes && (
+                            <Tooltip
+                              title="Delete from favourites"
+                              placement="top"
+                            >
+                              <IconButton
+                                color="error"
+                                onClick={() =>
+                                  messageBoxDeleteRecipe(
+                                    drink._id,
+                                    drink.recipeName
+                                  )
                                 }
-                                value={drink.recipeCategory}
-                              />
-                            </FormControl>
-                            <br />
-                            <br />
-
-                            {/* Alcoholic type */}
-                            <FormControl variant="standard">
-                              <InputLabel htmlFor="input-with-icon-adornment">
-                                Alcoholic type
-                              </InputLabel>
-                              <Input
-                                id="input-with-icon-adornment"
-                                startAdornment={
-                                  <InputAdornment position="start">
-                                    <LocalBarIcon />
-                                  </InputAdornment>
-                                }
-                                value={drink.recipeAlcoholicType}
-                              />
-                            </FormControl>
-                            <br />
-                            <br />
-
-                            {/* Glass type */}
-                            <FormControl variant="standard">
-                              <InputLabel htmlFor="input-with-icon-adornment">
-                                Glass
-                              </InputLabel>
-                              <Input
-                                id="input-with-icon-adornment"
-                                startAdornment={
-                                  <InputAdornment position="start">
-                                    <LocalDrinkIcon />
-                                  </InputAdornment>
-                                }
-                                value={drink.recipeGlass}
-                              />
-                            </FormControl>
-                            <br />
-                            <br />
-                          </Grid>
-
-                          {recipeComplementaryInfo}
-                          {showReviewsOption && reviewComments}
-
-                          <Grid
-                            container
-                            justifyContent="end"
-                            item
-                            xs={12}
-                            sm={12}
-                            md={12}
-                            lg={12}
-                            xl={12}
-                          >
-                            {showDeleteRecipes && (
-                              <Tooltip
-                                title="Delete from favourites"
-                                placement="top"
                               >
-                                <IconButton
-                                  color="error"
-                                  onClick={() =>
-                                    messageBoxDeleteRecipe(
-                                      drink._id,
-                                      drink.recipeName
-                                    )
-                                  }
-                                >
-                                  <DeleteForeverIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                            {showShareOption && (
-                              <Tooltip title="Share recipe" placement="top">
-                                <IconButton
-                                  color="success"
-                                  onClick={() =>
-                                    modalShareRecipe_onOpen(
-                                      drink._id,
-                                      drink.recipeName
-                                    )
-                                  }
-                                >
-                                  <ShareIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                            {showAddEditRecipes && (
-                              <Tooltip
-                                title="Create a new recipe"
-                                placement="top"
+                                <DeleteForeverIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {showShareOption && (
+                            <Tooltip title="Share recipe" placement="top">
+                              <IconButton
+                                color="success"
+                                onClick={() =>
+                                  modalShareRecipe_onOpen(
+                                    drink._id,
+                                    drink.recipeName
+                                  )
+                                }
+                              >
+                                <ShareIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {showAddEditRecipes && (
+                            <Tooltip
+                              title="Create a new recipe"
+                              placement="top"
+                            >
+                              <IconButton
+                                color="primary"
+                                onClick={() =>
+                                  modalAddEditRecipe_onOpen(drink.recipeId)
+                                }
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {showReviewsOption &&
+                          selectedRecipeToComment?._id !== drink._id ? (
+                            <Tooltip title="Add comment" placement="top">
+                              <IconButton
+                                color="primary"
+                                onClick={() => txtWriteReview_onOpen(drink._id)}
+                              >
+                                <MapsUgcIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ) : null}
+                          {showReviewsOption &&
+                            showCommentsBox &&
+                            selectedRecipeToComment?._id === drink._id && (
+                              <Paper
+                                component="form"
+                                sx={{
+                                  p: "2px 4px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  width: "80%",
+                                }}
                               >
                                 <IconButton
                                   color="primary"
-                                  onClick={() =>
-                                    modalAddEditRecipe_onOpen(drink.recipeId)
-                                  }
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                            {showReviewsOption &&
-                            selectedRecipeToComment?._id !== drink._id ? (
-                              <Tooltip title="Add comment" placement="top">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() =>
-                                    txtWriteReview_onOpen(drink._id)
-                                  }
+                                  onClick={() => txtWriteReview_onClose()}
                                 >
                                   <MapsUgcIcon />
                                 </IconButton>
-                              </Tooltip>
-                            ) : null}
-                            {showReviewsOption &&
-                              showCommentsBox &&
-                              selectedRecipeToComment?._id === drink._id && (
-                                <Paper
-                                  component="form"
-                                  sx={{
-                                    p: "2px 4px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    width: "80%",
-                                  }}
+                                <InputBase
+                                  sx={{ ml: 1, flex: 1 }}
+                                  placeholder={
+                                    "Review and grade " +
+                                    drink.userNickname +
+                                    "'s recipe"
+                                  }
+                                  onChange={(e) =>
+                                    setReviewValue(e.target.value)
+                                  }
+                                />
+                                <Rating
+                                  value={ratingValue}
+                                  onChange={(event, newValue) =>
+                                    setRatingValue(newValue)
+                                  }
+                                />
+                                <Divider
+                                  sx={{ height: 28, m: 0.5 }}
+                                  orientation="vertical"
+                                />
+                                <IconButton
+                                  type="button"
+                                  color="error"
+                                  onClick={() => txtWriteReview_onClose()}
                                 >
-                                  <IconButton
-                                    color="primary"
-                                    onClick={() => txtWriteReview_onClose()}
-                                  >
-                                    <MapsUgcIcon />
-                                  </IconButton>
-                                  <InputBase
-                                    sx={{ ml: 1, flex: 1 }}
-                                    placeholder={
-                                      "Review and grade " +
-                                      drink.userNickname +
-                                      "'s recipe"
-                                    }
-                                    onChange={(e) =>
-                                      setReviewValue(e.target.value)
-                                    }
-                                  />
-                                  <Rating
-                                    value={ratingValue}
-                                    onChange={(event, newValue) =>
-                                      setRatingValue(newValue)
-                                    }
-                                  />
-                                  <Divider
-                                    sx={{ height: 28, m: 0.5 }}
-                                    orientation="vertical"
-                                  />
-                                  <IconButton
-                                    type="button"
-                                    color="error"
-                                    onClick={() => txtWriteReview_onClose()}
-                                  >
-                                    <CancelIcon />
-                                  </IconButton>
-                                  <IconButton
-                                    type="button"
-                                    color="success"
-                                    onClick={() => btnWriteReview_onCkick()}
-                                  >
-                                    <CheckCircleIcon />
-                                  </IconButton>
-                                </Paper>
-                              )}
-                          </Grid>
+                                  <CancelIcon />
+                                </IconButton>
+                                <IconButton
+                                  type="button"
+                                  color="success"
+                                  onClick={() => btnWriteReview_onCkick()}
+                                >
+                                  <CheckCircleIcon />
+                                </IconButton>
+                              </Paper>
+                            )}
                         </Grid>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>
+                      </Grid>
+                    </Box>
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>

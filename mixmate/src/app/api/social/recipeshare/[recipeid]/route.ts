@@ -6,12 +6,11 @@ import { ObjectId } from "mongodb";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { isSet, Result } from "@/app/_utilities/_server/util";
 
-export const GET = async (req: NextRequest) => {
-    let result = new Result();
-
+export const GET = withApiAuthRequired(async function getCustomRecipeById(req: NextRequest) {
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
     }
+    let result = new Result();
 
     try {
         const params = req.nextUrl.pathname.toString().split("/");
@@ -29,8 +28,8 @@ export const GET = async (req: NextRequest) => {
             result.setFalse('Recipe not found');
 
         // Done
-        return result;
+        return NextResponse.json(result, { status: 200 });
     } catch (err) {
         return NextResponse.json({ error: err }, { status: 400 });
     }
-}
+});

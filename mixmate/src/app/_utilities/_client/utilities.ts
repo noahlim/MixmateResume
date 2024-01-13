@@ -1,12 +1,6 @@
 import { END_POINT } from "./constants";
 import { GetAccessToken } from "@auth0/nextjs-auth0";
 
-interface FetchOptions {
-  method: string;
-  headers?: Record<string, string>;
-  body?: string;
-}
-
 const doPost = (api, data, funOk, funErr = null) => {
   let query =
     'query {server(api: "' +
@@ -25,17 +19,11 @@ const doPost = (api, data, funOk, funErr = null) => {
     .catch((error) => (funErr ? funErr(error) : alert(error.message)));
 };
 
-
-interface FetchOptions {
-  method: string;
+type FetchOptions = {
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
-  body?: string;
-}
-
-interface FetchResponse {
-  data: any;
-  status: number;
-}
+  body?: FormData | string;
+};
 
 
 function jsonToQueryString(baseUrl: string, apiRoute: string, params: Record<string, string> | null = null): string {
@@ -56,7 +44,6 @@ async function executeFetch(url: string, options: RequestInit, funOk?: (data: an
       throw error;  
   }
 }
-
 const makeRequest = async (
   apiRoute: string, 
   method: 'GET' | 'POST' | 'PUT' | 'DELETE', 
@@ -67,22 +54,28 @@ const makeRequest = async (
   let fullUrl: string;
   let fetchOptions: FetchOptions = { method };
 
-  switch (method) {
-    case "GET":
-      fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
-      break;
-    case "POST":
-    case "PUT":
-      fullUrl = `${END_POINT}/${apiRoute}`;
-      fetchOptions.headers = { "Content-Type": "application/json" };
-      fetchOptions.body = JSON.stringify(data);
-      break;
-    case "DELETE":      
-      fullUrl = `${END_POINT}/${apiRoute}/${data}`;
-      console.log(fullUrl);
-      break;
-    default:
-      throw new Error('Unsupported HTTP method');
+  if (data instanceof FormData) {
+    // For FormData, let the browser set the Content-Type
+    fullUrl = `${END_POINT}/${apiRoute}`;
+    fetchOptions.body = data;
+  } else {
+    switch (method) {
+      case "GET":
+        fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
+        break;
+      case "POST":
+      case "PUT":
+        fullUrl = `${END_POINT}/${apiRoute}`;
+        fetchOptions.headers = { "Content-Type": "application/json" };
+        fetchOptions.body = JSON.stringify(data);
+        break;
+      case "DELETE":      
+        fullUrl =jsonToQueryString(END_POINT, apiRoute, data);
+        console.log(fullUrl);
+        break;
+      default:
+        throw new Error('Unsupported HTTP method');
+    }
   }
 
   try {
