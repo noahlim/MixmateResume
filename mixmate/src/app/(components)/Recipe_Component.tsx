@@ -60,18 +60,14 @@ function Recipe_Component(props) {
     setLoadingPage,
     showToastMessage,
     reloadRecipes,
-    recipeCategories,
-    recipeAlcoholicTypes,
-    recipeGlasses,
   } = props;
 
   const pathName = usePathname();
-  console.log(pathName);
-  console.log(APPLICATION_PAGE.favourites);
   const isFavouritePage =
-    pathName === APPLICATION_PAGE.favourites ||
-    pathName === APPLICATION_PAGE.myRecipes;
+    title ==="My Favourite Recipes" ||
+    pathName === APPLICATION_PAGE.myRecipes;    
   const { user, error, isLoading } = useUser();
+  console.log(isFavouritePage);
 
   // Variables to display elements on screen
   const [showDeleteRecipes] = useState(isFavouritePage);
@@ -84,7 +80,7 @@ function Recipe_Component(props) {
   const [modalDeleteRecipeOpen, setModalDeleteRecipeOpen] = useState(false);
   const [infoRecipeToDelete, setInfoRecipeToDelete] = useState(null);
   let messageBoxDeleteRecipe = (id, recipeName) => {
-    setInfoRecipeToDelete({ id, recipeName });
+    setInfoRecipeToDelete({ _id:id, recipeName });
     setModalDeleteRecipeOpen(true);
   };
   let btnRemoveRecipe_onClick = () => {
@@ -95,7 +91,7 @@ function Recipe_Component(props) {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.delete,
-      infoRecipeToDelete.id,
+      {_id:infoRecipeToDelete._id},
       (response) => {
         showToastMessage("Favorites", response.message, SEVERITY.Success);
         setInfoRecipeToDelete(null);
