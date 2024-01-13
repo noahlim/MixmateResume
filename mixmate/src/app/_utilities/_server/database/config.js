@@ -10,3 +10,7 @@ export const userRecipeCollection = process.env.USER_RECIPECOLLECTION;
 export const userIngredientCollection = process.env.USER_INGREDIENTCOLLECTION;
 export const userFavouriteCollection = process.env.USER_FAVOURITES_COLLECTION;
 export const sharedRecipeCollection = process.env.RECIPES_SHARED_COLLECTION;
+export const aws_access_key = process.env.AWS_SW3_ACCESS_KEY;
+export const aws_secret_key = process.env.AWS_SW3_SECRET_ACCESS_KEY;
+export const bucket_region = process.env.BUCKET_REGION;
+export const bucket_name = process.env.BUCKET_NAME;

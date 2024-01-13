@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
-import { doPost, isNotSet, isSet, makeRequest } from "@/app/_utilities/_client/utilities";
+import {
+  doPost,
+  isNotSet,
+  isSet,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { Typography } from "@mui/material";
+import { TableBody, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
@@ -25,6 +30,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
+import { generateKey } from "crypto";
+import { generateRandomKey } from "../_utilities/_server/util";
 
 function AddEditRecipe_Component(props) {
   const {
@@ -48,9 +55,7 @@ function AddEditRecipe_Component(props) {
   const [currentRecipeRowId, setCurrentRecipeRowId] = useState(null);
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
-  const [currentRecipeImage, setCurrentRecipeImage] = useState<
-    string | ArrayBuffer
-  >("");
+  const [currentRecipeImage, setCurrentRecipeImage] = useState(null);
   const [currentRecipeCategory, setCurrentRecipeCategory] = useState("");
   const [currentRecipeAlcoholicType, setCurrentRecipeAlcoholicType] =
     useState("");
@@ -62,30 +67,36 @@ function AddEditRecipe_Component(props) {
 
   // Load data if recipe ID exist
   let loadRecipeIfExist = () => {
-    // if(isSet(recipeId) && recipeIdLoaded === false)
-    // {
+    if (isSet(recipeId) && recipeIdLoaded === false) {
+      makeRequest(
+        API_ROUTES.recipeShare,
+        REQ_METHODS.get,
+        recipeId,
+        (response) => {
+          setOriginalListIngredients(
+            response.data.recipeIngredients.map((x) => x)
+          );
+          setOriginalListMeasure(response.data.recipeMeasure.map((x) => x));
 
-    //     doPost(API.CustomRecipes.getRecipeById, {userNickname: userSession, recipeId: recipeId}, (response) =>
-    //     {
-    //         if(response.isOk)
-    //         {
-    //             setOriginalListIngredients(response.data.recipeIngredients.map(x => x));
-    //             setOriginalListMeasure(response.data.recipeMeasure.map(x => x));
-
-    //             setCurrentRecipeRowId(response.data._id);
-    //             setCurrentRecipeType(response.data.type);
-    //             setCurrentRecipeName(response.data.recipeName);
-    //             setCurrentRecipeImage(response.data.recipePicture);
-    //             setCurrentRecipeCategory(response.data.recipeCategory);
-    //             setCurrentRecipeAlcoholicType(response.data.recipeAlcoholicType);
-    //             setCurrentRecipeGlass(response.data.recipeGlass);
-    //             setCurrentRecipeIngredients(response.data.recipeIngredients);
-    //             setCurrentRecipeMeasure(response.data.recipeMeasure);
-    //             setCurrentRecipeInstructions(response.data.recipeInstructions);
-    //             setRecipeIdLoaded(true);
-    //         }
-    //     });
-    // }
+          setCurrentRecipeRowId(response.data._id);
+          setCurrentRecipeName(response.data.strDrink);
+          setCurrentRecipeImage(response.data.strDrinkThumb);
+          setCurrentRecipeCategory(response.data.strCategory);
+          setCurrentRecipeAlcoholicType(response.data.strAlcoholic);
+          setCurrentRecipeGlass(response.data.strGlass);
+          const ingredients = [];
+          const measures = [];
+          response.data.ingredients.foreach((ing)=>{
+            ingredients.push(ing.ingredient);
+            measures.push(ing.measure);
+          })
+          setCurrentRecipeIngredients(ingredients);
+          setCurrentRecipeMeasure(measures);
+          setCurrentRecipeInstructions(response.data.strInstructions);
+          setRecipeIdLoaded(true);
+        }
+      );
+    }
 
     return recipeId;
   };
@@ -112,13 +123,8 @@ function AddEditRecipe_Component(props) {
 
     closeModal();
   };
-  let fleSelectImagr_onChange = (file) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result;
-      setCurrentRecipeImage(base64);
-    };
-    reader.readAsDataURL(file);
+  let fileSelectImage_onChange = (file) => {
+    setCurrentRecipeImage(file);
   };
   let btnAddNewIngredient_onClick = () => {
     // Validations
@@ -157,7 +163,7 @@ function AddEditRecipe_Component(props) {
 
     showToastMessage("Ingredients", "Ingredient removed", SEVERITY.Success);
   };
-  let btnAddNewRecipe_onClick = () => {
+  let btnAddNewRecipe_onClick = async () => {
     // Validate data
     if (isNotSet(currentRecipeName))
       showToastMessage(
@@ -204,44 +210,74 @@ function AddEditRecipe_Component(props) {
               measure: currentRecipeMeasure[i],
             });
         }
+        let fileName = "";
+        if (currentRecipeImage) {
+          const formData = new FormData();
+          formData.append("file", currentRecipeImage);
+          await makeRequest(
+            API_ROUTES.image,
+            REQ_METHODS.post,
+            formData,
+            (response) => {
+              if (response.message === "File has been added to the storage.") {
+                console.log(response.data);
+                fileName = response.data;
+              }
+            }
+          );
+        }
+
         let newRecipeInfo = {
           strDrink: currentRecipeName,
-          strDrinkThumb: currentRecipeImage,
+          strDrinkThumb: fileName,
           strCategory: currentRecipeCategory,
           strAlcoholic: currentRecipeAlcoholicType,
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
         };
-        makeRequest(API_ROUTES.recipeShare, REQ_METHODS.post, {recipe: newRecipeInfo}, (response)=>{
+
+        //if image is not included, only send {recipe:newRecipeInfo}
+        //as body, if image is included filename and image will be sent too
+
+        makeRequest(
+          API_ROUTES.recipeShare,
+          REQ_METHODS.post,
+          {
+            recipe: newRecipeInfo,
+            filename: fileName,
+          },
+          (response) => {
             if (response.isOk) {
-                closeNewRecipeModal_onClick();
-                showToastMessage(
-                  "New Recipe",
-                  newRecipeInfo.strDrink + " added!",
-                  SEVERITY.Success
-                );
-    
-                // Reload recipes list
-                reloadPage();
-              } else
-                showToastMessage("New Recipe", response.message, SEVERITY.Error);
-    
-              setLoadingPage(false);
-        })
+              closeNewRecipeModal_onClick();
+              showToastMessage(
+                "New Recipe",
+                newRecipeInfo.strDrink + " added!",
+                SEVERITY.Success
+              );
+
+              // Reload recipes list
+              reloadPage();
+            } else
+              showToastMessage("New Recipe", response.message, SEVERITY.Error);
+
+            setLoadingPage(false);
+          }
+        );
       } else {
         // Update recipe info
         const ingredientsArray = [];
 
         for (let i = 0; i < currentRecipeIngredients.length; i++) {
-            if (currentRecipeIngredients[i] && currentRecipeMeasure[i])
-              ingredientsArray.push({
-                ingredient: currentRecipeIngredients[i],
-                measure: currentRecipeMeasure[i],
-              });
-          }
+          if (currentRecipeIngredients[i] && currentRecipeMeasure[i])
+            ingredientsArray.push({
+              ingredient: currentRecipeIngredients[i],
+              measure: currentRecipeMeasure[i],
+            });
+        }
+
         let newRecipeInfo = {
-          _id: currentRecipeRowId,          
+          _id: currentRecipeRowId,
           strDrink: currentRecipeName,
           strDrinkThumb: currentRecipeImage,
           strCategory: currentRecipeCategory,
@@ -251,22 +287,27 @@ function AddEditRecipe_Component(props) {
           ingredients: ingredientsArray,
         };
 
-        makeRequest(API_ROUTES.recipeShare, REQ_METHODS.put, {recipe: newRecipeInfo}, (response)=>{
+        makeRequest(
+          API_ROUTES.recipeShare,
+          REQ_METHODS.put,
+          { recipe: newRecipeInfo },
+          (response) => {
             if (response.isOk) {
-                closeNewRecipeModal_onClick();
-                showToastMessage(
-                  "New Recipe",
-                  newRecipeInfo.strDrink + " added!",
-                  SEVERITY.Success
-                );
-    
-                // Reload recipes list
-                reloadPage();
-              } else
-                showToastMessage("New Recipe", response.message, SEVERITY.Error);
-    
-              setLoadingPage(false);
-        })
+              closeNewRecipeModal_onClick();
+              showToastMessage(
+                "New Recipe",
+                newRecipeInfo.strDrink + " added!",
+                SEVERITY.Success
+              );
+
+              // Reload recipes list
+              reloadPage();
+            } else
+              showToastMessage("New Recipe", response.message, SEVERITY.Error);
+
+            setLoadingPage(false);
+          }
+        );
       }
     }
   };
@@ -352,65 +393,66 @@ function AddEditRecipe_Component(props) {
               type="file"
               accept="image/*"
               className="file-input"
-              onChange={(e) => fleSelectImagr_onChange(e.target.files[0])}
+              onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
             />
-            LOAD IMAGE
           </label>
         </DialogContent>
         <DialogTitle>Preparation</DialogTitle>
         <DialogContent>
           <Table>
-            <TableRow>
-              <TableCell>
-                <TextField
-                  margin="dense"
-                  label="Ingredient"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newIngredient}
-                  onChange={(e) => setNewIngredient(e.target.value)}
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  margin="dense"
-                  label="Measure"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newMeasure}
-                  onChange={(e) => setNewMeasure(e.target.value)}
-                />
-              </TableCell>
-              <TableCell>
-                <IconButton
-                  onClick={() => btnAddNewIngredient_onClick()}
-                  color="primary"
-                >
-                  <AddIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-            {currentRecipeIngredients?.map((ingredient, index) => {
-              return (
-                <TableRow>
-                  <TableCell colSpan={2}>
-                    <Typography className="margin-left-35px">
-                      {ingredient} <i>({currentRecipeMeasure[index]})</i>
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={() => btnRemoveIngredient_onClick(index)}
-                      color="error"
-                    >
-                      <ClearIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  <TextField
+                    margin="dense"
+                    label="Ingredient"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={newIngredient}
+                    onChange={(e) => setNewIngredient(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    margin="dense"
+                    label="Measure"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={newMeasure}
+                    onChange={(e) => setNewMeasure(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    onClick={() => btnAddNewIngredient_onClick()}
+                    color="primary"
+                  >
+                    <AddIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+              {currentRecipeIngredients?.map((ingredient, index) => {
+                return (
+                  <TableRow key={index}>
+                    <TableCell colSpan={2}>
+                      <Typography className="margin-left-35px">
+                        {ingredient} <i>({currentRecipeMeasure[index]})</i>
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={() => btnRemoveIngredient_onClick(index)}
+                        color="error"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
           </Table>
           <TextField
             margin="dense"
@@ -425,6 +467,23 @@ function AddEditRecipe_Component(props) {
           <br />
         </DialogContent>
         <DialogActions>
+          <Button
+            onClick={() => {
+              const formData = new FormData();
+              formData.append("file", currentRecipeImage);
+              let newRecipeInfo = {
+                strDrink: currentRecipeName,
+                strDrinkThumb: currentRecipeImage?.name,
+                strCategory: currentRecipeCategory,
+                strAlcoholic: currentRecipeAlcoholicType,
+                strInstructions: currentRecipeInstructions,
+                strGlass: currentRecipeGlass,
+              };
+              console.log(currentRecipeImage?.name);
+            }}
+          >
+            {"Verify"}
+          </Button>
           <Button
             onClick={() => btnAddNewRecipe_onClick()}
             color="success"

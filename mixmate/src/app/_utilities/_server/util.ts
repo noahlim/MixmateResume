@@ -21,6 +21,19 @@ interface IResult {
   setTrue(msg?: string): void;
   setFalse(msg?: string): void;
 }
+function generateRandomKey(length) : string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  // Adding a datetime stamp at the end for uniqueness
+  const datetimeStamp = new Date().toISOString().replace(/[^0-9]/g, "");
+  result += "_" + datetimeStamp;
+  return result;
+}
 
 // Implementing the interface
 class Result implements IResult {
@@ -118,5 +131,5 @@ async function fetchFromCocktailDbApi(parameter) {
 
 export
 {
-  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody, fetchFromCocktailDbApi
+  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody, fetchFromCocktailDbApi, generateRandomKey
 }
