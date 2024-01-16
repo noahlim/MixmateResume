@@ -105,7 +105,6 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
     }
     //when the unique id of the user and the id of the user who created
     //the favourite list do not match    
-    console.log(response);
     if (user.sub !== response.sub) {
       return NextResponse.json({ error: "The user is not authorized to delete this recipe." }, { status: 401 });
     }

@@ -1,7 +1,7 @@
 import { AlertColor } from '@mui/material/Alert';
 
 const END_POINT = "http://localhost:3000/api";
-const MIXMATE_DOMAIN = 'localhost';
+const MIXMATE_DOMAIN = 'http://localhost:3000';
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
@@ -38,11 +38,12 @@ const API_ROUTES = {
   userJson: '/api/auth/me',
   drinks: '/drinks',
   favourite: '/user/favourite',
-  drinkbyid: '/drinkbyid',
+  drinkbyid: '/drinkbyid',  
   mongoLogin: '/auth/loginmongo',
   recipeReviews: '/social/recipereviews',
   recipeShare: '/social/recipeshare',
-  image: '/image'
+  sharedRecipeById: '/social/recipeshare/recipeid',
+  image: '/image',
 }
 
 const API_DRINK_ROUTES = {

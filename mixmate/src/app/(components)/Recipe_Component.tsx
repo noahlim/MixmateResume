@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Rating from "@mui/material/Rating";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -24,7 +24,6 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import Tooltip from "@mui/material/Tooltip";
 import ShareIcon from "@mui/icons-material/Share";
 import {
-  doPost,
   isNotSet,
   isSet,
   makeRequest,
@@ -51,21 +50,22 @@ import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import Divider from "@mui/material/Divider";
 import { usePathname } from "next/navigation";
-
+import AddEditRecipe_Component from "./AddEditRecipe_Component";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  FacebookShareCount,
+  TwitterShareButton,
+  XIcon,
+} from "react-share";
 function Recipe_Component(props) {
   // Inherited variables
-  const {
-    title,
-    recipes,
-    setLoadingPage,
-    showToastMessage,
-    reloadRecipes,
-  } = props;
+  const { title, recipes, setLoadingPage, showToastMessage, reloadRecipes } =
+    props;
 
   const pathName = usePathname();
   const isFavouritePage =
-    title ==="My Favourite Recipes" ||
-    pathName === APPLICATION_PAGE.myRecipes;    
+    title === "My Favourite Recipes" || title === "My MixMate Recipes";
   const { user, error, isLoading } = useUser();
 
   // Variables to display elements on screen
@@ -74,40 +74,14 @@ function Recipe_Component(props) {
   const [showTableHeaders] = useState(isFavouritePage);
   const [showShareOption] = useState(isFavouritePage);
   const [showReviewsOption] = useState(pathName === APPLICATION_PAGE.social);
-
+  const [sharingUrl, setSharingUrl] = useState("");
   // Delete recipes
   const [modalDeleteRecipeOpen, setModalDeleteRecipeOpen] = useState(false);
   const [infoRecipeToDelete, setInfoRecipeToDelete] = useState(null);
   let messageBoxDeleteRecipe = (id, recipeName) => {
-    setInfoRecipeToDelete({ _id:id, recipeName });
+    setInfoRecipeToDelete({ _id: id, recipeName });
     setModalDeleteRecipeOpen(true);
   };
-  let btnRemoveRecipe_onClick = () => {
-    // Validate session
-    if (!isLoading && !user) return;
-
-    setLoadingPage(true);
-    makeRequest(
-      API_ROUTES.favourite,
-      REQ_METHODS.delete,
-      {_id:infoRecipeToDelete._id},
-      (response) => {
-        showToastMessage("Favorites", response.message, SEVERITY.Success);
-        setInfoRecipeToDelete(null);
-        setModalDeleteRecipeOpen(false);
-        reloadRecipes();
-      },
-      (err) => {
-        showToastMessage(
-          "Error",
-          "Error deleting recipe from favourites",
-          SEVERITY.Error
-        );
-      }
-    );
-  };
-
-  // Add edit recipes
   const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
   const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
   let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
@@ -118,39 +92,91 @@ function Recipe_Component(props) {
     setSelectedRecipeIdAddEdit(null);
     setOpenAddEditRecipemodal(false);
   };
+  let btnRemoveRecipe_onClick = () => {
+    // Validate session
+    if (!isLoading && !user) return;
+
+    setLoadingPage(true);
+    if (title === "My Favourite Recipes")
+      makeRequest(
+        API_ROUTES.favourite,
+        REQ_METHODS.delete,
+        { _id: infoRecipeToDelete._id },
+        (response) => {
+          showToastMessage("Favorites", response.message, SEVERITY.Success);
+          setInfoRecipeToDelete(null);
+          setModalDeleteRecipeOpen(false);
+          reloadRecipes();
+        },
+        (err) => {
+          showToastMessage(
+            "Error",
+            "Error deleting recipe from favourites",
+            SEVERITY.Error
+          );
+        }
+      );
+    else if (title === "My MixMate Recipes") {
+      makeRequest(
+        API_ROUTES.recipeShare,
+        REQ_METHODS.delete,
+        { _id: infoRecipeToDelete._id },
+        (response) => {
+          showToastMessage("Favorites", response.message, SEVERITY.Success);
+          setInfoRecipeToDelete(null);
+          setModalDeleteRecipeOpen(false);
+          reloadRecipes();
+        },
+        (err) => {
+          showToastMessage(
+            "Error",
+            "Error deleting recipe from favourites",
+            SEVERITY.Error
+          );
+        }
+      );
+    }
+  };
+
+  // Add edit recipes
 
   // Share recipes
   const [modalShareRecipeOpen, setModalShareRecipeOpen] = useState(false);
   const [selectedRecipeToShare, setSelectedRecipeToShare] = useState(null);
-  let modalShareRecipe_onOpen = (id, recipeName) => {
-    let publicUrl = MIXMATE_DOMAIN + "...";
-    setSelectedRecipeToShare({ id, recipeName, url: publicUrl });
+  let modalShareRecipe_onOpen = (drink) => {
+    setSelectedRecipeToShare(drink);
     setModalShareRecipeOpen(true);
   };
   let copySharedToClipboard = () => {
-    let urlParams = user.email.split("@")[0] + "|" + selectedRecipeToShare.id;
-    urlParams = "?s=" + window.btoa(urlParams);
-    clipboard(MIXMATE_DOMAIN + APPLICATION_PAGE.sharedPublic + urlParams);
+    const shareUrl = `${MIXMATE_DOMAIN}${APPLICATION_PAGE.recipes}/${selectedRecipeToShare._id}`;
+    clipboard(shareUrl);
+    setSharingUrl(shareUrl);
     showToastMessage("Social", "Link copied to clipboard!", SEVERITY.Success);
   };
   let btnShareInSocial_onclick = () => {
-    // let userSession = user.sub;
-    // doPost(
-    //   API.Social.shareUserRecipe,
-    //   { userSession: userSession, _id: selectedRecipeToShare?.id },
-    //   (response) => {
-    //     if (response.isOk) {
-    //       showToastMessage(
-    //         "Social",
-    //         "Recipe shared in social!",
-    //         SEVERITY.Success
-    //       );
-    //       setSelectedRecipeToShare(null);
-    //       setModalShareRecipeOpen(false);
-    //     } else showToastMessage("Social", response.message, SEVERITY.Error);
-    //   }
-    // );
-    console.log("sharing button");
+    const newRecipeObject = JSON.parse(JSON.stringify(selectedRecipeToShare));
+    newRecipeObject.visibility = "public";
+    makeRequest(
+      API_ROUTES.recipeShare,
+      REQ_METHODS.put,
+      { recipe: newRecipeObject },
+      (response) => {
+        if (response.isOk) {
+          setModalShareRecipeOpen(false);          
+          showToastMessage(
+            "Recipe Shared on the Social",
+            "Your drink has been shared on the Social!",
+            SEVERITY.Success
+          );
+
+          // Reload recipes list
+          reloadRecipes();
+        } else
+          showToastMessage("New Recipe", response.message, SEVERITY.Error);
+
+        setLoadingPage(false);
+      }
+    );
   };
 
   // Write reviews
@@ -198,9 +224,16 @@ function Recipe_Component(props) {
     //   setLoadingPage(false);
     // });
   };
-
   return (
     <>
+      <AddEditRecipe_Component
+        openModal={openAddEditRecipeModal}
+        closeModal={modalAddEditRecipe_onClose}
+        showToastMessage={showToastMessage}
+        setLoadingPage={setLoadingPage}
+        reloadPage={reloadRecipes}
+        recipeId={selectedRecipeIdAddEdit}
+      />
       {/* Delete Recipe Modal */}
       {showDeleteRecipes && (
         <Dialog
@@ -258,13 +291,44 @@ function Recipe_Component(props) {
             </Typography>
           </DialogContent>
           <DialogActions>
+            <div className="Demo__some-network">
+              <TwitterShareButton
+                url={sharingUrl}
+                title={`MixMate - ${selectedRecipeToShare?.recipeName}`}
+                className="Demo__some-network__share-button"
+              >
+                <XIcon size={32} round />
+              </TwitterShareButton>
+            </div>
+            {/*Error "Parameter 'href' should represent a valid URL" will be thrown when ran on localhost. will work well when deployed */}
+            <div className="Demo__some-network">
+              <FacebookShareButton
+                url={sharingUrl}
+                className="Demo__some-network__share-button"
+              >
+                <FacebookIcon size={32} round />
+              </FacebookShareButton>
+
+              <div>
+                <FacebookShareCount
+                  url={sharingUrl}
+                  className="Demo__some-network__share-count"
+                >
+                  {(count) => count}
+                </FacebookShareCount>
+              </div>
+            </div>
+          </DialogActions>
+
+          <DialogActions>
+
             <Button
               onClick={() => btnShareInSocial_onclick()}
               color="success"
               variant="outlined"
               startIcon={<ShareIcon />}
             >
-              Share in social
+              Share on Social
             </Button>
             <Button
               onClick={() => setModalShareRecipeOpen(false)}
@@ -300,7 +364,6 @@ function Recipe_Component(props) {
           <TableBody>
             {/* Print recipes on screen */}
             {recipes?.map((drink) => {
-              //console.log(drink);
               // Format ingredients
               const ingredientsList = drink.ingredients?.map((ing, index) => (
                 <Typography className="margin-left-35px" key={index}>
@@ -498,10 +561,7 @@ function Recipe_Component(props) {
                               <IconButton
                                 color="success"
                                 onClick={() =>
-                                  modalShareRecipe_onOpen(
-                                    drink._id,
-                                    drink.recipeName
-                                  )
+                                  modalShareRecipe_onOpen(drink)
                                 }
                               >
                                 <ShareIcon />
@@ -516,7 +576,7 @@ function Recipe_Component(props) {
                               <IconButton
                                 color="primary"
                                 onClick={() =>
-                                  modalAddEditRecipe_onOpen(drink.recipeId)
+                                  modalAddEditRecipe_onOpen(drink._id)
                                 }
                               >
                                 <EditIcon />

@@ -35,15 +35,20 @@ import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { recipeActions } from "redux/recipeSlice";
+import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
 
 function RecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
   const router = useRouter();
-  const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
+  const allRecipes = useSelector((state: any) => state.recipe.recipes);
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
+  const alcoholicTypes = useSelector(
+    (state: any) => state.recipe.alcoholicTypes
+  );
+  const categories = useSelector((state: any) => state.recipe.categories);
+  const glasses = useSelector((state: any) => state.recipe.glasses);
 
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
@@ -62,16 +67,13 @@ function RecipesComponent() {
 
   const [selectedFilter, setSelectedFilter] = useState("");
 
-  const [recipeCategories, setRecipeCategories] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const [recipeGlasses, setRecipeGlasses] = useState(null);
   const [selectedGlass, setSelectedGlass] = useState("");
 
   const [recipeIngredients, setRecipeIngredients] = useState(null);
   const [selectedIngredient, setSelectedIngredient] = useState("");
 
-  const [recipeAlcoholicTypes, setRecipeAlcoholicTypes] = useState(null);
   const [selectedAlcoholicType, setSelectedAlcoholicType] = useState("");
 
   const [recipesFiltered, setRecipesFiltered] = useState(null);
@@ -93,7 +95,7 @@ function RecipesComponent() {
   const displayedRecipes = recipesFiltered?.slice(startIndex, endIndex);
 
   let loadAllRecipes = () => {
-    if (recipeAllRecipes.length === 0) {
+    if (allRecipes.length === 0) {
       makeRequest(
         API_ROUTES.drinks,
         REQ_METHODS.get,
@@ -110,25 +112,30 @@ function RecipesComponent() {
       });
     } else {
       setLoadingPage(false);
-      setRecipesFiltered(recipeAllRecipes);
+      setRecipesFiltered(allRecipes);
     }
   };
-  let loadAlcoholicTypes = () =>
-    makeRequest(
-      API_ROUTES.drinks,
-      REQ_METHODS.get,
-      { criteria: API_DRINK_ROUTES.alcoholicTypes },
-      (response) => {
-        if (response.isOk) {
-          setRecipeAlcoholicTypes(
-            response.data.drinks.map((x) => x.strAlcoholic).sort()
-          );
-          loadAllRecipes();
+  let loadAlcoholicTypes = () => {
+    if (alcoholicTypes.length === 0) {
+      makeRequest(
+        API_ROUTES.drinks,
+        REQ_METHODS.get,
+        { criteria: API_DRINK_ROUTES.alcoholicTypes },
+        (response) => {
+          if (response.isOk) {
+            dispatch(
+              recipeActions.setAlcoholicTypes(
+                response.data.drinks.map((x) => x.strAlcoholic).sort()
+              )
+            );
+          }
         }
-      }
-    ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
-    });
+      ).catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      });
+    }
+    loadAllRecipes();
+  };
   let loadIngredients = () => {
     if (allIngredients.length === 0) {
       makeRequest(
@@ -159,37 +166,50 @@ function RecipesComponent() {
       loadAlcoholicTypes();
     }
   };
-  let loadGlasses = () =>
-    makeRequest(
-      API_ROUTES.drinks,
-      REQ_METHODS.get,
-      { criteria: API_DRINK_ROUTES.glassTypes },
-      (response) => {
-        if (response.isOk) {
-          setRecipeGlasses(response.data.drinks.map((x) => x.strGlass).sort());
-          loadIngredients();
+  let loadGlasses = () => {
+    if (glasses.length === 0) {      
+      makeRequest(
+        API_ROUTES.drinks,
+        REQ_METHODS.get,
+        { criteria: API_DRINK_ROUTES.glassTypes },
+        (response) => {
+          if (response.isOk) {
+            dispatch(
+              recipeActions.setGlasses(
+                response.data.drinks.map((x) => x.strGlass).sort()
+              )
+            );
+          }
         }
-      }
-    ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
-    });
+      ).catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      });
+    }
+    loadIngredients();
+  };
 
-  let loadCategories = () =>
-    makeRequest(
-      API_ROUTES.drinks,
-      REQ_METHODS.get,
-      { criteria: API_DRINK_ROUTES.drinkCategories },
-      (response) => {
-        if (response.isOk) {
-          setRecipeCategories(
-            response.data.drinks.map((x) => x.strCategory).sort()
-          );
-          loadGlasses();
+  let loadCategories = () => {    
+    if (categories.length === 0) {
+      console.log(categories);
+      makeRequest(
+        API_ROUTES.drinks,
+        REQ_METHODS.get,
+        { criteria: API_DRINK_ROUTES.drinkCategories },
+        (response) => {
+          if (response.isOk) {
+            dispatch(
+              recipeActions.setCategories(
+                response.data.drinks.map((x) => x.strCategory).sort()
+              )
+            );
+          }
         }
-      }
-    ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
-    });
+      ).catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      });
+    }
+    loadGlasses();
+  };
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(APPLICATION_PAGE.root);
@@ -216,7 +236,7 @@ function RecipesComponent() {
     setSelectedAlcoholicType("");
     recipeNameRef.current ? (recipeNameRef.current.value = "") : {};
 
-    setRecipesFiltered(recipeAllRecipes);
+    setRecipesFiltered(allRecipes);
   };
   let btnFind_onClick = async () => {
     if (
@@ -227,12 +247,12 @@ function RecipesComponent() {
       (recipeNameRef.current ? recipeNameRef.current.value !== "" : false)
     ) {
       setLoadingPage(true);
-      if (recipeAllRecipes.length === 0) await loadAllRecipes();
+      if (allRecipes.length === 0) await loadAllRecipes();
 
       switch (selectedFilter) {
         case "Alcoholic Type": {
           if (selectedAlcoholicType !== "") {
-            const filtered = recipeAllRecipes.filter(
+            const filtered = allRecipes.filter(
               (recipe) => recipe.strAlcoholic === selectedAlcoholicType
             );
             setRecipesFiltered(filtered);
@@ -247,7 +267,7 @@ function RecipesComponent() {
         }
         case "Category": {
           if (selectedCategory !== "") {
-            const filtered = recipeAllRecipes.filter(
+            const filtered = allRecipes.filter(
               (recipe) => recipe.strCategory === selectedCategory
             );
             setRecipesFiltered(filtered);
@@ -263,7 +283,7 @@ function RecipesComponent() {
         case "Glass": {
           if (selectedGlass !== "") {
             console.log(selectedGlass);
-            const filtered = recipeAllRecipes.filter(
+            const filtered = allRecipes.filter(
               (recipe) => recipe.strGlass === selectedGlass
             );
             setRecipesFiltered(filtered);
@@ -278,7 +298,7 @@ function RecipesComponent() {
         }
         case "Ingredient": {
           if (selectedIngredient !== "") {
-            const filtered = recipeAllRecipes.filter((recipe) =>
+            const filtered = allRecipes.filter((recipe) =>
               recipe.ingredients.some(
                 (ing) => ing.ingredient === selectedIngredient
               )
@@ -297,7 +317,7 @@ function RecipesComponent() {
           if (recipeNameRef.current?.value !== "") {
             const searchText = recipeNameRef.current.value.toLowerCase();
 
-            const matchedRecipes = recipeAllRecipes.filter((recipe) =>
+            const matchedRecipes = allRecipes.filter((recipe) =>
               recipe.strDrink.toLowerCase().includes(searchText)
             );
             setRecipesFiltered(matchedRecipes);
@@ -434,7 +454,7 @@ function RecipesComponent() {
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    {recipeCategories?.map((cat) => {
+                    {categories?.map((cat) => {
                       return (
                         <MenuItem key={cat} value={cat}>
                           {cat}
@@ -457,7 +477,7 @@ function RecipesComponent() {
                     value={selectedGlass}
                     onChange={(e) => setSelectedGlass(e.target.value)}
                   >
-                    {recipeGlasses?.map((glass) => {
+                    {glasses?.map((glass) => {
                       return (
                         <MenuItem key={glass} value={glass}>
                           {glass}
@@ -507,7 +527,7 @@ function RecipesComponent() {
                     value={selectedAlcoholicType}
                     onChange={(e) => setSelectedAlcoholicType(e.target.value)}
                   >
-                    {recipeAlcoholicTypes?.map((at) => {
+                    {alcoholicTypes?.map((at) => {
                       return (
                         <MenuItem key={at} value={at}>
                           {at}

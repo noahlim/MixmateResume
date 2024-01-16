@@ -7,7 +7,7 @@ import {
   MIXMATE_DOMAIN,
 } from "@/app/_utilities/_client/constants";
 import { useDispatch } from "react-redux";
-import { userInfoActions } from "redux/userInfoSlice";
+import { userInfoActions } from "lib/redux/userInfoSlice";
 function Page() {
   const deleteFavouriteTest = async () => {
     makeRequest(

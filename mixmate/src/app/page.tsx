@@ -2,9 +2,10 @@
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
 import MenuBar from "./(components)/MenuBar";
-import ReduxProvider from "../redux/provider";
+import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
+import { EdgeStoreProvider } from "lib/edgestore";
 
 function registerNewUserObject() {
   return {
@@ -46,18 +47,16 @@ async function addMeetupHandler() {
   });
 }
 
-
 function RootPage({ children }) {
- 
- 
-  
   // Check if the current route is the home page
   if (usePathname() === "/") {
     return (
       <ReduxProvider>
-        <MenuBar />
+        <EdgeStoreProvider>
+          <MenuBar />
 
-        <HomePage />
+          <HomePage />
+        </EdgeStoreProvider>
       </ReduxProvider>
     );
   }
@@ -65,9 +64,11 @@ function RootPage({ children }) {
   // For all other routes, render the children normally
   return (
     <ReduxProvider>
-      <MenuBar />
+      <EdgeStoreProvider>
+        <MenuBar />
 
-      {children}
+        {children}
+      </EdgeStoreProvider>
     </ReduxProvider>
   );
 }

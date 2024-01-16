@@ -1,63 +1,121 @@
 "use client";
-import React, { useState } from "react";
-import { isSet } from "@/app/_utilities/_client/utilities";
+import React, { useEffect, useState } from "react";
+import Rating from "@mui/material/Rating";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import InfoIcon from "@mui/icons-material/Info";
+import MapsUgcIcon from "@mui/icons-material/MapsUgc";
+import {
+  API_ROUTES,
+  APPLICATION_PAGE,
+  REQ_METHODS,
+} from "@/app/_utilities/_client/constants";
+
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import Tooltip from "@mui/material/Tooltip";
+import ShareIcon from "@mui/icons-material/Share";
+import {
+  capitalizeWords,
+  isNotSet,
+  isSet,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography } from "@mui/material";
-import Button from "@mui/material/Button";
+import { Typography, CardContent, Button, Backdrop, CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
-import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import TableRow from "@mui/material/TableRow";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import ClassIcon from "@mui/icons-material/Class";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
-import { capitalizeWords } from "@/app/_utilities/_client/utilities";
+import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import clipboard from "clipboard-copy";
+import Paper from "@mui/material/Paper";
+import InputBase from "@mui/material/InputBase";
+import Divider from "@mui/material/Divider";
+import { notFound, useRouter } from "next/navigation";
+import RecipeRow from "@/app/(components)/RecipeRow";
+const RecipeById = ({ params }) => {
+  const recipeId = params.recipeid;
+  const router = useRouter();
+  const [recipe, setRecipe] = useState(null);
+  const [ingredients, setIngredients] = useState([]);
+  const fetchRecipeDetails = async () => {
+    makeRequest(
+      API_ROUTES.sharedRecipeById,
+      REQ_METHODS.get,
+      { recipeid: recipeId },
+      (response) => {
+        console.log(response);
 
-function RecipeRow(props): React.ReactNode {
-  // Variables
-  const { drink } = props;
-  const [rowOpen, setRowOpen] = useState(false);
-  const [drinkInfo, setDrinkInfo] = useState(null);
-  // Functions
-  let loadDrinkInfo = () => {
-    // Load drink info
-    let drinkDetails;
-    if (isSet(drink)) {
-      const drinkIngredients = [];
-
-      // Format ingredients
-      if (drink.ingredients.length > 0) {
-        drink.ingredients.forEach((ing, index) => {
+        if (response.message === "Recipe not found") {
+          makeRequest(
+            API_ROUTES.drinkbyid,
+            REQ_METHODS.get,
+            { drinkid: recipeId },
+            (response) => {
+              if (response.message === "Drink not found") {
+                notFound();
+              }
+              setRecipeAndIngredients(response.data);
+              console.log(response.data);
+            }
+          );
+        } else {
+          setRecipeAndIngredients(response.data);
+        }
+      }
+    );
+  };
+  const setRecipeAndIngredients = (drinkData) => {
+    setRecipe(drinkData);
+    if (drinkData.ingredients.length > 0) {
+      setIngredients(
+        drinkData.ingredients.map((ing, index) => {
           if (ing.ingredient && ing.measure) {
-            drinkIngredients.push(
+            return (
               <Typography className="margin-left-35px" key={index}>
                 {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
               </Typography>
             );
           }
-        });
-      }
+        })
+      );
+    }
+  };
+  // Format ingredients
 
-      drinkDetails = (
+  useEffect(() => {
+    fetchRecipeDetails();
+  }, []);
+  if (!recipe) {
+    return <Backdrop
+      sx={{ color: "#fff", zIndex: (theme) => 9999 }}
+      open={!recipe}
+    >
+      <CircularProgress color="inherit" />
+    </Backdrop>;
+  }
+  return (
+    <TableRow sx={{ "& > *": { borderTop: 0 } }}>
+      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
         <Box sx={{ margin: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
               <img
                 style={{ width: "90%", borderRadius: "7%" }}
-                src={drink.strDrinkThumb}
+                src={recipe.strDrinkThumb}
               ></img>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={8}>
               <div className="text-tangerine text-55px margin-left-35px">
-                {drink.strDrink}
+                {recipe.strDrink}
               </div>
 
               {/* Category */}
@@ -72,7 +130,7 @@ function RecipeRow(props): React.ReactNode {
                       <ClassIcon />
                     </InputAdornment>
                   }
-                  value={drink.strCategory}
+                  value={recipe.strCategory}
                 />
               </FormControl>
               <br />
@@ -90,7 +148,7 @@ function RecipeRow(props): React.ReactNode {
                       <LocalBarIcon />
                     </InputAdornment>
                   }
-                  value={drink.strAlcoholic}
+                  value={recipe.strAlcoholic}
                 />
               </FormControl>
               <br />
@@ -108,7 +166,7 @@ function RecipeRow(props): React.ReactNode {
                       <LocalDrinkIcon />
                     </InputAdornment>
                   }
-                  value={drink.strGlass}
+                  value={recipe.strGlass}
                 />
               </FormControl>
               <br />
@@ -116,11 +174,11 @@ function RecipeRow(props): React.ReactNode {
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <InputLabel>Ingredients:</InputLabel>
-              {drinkIngredients}
+              {ingredients}
               <br></br>
               <InputLabel>How to prepare:</InputLabel>
               <Typography className="margin-left-35px">
-                {drink.strInstructions}
+                {recipe.strInstructions}
               </Typography>
             </Grid>
             <Grid
@@ -132,55 +190,20 @@ function RecipeRow(props): React.ReactNode {
               sx={{ padding: 4 }}
             >
               <Button
-                onClick={() => props.btnAddToMyMixMate_onClick(drink)}
+                onClick={() => router.push(APPLICATION_PAGE.home)}
                 color="primary"
                 variant="outlined"
                 startIcon={<FavoriteIcon />}
               >
-                Add to Favorites
+                Find More Exciting Recipes in MixMate!
               </Button>
             </Grid>
           </Grid>
         </Box>
-      );
-    } else {
-      drinkDetails = (
-        <Box sx={{ margin: 5 }}>
-          <Typography variant="h6" gutterBottom component="div">
-            Recipe not found
-          </Typography>
-        </Box>
-      );
-    }
-    setDrinkInfo(drinkDetails);
-
-    // Done
-    setRowOpen(!rowOpen);
-  };
-  return (
-    <>
-      <TableRow sx={{ "& > *": { borderColor: "blue", border: 0 } }}>
-        <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => loadDrinkInfo()}
-          >
-            {rowOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell component="th" scope="row">
-          {capitalizeWords(drink.strDrink)}
-        </TableCell>
-      </TableRow>
-      <TableRow sx={{ "& > *": { borderTop: 0 } }}>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
-          <Collapse in={rowOpen} timeout="auto" unmountOnExit>
-            {drinkInfo}
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
+      </TableCell>
+    </TableRow>
   );
-}
-export default RecipeRow;
+  //return <h1>{params.recipeid}</h1>;
+};
+
+export default RecipeById;

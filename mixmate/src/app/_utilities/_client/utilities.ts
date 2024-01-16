@@ -60,18 +60,15 @@ const makeRequest = async (
     fetchOptions.body = data;
   } else {
     switch (method) {
-      case "GET":
-        fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
-        break;
       case "POST":
       case "PUT":
         fullUrl = `${END_POINT}/${apiRoute}`;
         fetchOptions.headers = { "Content-Type": "application/json" };
         fetchOptions.body = JSON.stringify(data);
         break;
-      case "DELETE":      
+      case "DELETE": 
+      case "GET":
         fullUrl =jsonToQueryString(END_POINT, apiRoute, data);
-        console.log(fullUrl);
         break;
       default:
         throw new Error('Unsupported HTTP method');
