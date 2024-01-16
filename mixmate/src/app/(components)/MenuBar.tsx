@@ -33,11 +33,10 @@ import {
   APPLICATION_PAGE,
   API_ROUTES,
   REQ_METHODS,
-  MIXMATE_DOMAIN,
 } from "@/app/_utilities/_client/constants";
 import { useRouter } from "next/navigation";
 import { AlertColor } from "@mui/material/Alert";
-import { userInfoActions } from "redux/userInfoSlice";
+import { userInfoActions } from "lib/redux/userInfoSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { notFound } from "next/navigation";
 

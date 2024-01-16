@@ -13,12 +13,12 @@ export const GET = withApiAuthRequired(async function getCustomRecipeById(req: N
     let result = new Result();
 
     try {
-        const params = req.nextUrl.pathname.toString().split("/");
-        if (params.length < 5 || params[4] === "") {
-            return NextResponse.json({ error: "Id was not passed in the query." }, { status: 400 });
-        }
+        //fetching the drink query from the request url
+        //http://localhost:3000/api/social/recipeshare/recipeid
+        //and the drinkId variable value will be '123123'
+        const recipeId = req.nextUrl.searchParams.get('recipeid');
+        console.log(recipeId);
         let db = await dbRtns.getDBInstance();
-        const recipeId = params[4];
         let recipeInfo = await dbRtns.findOne(db, sharedRecipeCollection, { _id: new ObjectId(recipeId) });
         if (isSet(recipeInfo)) {
             result.setTrue();

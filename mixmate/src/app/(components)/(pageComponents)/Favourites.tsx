@@ -17,7 +17,7 @@ import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
-import { recipeActions } from "redux/recipeSlice";
+import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
 function Favourites() {
   // Toast Message

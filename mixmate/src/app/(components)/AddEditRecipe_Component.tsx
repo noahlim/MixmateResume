@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import {
-  doPost,
   isNotSet,
   isSet,
   makeRequest,
@@ -19,7 +18,6 @@ import Table from "@mui/material/Table";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import {
-  APPLICATION_PAGE,
   SEVERITY,
   API_ROUTES,
   REQ_METHODS,
@@ -30,22 +28,24 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import { generateKey } from "crypto";
-import { generateRandomKey } from "../_utilities/_server/util";
+import { useSelector } from "react-redux";
 
 function AddEditRecipe_Component(props) {
   const {
     openModal,
     closeModal,
-    recipeCategories,
-    recipeAlcoholicTypes,
-    recipeGlasses,
     showToastMessage,
     setLoadingPage,
     recipeId,
     reloadPage,
   } = props;
 
+  
+  const alcoholicTypes = useSelector(
+    (state: any) => state.recipe.alcoholicTypes
+  );
+  const categories = useSelector((state: any) => state.recipe.categories);
+  const glasses = useSelector((state: any) => state.recipe.glasses);
   const [recipeIdLoaded, setRecipeIdLoaded] = useState(false);
   const [newIngredient, setNewIngredient] = useState("");
   const [newMeasure, setNewMeasure] = useState("");
@@ -67,17 +67,13 @@ function AddEditRecipe_Component(props) {
 
   // Load data if recipe ID exist
   let loadRecipeIfExist = () => {
-    if (isSet(recipeId) && recipeIdLoaded === false) {
+    if (isSet(recipeId)) {
+      setLoadingPage(true);
       makeRequest(
-        API_ROUTES.recipeShare,
+        API_ROUTES.sharedRecipeById,
         REQ_METHODS.get,
-        recipeId,
+        { recipeid: recipeId },
         (response) => {
-          setOriginalListIngredients(
-            response.data.recipeIngredients.map((x) => x)
-          );
-          setOriginalListMeasure(response.data.recipeMeasure.map((x) => x));
-
           setCurrentRecipeRowId(response.data._id);
           setCurrentRecipeName(response.data.strDrink);
           setCurrentRecipeImage(response.data.strDrinkThumb);
@@ -86,22 +82,24 @@ function AddEditRecipe_Component(props) {
           setCurrentRecipeGlass(response.data.strGlass);
           const ingredients = [];
           const measures = [];
-          response.data.ingredients.foreach((ing)=>{
+          response.data.ingredients.forEach((ing) => {
             ingredients.push(ing.ingredient);
             measures.push(ing.measure);
-          })
+          });
           setCurrentRecipeIngredients(ingredients);
           setCurrentRecipeMeasure(measures);
           setCurrentRecipeInstructions(response.data.strInstructions);
           setRecipeIdLoaded(true);
+          setLoadingPage(false);
         }
       );
     }
 
     return recipeId;
   };
-  const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
+  //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
 
+  useEffect(()=>{loadRecipeIfExist()},[openModal])
   // Modal events
   let closeNewRecipeModal_onClick = () => {
     setRecipeIdLoaded(false);
@@ -120,7 +118,7 @@ function AddEditRecipe_Component(props) {
     setCurrentRecipeIngredients([]);
     setCurrentRecipeMeasure([]);
     setCurrentRecipeInstructions("");
-
+    setLoadingPage(false);
     closeModal();
   };
   let fileSelectImage_onChange = (file) => {
@@ -239,7 +237,6 @@ function AddEditRecipe_Component(props) {
 
         //if image is not included, only send {recipe:newRecipeInfo}
         //as body, if image is included filename and image will be sent too
-
         makeRequest(
           API_ROUTES.recipeShare,
           REQ_METHODS.post,
@@ -267,7 +264,7 @@ function AddEditRecipe_Component(props) {
       } else {
         // Update recipe info
         const ingredientsArray = [];
-
+        console.log("updating");
         for (let i = 0; i < currentRecipeIngredients.length; i++) {
           if (currentRecipeIngredients[i] && currentRecipeMeasure[i])
             ingredientsArray.push({
@@ -337,7 +334,7 @@ function AddEditRecipe_Component(props) {
               label="Category"
               onChange={(e) => setCurrentRecipeCategory(e.target.value)}
             >
-              {recipeCategories?.map((cat) => {
+              {categories?.map((cat) => {
                 return (
                   <MenuItem key={cat} value={cat}>
                     {cat}
@@ -358,7 +355,7 @@ function AddEditRecipe_Component(props) {
               label="Alcoholic type"
               onChange={(e) => setCurrentRecipeAlcoholicType(e.target.value)}
             >
-              {recipeAlcoholicTypes?.map((cat) => {
+              {alcoholicTypes?.map((cat) => {
                 return (
                   <MenuItem key={cat} value={cat}>
                     {cat}
@@ -377,7 +374,7 @@ function AddEditRecipe_Component(props) {
               label="Glass"
               onChange={(e) => setCurrentRecipeGlass(e.target.value)}
             >
-              {recipeGlasses?.map((cat) => {
+              {glasses?.map((cat) => {
                 return (
                   <MenuItem key={cat} value={cat}>
                     {cat}
@@ -467,23 +464,6 @@ function AddEditRecipe_Component(props) {
           <br />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => {
-              const formData = new FormData();
-              formData.append("file", currentRecipeImage);
-              let newRecipeInfo = {
-                strDrink: currentRecipeName,
-                strDrinkThumb: currentRecipeImage?.name,
-                strCategory: currentRecipeCategory,
-                strAlcoholic: currentRecipeAlcoholicType,
-                strInstructions: currentRecipeInstructions,
-                strGlass: currentRecipeGlass,
-              };
-              console.log(currentRecipeImage?.name);
-            }}
-          >
-            {"Verify"}
-          </Button>
           <Button
             onClick={() => btnAddNewRecipe_onClick()}
             color="success"

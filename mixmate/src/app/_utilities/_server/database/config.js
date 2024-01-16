@@ -14,3 +14,5 @@ export const aws_access_key = process.env.AWS_SW3_ACCESS_KEY;
 export const aws_secret_key = process.env.AWS_SW3_SECRET_ACCESS_KEY;
 export const bucket_region = process.env.BUCKET_REGION;
 export const bucket_name = process.env.BUCKET_NAME;
+export const edge_secret_key = process.env.EDGE_STORE_SECRET_KEY;
+export const edge_access_key = process.env.EDGE_STORE_ACCESS_KEY;
