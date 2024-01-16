@@ -26,7 +26,7 @@ const APPLICATION_PAGE =
   myRecipes: '/myrecipes',
   social: '/social',
   sharedPublic: '/sharedpublic',
-  resetPassword: '/resetpassword'
+  resetPassword: '/resetpassword',
 }
 
 const API_ROUTES = {
@@ -44,6 +44,7 @@ const API_ROUTES = {
   recipeShare: '/social/recipeshare',
   sharedRecipeById: '/social/recipeshare/recipeid',
   image: '/image',
+  sharedRecipesCount: '/social/recipeshare/recipecount'
 }
 
 const API_DRINK_ROUTES = {

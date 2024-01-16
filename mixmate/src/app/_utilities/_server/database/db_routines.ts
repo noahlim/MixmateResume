@@ -26,10 +26,10 @@ const getDBInstance = async (): Promise<Db> => {
 const addOne = async (db: Db, coll: string, doc: any): Promise<void> => {
   await db.collection(coll).insertOne(doc);
 };
-
 const count = async (db: Db, coll: string, criteria: any = {}): Promise<number> => {
   return db.collection(coll).countDocuments(criteria);
 };
+
 
 const deleteAll = async (db: Db, coll: string): Promise<void> => {
   await db.collection(coll).deleteMany({});
