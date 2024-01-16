@@ -19,11 +19,11 @@ import {
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import Recipe_Component from "../Recipe_Component";
 import { useUser } from "@auth0/nextjs-auth0/client";
-//import AddEditRecipe_Component from '../Components/AddEditRecipe_Component';
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import AddEditRecipe_Component from "../AddEditRecipe_Component";
+
 function CustomRecipes() {
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
@@ -47,6 +47,7 @@ function CustomRecipes() {
   const [loadingPage, setLoadingPage] = useState(true);
   const [recipeIngredients, setRecipeIngredients] = useState(null);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
+  const [pageIndex, setPageIndex] = useState(1);
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
@@ -54,9 +55,8 @@ function CustomRecipes() {
   const glasses = useSelector((state: any) => state.recipe.glasses);
 
   let loadMyRecipes = () => {
-    makeRequest(API_ROUTES.recipeShare, REQ_METHODS.get, {}, (response) => {
+    makeRequest(API_ROUTES.recipeShare, REQ_METHODS.get, {userid:user?.sub, index:pageIndex}, (response) => {
       //dispatch(recipeActions.setRecipes(response.data));
-      console.log(response.data);
       setRecipesFiltered(response.data);
       // Done
       setLoadingPage(false);

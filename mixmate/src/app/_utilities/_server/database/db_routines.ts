@@ -27,8 +27,8 @@ const addOne = async (db: Db, coll: string, doc: any): Promise<void> => {
   await db.collection(coll).insertOne(doc);
 };
 
-const count = async (db: Db, coll: string): Promise<number> => {
-  return db.collection(coll).countDocuments();
+const count = async (db: Db, coll: string, criteria: any = {}): Promise<number> => {
+  return db.collection(coll).countDocuments(criteria);
 };
 
 const deleteAll = async (db: Db, coll: string): Promise<void> => {
@@ -51,14 +51,20 @@ const findAll = async (
   db: Db,
   coll: string,
   criteria: any,
-  projection: any
+  projection: any,
+  page: number = 1,
+  limit: number = 0 // Set default limit to 0 to fetch all documents
 ): Promise<any[]> => {
+  const skip = limit > 0 ? (page - 1) * limit : 0;
   return db
     .collection(coll)
     .find(criteria)
     .project(projection)
+    .skip(skip)
+    .limit(limit)
     .toArray();
 };
+
 
 const findUniqueValues = async (db: Db, coll: string, field: string): Promise<any[]> => {
   return db.collection(coll).distinct(field);
