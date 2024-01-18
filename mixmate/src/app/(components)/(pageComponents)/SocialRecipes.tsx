@@ -4,59 +4,54 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
+  APPLICATION_PAGE,
   REQ_METHODS,
+  SEVERITY,
 } from "@/app/_utilities/_client/constants";
-import {
-  makeRequest,
-} from "@/app/_utilities/_client/utilities";
+import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
-import { AlertColor } from "@mui/material/Alert";
-function Favourites() {
+
+function Social() {
   // Toast Message
-  const [openToasMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>(
-    SEVERITY.Info
+  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [toast_severity, setToast_severity] = useState(
+    SEVERITY.Info.toLowerCase()
   );
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
   const showToastMessage = (title, message, severity = SEVERITY.Info) => {
-    setToast_severity(severity);
+    setToast_severity(severity.toLowerCase());
     setToast_title(title);
     setToast_message(message);
-    setOpenToastMessage(true);
+    setOpenToasMessage(true);
   };
+
   // Variables
   const [loadingPage, setLoadingPage] = useState(true);
 
-  const [recipeCategories, setRecipeCategories] = useState(null);
-  const [recipeGlasses, setRecipeGlasses] = useState(null);
-  const [recipeIngredients, setRecipeIngredients] = useState(null);
   const [recipeAlcoholicTypes, setRecipeAlcoholicTypes] = useState(null);
+  const [recipeAllRecipes, setRecipeAllRecipes] = useState(null);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
-  const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
-  const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const dispatch = useDispatch();
-
-  // Loading recipe options
+  const alcoholicTypes = useSelector(
+    (state: any) => state.recipe.alcoholicTypes
+  );
+  const categories = useSelector((state: any) => state.recipe.categories);
+  const glasses = useSelector((state: any) => state.recipe.glasses);
+  const allIngredients = useSelector((state:any)=> state.recipe.ingredients);
   let loadFavoriteRecipes = () => {
-    makeRequest(
-      API_ROUTES.favourite,
-      REQ_METHODS.get,
-      { },
-      (response) => {        
-        setRecipesFiltered(response.data);
-        // Done
-        setLoadingPage(false);
-      }
-    );
+    makeRequest(API_ROUTES.favourite, REQ_METHODS.get, {}, (response) => {
+      setRecipesFiltered(response.data);
+      // Done
+      setLoadingPage(false);
+    });
   };
   let loadAlcoholicTypes = () =>
     makeRequest(
@@ -86,17 +81,13 @@ function Favourites() {
               }
               return item;
             });
-            setRecipeIngredients(
-              updatedIngredients.map((x) => x.strIngredient1).sort()
-            );
-            dispatch(recipeActions.setIngredients(updatedIngredients));
+            dispatch(recipeActions.setIngredients(updatedIngredients.map((x) => x.strIngredient1).sort()));
 
             loadAlcoholicTypes();
           }
         }
       );
     } else {
-      setRecipeIngredients(allIngredients.map((x) => x.strIngredient1).sort());
       loadAlcoholicTypes();
     }
   };
@@ -131,13 +122,69 @@ function Favourites() {
     loadCategories();
   }, []);
 
+  // // Loading recipe options
+  // let loadMyRecipes = () =>
+  // {
+  //     doPost(API.Social.getSharedRecipes, {userNickname: userSession}, (response) =>
+  //     {
+  //         if(response.isOk)
+  //         {
+  //             setRecipeAllRecipes(response.data);
+  //             setRecipesFiltered(response.data);
+
+  //             // Done
+  //             setLoadingPage(false);
+  //         }
+  //     });
+  // }
+  // let loadAlcoholicTypes = () => doPost(API.Recipes.getAllAlcoholicTypes, { }, (response) =>
+  //     {
+  //         if(response.isOk)
+  //         {
+  //             setRecipeAlcoholicTypes(response.data.drinks.map(x => x.strAlcoholic).sort());
+  //             loadMyRecipes();
+  //         }
+  //     });
+  //     let loadIngredients = () => doPost(API.Recipes.getAllIngredients, { }, (response) =>
+  //     {
+  //         if(response.isOk)
+  //         {
+  //             const updatedIngredients = response.data.drinks.map((item) => {
+  //                 if (item.strIngredient1 === "AÃ±ejo rum") {
+  //                   return { ...item, strIngredient1: "Añejo Rum" };
+  //                 }
+  //                 return item;
+  //               });
+  //             setRecipeIngredients(updatedIngredients.map(x => x.strIngredient1).sort());
+  //             loadAlcoholicTypes();
+  //         }
+  //     });
+  // let loadGlasses = () => doPost(API.Recipes.getAllGlasses, { }, (response) =>
+  //     {
+  //         if(response.isOk)
+  //         {
+  //             setRecipeGlasses(response.data.drinks.map(x => x.strGlass).sort());
+  //             loadIngredients();
+  //         }
+  //     });
+  // let loadCategories = () => doPost(API.Recipes.getAllCategories, { }, (response) =>
+  //     {
+  //         if(response.isOk)
+  //         {
+  //             setRecipeCategories(response.data.drinks.map(x => x.strCategory).sort());
+  //             loadGlasses();
+  //         }
+  //     });
+
+  // useEffect(() => loadCategories(), []);
+
   return (
     <>
       {/* Toast message */}
       <Snackbar
         open={openToasMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
+        onClose={() => setOpenToasMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>
@@ -158,27 +205,25 @@ function Favourites() {
           <FilterRecipes_Component
             recipeAllRecipes={recipeAllRecipes}
             setRecipesFiltered={setRecipesFiltered}
-            recipeCategories={recipeCategories}
+            recipeCategories={categories}
             recipeAlcoholicTypes={recipeAlcoholicTypes}
-            recipeGlasses={recipeGlasses}
-            recipeIngredients={recipeIngredients}
+            recipeGlasses={glasses}
+            recipeIngredients={allIngredients}
             showToastMessage={showToastMessage}
           />
         </Grid>
         <Grid item xs={12} sm={9}>
           <Recipe_Component
-            title="My Favourite Recipes"
+            applicationPage={APPLICATION_PAGE.social}
             recipes={recipesFiltered}
             setLoadingPage={setLoadingPage}
             showToastMessage={showToastMessage}
-            reloadRecipes={loadFavoriteRecipes}
-            recipeCategories={recipeCategories}
             recipeAlcoholicTypes={recipeAlcoholicTypes}
-            recipeGlasses={recipeGlasses}
           />
         </Grid>
       </Grid>
     </>
   );
 }
-export default Favourites;
+
+export default Social;

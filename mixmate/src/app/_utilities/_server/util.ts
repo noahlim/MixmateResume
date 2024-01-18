@@ -1,3 +1,5 @@
+import { MongoClient,Db, ObjectId } from "mongodb";
+
 const isSet = (value) =>
 {
   if(value === undefined || value === null || value === false)
@@ -69,7 +71,6 @@ function recipeIngredientsComplete(recipe, userIngredients) {
 
 
 //Utility function that reads the body of the POST request
-//don't ask me how it works cuz i don't know too :(
 async function readRequestBody(readableStream: ReadableStream<Uint8Array>): Promise<any> {
   const reader = readableStream.getReader();
   let chunks: Uint8Array[] = [];
@@ -129,7 +130,8 @@ async function fetchFromCocktailDbApi(parameter) {
   return result;
 }
 
+
 export
 {
-  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody, fetchFromCocktailDbApi, generateRandomKey
+  isSet, isNotSet, Result, recipeIngredientsComplete, concatUint8Arrays, readRequestBody, fetchFromCocktailDbApi, generateRandomKey,
 }

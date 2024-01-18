@@ -47,15 +47,19 @@ async function addMeetupHandler() {
   });
 }
 
+
 function RootPage({ children }) {
+ 
+ 
+  
   // Check if the current route is the home page
   if (usePathname() === "/") {
     return (
       <ReduxProvider>
         <EdgeStoreProvider>
-          <MenuBar />
+        <MenuBar />
 
-          <HomePage />
+        <HomePage />
         </EdgeStoreProvider>
       </ReduxProvider>
     );
@@ -64,11 +68,13 @@ function RootPage({ children }) {
   // For all other routes, render the children normally
   return (
     <ReduxProvider>
-      <EdgeStoreProvider>
-        <MenuBar />
+        <EdgeStoreProvider>
 
-        {children}
-      </EdgeStoreProvider>
+      <MenuBar />
+
+      {children}
+        </EdgeStoreProvider>
+
     </ReduxProvider>
   );
 }

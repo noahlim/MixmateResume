@@ -44,7 +44,12 @@ const API_ROUTES = {
   recipeShare: '/social/recipeshare',
   sharedRecipeById: '/social/recipeshare/recipeid',
   image: '/image',
-  sharedRecipesCount: '/social/recipeshare/recipecount'
+  sharedRecipesCount: '/social/recipeshare/recipecount',
+  drinksByFilter: '/drinks/filter',
+  favouritesByFilter : '/user/favourite/filtered',
+  favouriteCount : '/user/favourite/count',
+  favouriteFilteredCount : '/user/favourite/filteredcount'
+
 }
 
 const API_DRINK_ROUTES = {

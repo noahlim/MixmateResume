@@ -66,15 +66,19 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
   try {
 
     const { user } = await getSession();
+    const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
 
     let db = await dbRtns.getDBInstance();
-
-    let response = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {});
-
+    
+    let recipes = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+    const updatedRecipes = recipes.map((recipe) => {
+      delete recipe.sub;
+      return recipe;
+  })
     //response is the object deleted
     const result = new Result(true);
-    result.data = response;
-    result.message = response.length > 0 ? `${response.length} recipes found!` : "No reciped found."
+    result.data = updatedRecipes;
+    result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
     console.log(err);

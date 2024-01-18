@@ -4,7 +4,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { CardContent, AlertColor } from "@mui/material";
+import { CardContent, AlertColor, Pagination } from "@mui/material";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -29,6 +29,8 @@ function CustomRecipes() {
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
+  const categories = useSelector((state: any) => state.recipe.categories);
+  const glasses = useSelector((state: any) => state.recipe.glasses);
   // Toast Message
   const [openToasMessage, setOpenToasMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>(
@@ -45,25 +47,42 @@ function CustomRecipes() {
 
   // Variables
   const [loadingPage, setLoadingPage] = useState(true);
-  const [recipeIngredients, setRecipeIngredients] = useState(null);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndexCount, setPageIndexCount] = useState(1);
+  const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
-  const categories = useSelector((state: any) => state.recipe.categories);
-  const glasses = useSelector((state: any) => state.recipe.glasses);
 
-  let loadMyRecipes = () => {
-    makeRequest(API_ROUTES.recipeShare, REQ_METHODS.get, {userid:user?.sub, index:pageIndex}, (response) => {
-      //dispatch(recipeActions.setRecipes(response.data));
-      setRecipesFiltered(response.data);
-      // Done
-      setLoadingPage(false);
-    });
+
+  let onPageIndexChange =(e)=>{
+    setLoadingPage(true);
+    loadMyRecipes(parseInt(e.target.innerText));
+  }
+  let loadMyRecipes = (pageIndex = 1) => {
+    makeRequest(
+      API_ROUTES.recipeShare,
+      REQ_METHODS.get,
+      { userid: user?.sub, index: pageIndex },
+      (response) => {        
+        setRecipesFiltered(response.data);
+        loadRecipesCount();
+        // Done
+        setLoadingPage(false);
+      }
+    );
   };
   // Loading recipe options
-
+  let loadRecipesCount = () => {
+    makeRequest(
+      API_ROUTES.sharedRecipesCount,
+      REQ_METHODS.get,
+      { userid: user.sub },
+      (response) => {
+        setPageIndexCount(Math.ceil(response.data/5));
+      }
+    );
+  };
   let loadAlcoholicTypes = () => {
     if (alcoholicTypes.length === 0) {
       makeRequest(
@@ -85,6 +104,7 @@ function CustomRecipes() {
     }
     loadMyRecipes();
   };
+ 
   let loadIngredients = () => {
     if (allIngredients.length === 0) {
       makeRequest(
@@ -98,7 +118,7 @@ function CustomRecipes() {
                 return { ...item, strIngredient1: "Añejo Rum" };
               }
               return item;
-            });
+            }).sort();
             dispatch(recipeActions.setIngredients(updatedIngredients));
 
             loadAlcoholicTypes();
@@ -106,7 +126,7 @@ function CustomRecipes() {
         }
       );
     } else {
-      setRecipeIngredients(allIngredients.map((x) => x.strIngredient1).sort());
+     
       loadAlcoholicTypes();
     }
   };
@@ -154,6 +174,7 @@ function CustomRecipes() {
   };
   useEffect(() => {
     loadCategories();
+    loadRecipesCount();
   }, []);
 
   // Add edit recipes
@@ -197,7 +218,6 @@ function CustomRecipes() {
         showToastMessage={showToastMessage}
         setLoadingPage={setLoadingPage}
         reloadPage={loadMyRecipes}
-
         recipeId={selectedRecipeIdAddEdit}
       />
 
@@ -222,11 +242,7 @@ function CustomRecipes() {
 
           <FilterRecipes_Component
             recipeAllRecipes={recipeAllRecipes}
-            setRecipesFiltered={setRecipesFiltered}
-            recipeCategories={categories}
-            recipeAlcoholicTypes={alcoholicTypes}
-            recipeGlasses={glasses}
-            recipeIngredients={recipeIngredients}
+            setRecipesFiltered={setRecipesFiltered}          
             showToastMessage={showToastMessage}
           />
         </Grid>
@@ -243,6 +259,7 @@ function CustomRecipes() {
             recipeGlasses={glasses}
           />
         </Grid>
+        <Pagination count={pageIndexCount} defaultPage={6} siblingCount={0} boundaryCount={2} onChange={onPageIndexChange} />
       </Grid>
     </>
   );

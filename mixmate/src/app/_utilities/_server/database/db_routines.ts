@@ -53,7 +53,7 @@ const findAll = async (
   criteria: any,
   projection: any,
   page: number = 1,
-  limit: number = 0 // Set default limit to 0 to fetch all documents
+  limit: number = 5 // Default to 10 documents per page
 ): Promise<any[]> => {
   const skip = limit > 0 ? (page - 1) * limit : 0;
   return db
@@ -65,7 +65,23 @@ const findAll = async (
     .toArray();
 };
 
-
+const findAllWithPagination = async (
+  db: Db,
+  coll: string,
+  criteria: any,
+  projection: any,
+  page: number = 1,
+  limit: number = 5 // Default to 10 documents per page
+): Promise<any[]> => {
+  const skip = (page - 1) * limit;
+  return db
+    .collection(coll)
+    .find(criteria)
+    .project(projection)
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+};
 const findUniqueValues = async (db: Db, coll: string, field: string): Promise<any[]> => {
   return db.collection(coll).distinct(field);
 };
@@ -95,4 +111,4 @@ const deleteOne = async (db: Db, coll: string, criteria: any): Promise<any> => {
   return collection.findOneAndDelete(criteria);
 };
 
-export { getDBInstance, addOne, count, deleteAll, addMany, findOne, findAll, findUniqueValues, updateOne, deleteOne, updateMany, deleteMany };
+export { getDBInstance, addOne, count, deleteAll, addMany, findOne, findAll, findUniqueValues, updateOne, deleteOne, updateMany, deleteMany, findAllWithPagination};

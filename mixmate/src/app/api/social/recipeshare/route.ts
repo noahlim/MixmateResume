@@ -25,17 +25,17 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
             }
             let db = await dbRtns.getDBInstance();
             //get 10 documents per page
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 0, 10);
+            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
 
             //deleting user Id in the recipes before returning to the server for security reason
             const updatedRecipes = recipes.map((recipe) => {
                 delete recipe.sub;
                 return recipe;
             })
-            if (updatedRecipes && updatedRecipes.length > 0) {
-                result.setTrue("Recipes Fetched.");
-                result.data = updatedRecipes;
-            } else result.setFalse("Recipes not found");
+            result.setTrue("Recipes Fetched.");
+            result.data = updatedRecipes;
+            result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No reciped found."
+
 
             return NextResponse.json(result, { status: 200 });
             //get all shared recipes
@@ -46,7 +46,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
             let db = await dbRtns.getDBInstance();
             //get 10 documents per page
 
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, {}, {}, pageNumber ? pageNumber : 0, 10);
+            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, {}, {}, pageNumber ? pageNumber : 0, 5);
 
             //deleting user Id in the recipes before returning to the server for security reason
             const updatedRecipes = recipes.map((recipe) => {
