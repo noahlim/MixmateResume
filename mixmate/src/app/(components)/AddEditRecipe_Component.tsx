@@ -29,6 +29,7 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { useSelector } from "react-redux";
+import { generateRandomKey } from "../_utilities/_server/util";
 
 function AddEditRecipe_Component(props) {
   const {
@@ -51,7 +52,7 @@ function AddEditRecipe_Component(props) {
   const [newMeasure, setNewMeasure] = useState("");
   const [originalListIngredients, setOriginalListIngredients] = useState([]);
   const [originalListMueasure, setOriginalListMeasure] = useState([]);
-
+  const [currentRecipeRowObjectId, setCurrentRecipeRowObjectId] = useState(null);
   const [currentRecipeRowId, setCurrentRecipeRowId] = useState(null);
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
@@ -74,7 +75,9 @@ function AddEditRecipe_Component(props) {
         REQ_METHODS.get,
         { recipeid: recipeId },
         (response) => {
-          setCurrentRecipeRowId(response.data._id);
+          console.log(response.data);
+          setCurrentRecipeRowId(response.data.idDrink);
+          setCurrentRecipeRowObjectId(response.data._id);
           setCurrentRecipeName(response.data.strDrink);
           setCurrentRecipeImage(response.data.strDrinkThumb);
           setCurrentRecipeCategory(response.data.strCategory);
@@ -161,7 +164,7 @@ function AddEditRecipe_Component(props) {
 
     showToastMessage("Ingredients", "Ingredient removed", SEVERITY.Success);
   };
-  let btnAddNewRecipe_onClick = async () => {
+  let btnAddNewOrEditRecipe_onClick = async () => {
     // Validate data
     if (isNotSet(currentRecipeName))
       showToastMessage(
@@ -196,8 +199,12 @@ function AddEditRecipe_Component(props) {
         "List of ingredients cannot be the same",
         SEVERITY.Warning
       );
+      
+    //validated!
     else {
       setLoadingPage(true);
+      //if the recipe is newly created, or if from favorite page, create a copy of the recipe
+      console.log(currentRecipeRowId);
       if (isNotSet(currentRecipeRowId) || currentRecipeType === "Favorite") {
         const ingredientsArray = [];
         // Add new recipe
@@ -226,6 +233,7 @@ function AddEditRecipe_Component(props) {
         }
 
         let newRecipeInfo = {
+          idDrink:  generateRandomKey(12),
           strDrink: currentRecipeName,
           strDrinkThumb: fileName,
           strCategory: currentRecipeCategory,
@@ -262,9 +270,10 @@ function AddEditRecipe_Component(props) {
           }
         );
       } else {
+        
         // Update recipe info
         const ingredientsArray = [];
-        console.log("updating");
+        console.log("come on i am updating");
         for (let i = 0; i < currentRecipeIngredients.length; i++) {
           if (currentRecipeIngredients[i] && currentRecipeMeasure[i])
             ingredientsArray.push({
@@ -273,8 +282,9 @@ function AddEditRecipe_Component(props) {
             });
         }
 
-        let newRecipeInfo = {
-          _id: currentRecipeRowId,
+        let newRecipeInfo = {          
+          _id:currentRecipeRowObjectId,
+          idDrink: currentRecipeRowId,
           strDrink: currentRecipeName,
           strDrinkThumb: currentRecipeImage,
           strCategory: currentRecipeCategory,
@@ -292,8 +302,8 @@ function AddEditRecipe_Component(props) {
             if (response.isOk) {
               closeNewRecipeModal_onClick();
               showToastMessage(
-                "New Recipe",
-                newRecipeInfo.strDrink + " added!",
+                "Recipe Updated",
+                newRecipeInfo.strDrink + " updated!",
                 SEVERITY.Success
               );
 
@@ -465,12 +475,13 @@ function AddEditRecipe_Component(props) {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => btnAddNewRecipe_onClick()}
+            onClick={() => btnAddNewOrEditRecipe_onClick()
+            }
             color="success"
             variant="outlined"
             startIcon={<BorderColorIcon />}
           >
-            {recipeId ? "Edit recipe" : "Add new recipe"}
+            {recipeId ? "Save Changes" : "Add New Recipe"}
           </Button>
           <Button
             onClick={() => closeNewRecipeModal_onClick()}

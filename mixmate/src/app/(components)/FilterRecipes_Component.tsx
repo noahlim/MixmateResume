@@ -33,7 +33,6 @@ function FilterRecipes_Component(props) {
     filterCriteria,
     loadFilteredRecipes
   } = props;
-
   const dispatch = useDispatch();
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
@@ -202,6 +201,7 @@ function FilterRecipes_Component(props) {
         </CardContent>
 
         {/* Filters */}
+        
         <div style={{ padding: 25 }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel id="filter-select-label">Filter by</InputLabel>

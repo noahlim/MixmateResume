@@ -62,7 +62,6 @@ function Recipe_Component(props) {
   // Inherited variables
   const { title, recipes, setLoadingPage, showToastMessage, reloadRecipes } =
     props;
-  console.log(recipes);
   const pathName = usePathname();
   const isFavouritePage =
     title === "My Favourite Recipes" || title === "My MixMate Recipes";
@@ -480,7 +479,6 @@ function Recipe_Component(props) {
       comment: reviewValue,
       rating: ratingValue,
     };
-    console.log(newReview);
     // doPost(API.Social.writeReview, newReview, (response) => {
     //   if (response.isOk) {
     //     reloadRecipes();

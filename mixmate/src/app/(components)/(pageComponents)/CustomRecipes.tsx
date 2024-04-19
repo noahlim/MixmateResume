@@ -4,7 +4,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { CardContent, AlertColor, Pagination } from "@mui/material";
+import { CardContent, AlertColor, Pagination, Box } from "@mui/material";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -31,11 +31,15 @@ function CustomRecipes() {
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
+  const [pageIndex, setpageIndex] = useState(1);
+
   // Toast Message
   const [openToasMessage, setOpenToasMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>(
     SEVERITY.Info
   );
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
   const showToastMessage = (title, message, severity = SEVERITY.Info) => {
@@ -44,6 +48,10 @@ function CustomRecipes() {
     setToast_message(message);
     setOpenToasMessage(true);
   };
+  const [filter, setFilter] = useState<{
+    filter: string;
+    criteria: string;
+  }>({ filter: "", criteria: "" });
 
   // Variables
   const [loadingPage, setLoadingPage] = useState(true);
@@ -54,21 +62,51 @@ function CustomRecipes() {
     (state: any) => state.recipe.alcoholicTypes
   );
 
-
-  let onPageIndexChange =(e)=>{
+  let onPageIndexChange = (e) => {
     setLoadingPage(true);
     loadMyRecipes(parseInt(e.target.innerText));
-  }
+  };
   let loadMyRecipes = (pageIndex = 1) => {
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.get,
       { userid: user?.sub, index: pageIndex },
-      (response) => {        
+      (response) => {
         setRecipesFiltered(response.data);
         loadRecipesCount();
         // Done
         setLoadingPage(false);
+      }
+    );
+  };
+
+  let loadFilteredMyRecipes = () => {
+    setIsFilterApplied(true);
+    setLoadingPage(true);
+    makeRequest(
+      API_ROUTES.sharedRecipesFilter,
+      REQ_METHODS.get,
+      { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
+      (response) => {
+        setRecipesFiltered(response.data);
+        setIsFilterApplied(true);
+        loadFilteredRecipesCount(filter.filter, filter.criteria);
+        showToastMessage("Recipes found", response.message, SEVERITY.success);
+        setLoadingPage(false);
+      }
+    );
+  };
+  let loadFilteredRecipesCount = (filter: string, criteria: string) => {
+    makeRequest(
+      API_ROUTES.favouriteFilteredCount,
+      REQ_METHODS.get,
+      {
+        filter: filter,
+        criteria: criteria,
+      },
+      (response) => {
+        console.log(response);
+        setPageIndexCount(Math.ceil(response.data / 5));
       }
     );
   };
@@ -79,7 +117,7 @@ function CustomRecipes() {
       REQ_METHODS.get,
       { userid: user.sub },
       (response) => {
-        setPageIndexCount(Math.ceil(response.data/5));
+        setPageIndexCount(Math.ceil(response.data / 5));
       }
     );
   };
@@ -104,7 +142,7 @@ function CustomRecipes() {
     }
     loadMyRecipes();
   };
- 
+
   let loadIngredients = () => {
     if (allIngredients.length === 0) {
       makeRequest(
@@ -113,12 +151,14 @@ function CustomRecipes() {
         { criteria: API_DRINK_ROUTES.ingredients },
         (response) => {
           if (response.isOk) {
-            const updatedIngredients = response.data.drinks.map((item) => {
-              if (item.strIngredient1 === "AÃ±ejo rum") {
-                return { ...item, strIngredient1: "Añejo Rum" };
-              }
-              return item;
-            }).sort();
+            const updatedIngredients = response.data.drinks
+              .map((item) => {
+                if (item.strIngredient1 === "AÃ±ejo rum") {
+                  return { ...item, strIngredient1: "Añejo Rum" };
+                }
+                return item;
+              })
+              .sort();
             dispatch(recipeActions.setIngredients(updatedIngredients));
 
             loadAlcoholicTypes();
@@ -126,7 +166,6 @@ function CustomRecipes() {
         }
       );
     } else {
-     
       loadAlcoholicTypes();
     }
   };
@@ -242,8 +281,11 @@ function CustomRecipes() {
 
           <FilterRecipes_Component
             recipeAllRecipes={recipeAllRecipes}
-            setRecipesFiltered={setRecipesFiltered}          
+            loadFilteredRecipes={loadFilteredMyRecipes}
+            setRecipesFiltered={setRecipesFiltered}
             showToastMessage={showToastMessage}
+            filterCriteriaSetter={setFilter}
+            filterCriteria={filter}
           />
         </Grid>
         <Grid item xs={12} sm={9}>
@@ -259,8 +301,24 @@ function CustomRecipes() {
             recipeGlasses={glasses}
           />
         </Grid>
-        <Pagination count={pageIndexCount} defaultPage={6} siblingCount={0} boundaryCount={2} onChange={onPageIndexChange} />
       </Grid>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        mt={4} // Margin top of 4 (adjust as needed)
+      >
+        {" "}
+        <Pagination
+          shape="rounded"
+          variant="outlined"
+          count={pageIndexCount}
+          defaultPage={6}
+          siblingCount={0}
+          boundaryCount={2}
+          onChange={onPageIndexChange}
+        />
+      </Box>
     </>
   );
 }

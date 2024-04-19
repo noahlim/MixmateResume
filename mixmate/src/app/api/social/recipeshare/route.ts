@@ -121,7 +121,7 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
 )
 
 
-export const PUT = withApiAuthRequired(async function postRecipeOnSocial(req: NextRequest) {
+export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: NextRequest) {
     //rate limiting
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
@@ -152,6 +152,7 @@ export const PUT = withApiAuthRequired(async function postRecipeOnSocial(req: Ne
             }
 
             const id = body.recipe._id;
+            console.log(body);
             delete body.recipe._id;
 
             const bruh = await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(id) }, body.recipe);
