@@ -21,9 +21,10 @@ import LocalBarIcon from "@mui/icons-material/LocalBar";
 import { capitalizeWords } from "@/app/_utilities/_client/utilities";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
-function RecipeRow(props): React.ReactNode {
+function RecipeRow(props){
   // Variables
   const { drink } = props;
+  console.log(drink);
   const [rowOpen, setRowOpen] = useState(false);
   const [drinkInfo, setDrinkInfo] = useState(null);
   // Functions

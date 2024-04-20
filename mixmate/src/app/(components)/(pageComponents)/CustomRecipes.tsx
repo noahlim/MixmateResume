@@ -106,7 +106,7 @@ function CustomRecipes() {
       },
       (response) => {
         console.log(response);
-        setPageIndexCount(Math.ceil(response.data / 5));
+        setPageIndexCount(Math.ceil(response.data / 10));
       }
     );
   };
@@ -117,7 +117,7 @@ function CustomRecipes() {
       REQ_METHODS.get,
       { userid: user.sub },
       (response) => {
-        setPageIndexCount(Math.ceil(response.data / 5));
+        setPageIndexCount(Math.ceil(response.data / 10));
       }
     );
   };

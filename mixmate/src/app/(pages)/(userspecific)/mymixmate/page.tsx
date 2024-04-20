@@ -23,6 +23,7 @@ import TestPage from "@/app/(components)/(pageComponents)/TestPage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import CustomRecipes from "@/app/(components)/(pageComponents)/CustomRecipes";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
+import SocialRecipes from "@/app/(components)/(pageComponents)/SocialRecipes";
 //import MyIngredients from './MyIngredient/MyIngredients'
 function MyMixMate() {
   // Validate session
@@ -95,7 +96,7 @@ function MyMixMate() {
         {/* Tabs content */}
         {selectedTab === 0 && <Favourites />}
         {selectedTab === 1 && <CustomRecipes />}
-        {selectedTab === 2 && <TestPage />}
+        {selectedTab === 2 && <SocialRecipes />}
         {selectedTab === 3 && <TestPage />}
       </Box>
     </>

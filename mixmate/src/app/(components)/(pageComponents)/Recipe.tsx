@@ -167,7 +167,7 @@ function RecipesComponent() {
     }
   };
   let loadGlasses = () => {
-    if (glasses.length === 0) {      
+    if (glasses.length === 0) {
       makeRequest(
         API_ROUTES.drinks,
         REQ_METHODS.get,
@@ -188,7 +188,7 @@ function RecipesComponent() {
     loadIngredients();
   };
 
-  let loadCategories = () => {    
+  let loadCategories = () => {
     if (categories.length === 0) {
       console.log(categories);
       makeRequest(
@@ -640,6 +640,8 @@ function RecipesComponent() {
         style={{ justifyContent: "center", marginTop: "20px" }}
       >
         <Pagination
+          shape="rounded"
+          variant="outlined"
           count={Math.ceil(recipesFiltered?.length / itemsPerPage)}
           page={page}
           onChange={handleChange}

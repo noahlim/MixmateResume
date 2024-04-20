@@ -25,7 +25,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
             }
             let db = await dbRtns.getDBInstance();
             //get 10 documents per page
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 10);
 
             //deleting user Id in the recipes before returning to the server for security reason
             const updatedRecipes = recipes.map((recipe) => {
@@ -46,7 +46,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
             let db = await dbRtns.getDBInstance();
             //get 10 documents per page
 
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, {}, {}, pageNumber ? pageNumber : 0, 5);
+            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, {visibility:"public"}, {}, pageNumber ? pageNumber : 0, 10);
 
             //deleting user Id in the recipes before returning to the server for security reason
             const updatedRecipes = recipes.map((recipe) => {
