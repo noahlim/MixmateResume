@@ -3,7 +3,6 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import { CardContent, AlertColor, Pagination, Box } from "@mui/material";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
@@ -16,16 +15,12 @@ import {
   REQ_METHODS,
   API_DRINK_ROUTES,
 } from "@/app/_utilities/_client/constants";
-import NightlifeIcon from "@mui/icons-material/Nightlife";
 import Recipe_Component from "../Recipe_Component";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
-import AddEditRecipe_Component from "../AddEditRecipe_Component";
 
 function CustomRecipes() {
-  const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
@@ -38,7 +33,6 @@ function CustomRecipes() {
   const [toast_severity, setToast_severity] = useState<AlertColor>(
     SEVERITY.Info
   );
-  const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -80,7 +74,6 @@ function CustomRecipes() {
   };
 
   let loadFilteredMyRecipes = () => {
-    setIsFilterApplied(true);
     setLoadingPage(true);
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
@@ -88,7 +81,6 @@ function CustomRecipes() {
       { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
       (response) => {
         setRecipesFiltered(response.data);
-        setIsFilterApplied(true);
         loadFilteredRecipesCount(filter.filter, filter.criteria);
         showToastMessage("Recipes found", response.message, SEVERITY.success);
         setLoadingPage(false);
@@ -238,9 +230,6 @@ function CustomRecipes() {
         <CircularProgress color="inherit" />
       </Backdrop>
 
-      {/* Add new recipe modal */}
-    
-
       {/* Page body */}
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
@@ -256,7 +245,7 @@ function CustomRecipes() {
         </Grid>
         <Grid item xs={12} sm={9}>
           <Recipe_Component
-            applicationPage={APPLICATION_PAGE.myRecipes}
+            applicationPage={APPLICATION_PAGE.social}
             title="My MixMate Recipes"
             recipes={recipesFiltered}
             setLoadingPage={setLoadingPage}
@@ -272,9 +261,9 @@ function CustomRecipes() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        mt={4} // Margin top of 4 (adjust as needed)
+        margin={4} 
+        
       >
-        {" "}
         <Pagination
           shape="rounded"
           variant="outlined"

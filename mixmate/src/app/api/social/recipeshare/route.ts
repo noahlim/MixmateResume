@@ -1,68 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection, sharedRecipeCollection } from "@/app/_utilities/_server/database/config";
+import { userCollection, sharedRecipeCollection, recipeReviewCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
 export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req: NextRequest) {
-    if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
-        return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+    if (!rateLimit(req, 100, 15 * 60 * 1000)) {
+        // 100 requests per 15 minutes
+        return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 });
     }
 
     let result = new Result();
-
     try {
         const userId = req.nextUrl.searchParams.get('userid');
         const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-
         const { user } = await getSession();
-        //get shared recipes only for the authenticated users
-        if (userId) {
 
+        if (userId) {
             if (!user || user.sub !== userId) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            //get 10 documents per page
             let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 10);
+            const updatedRecipes = await Promise.all(
+                recipes.map(async (recipe) => {
+                    const updatedRecipe = { ...recipe };
+                    delete updatedRecipe.sub;
 
-            //deleting user Id in the recipes before returning to the server for security reason
-            const updatedRecipes = recipes.map((recipe) => {
-                delete recipe.sub;
-                return recipe;
-            })
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
+                    updatedRecipe.reviews = reviews;
+
+                    return updatedRecipe;
+                })
+            );
+
             result.setTrue("Recipes Fetched.");
             result.data = updatedRecipes;
-            result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No reciped found."
-
-
+            result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No recipe found.";
             return NextResponse.json(result, { status: 200 });
-            //get all shared recipes
         } else {
             if (!user) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            //get 10 documents per page
+            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 10);
+            const updatedRecipes = await Promise.all(
+                recipes.map(async (recipe) => {
+                    const updatedRecipe = { ...recipe };
+                    delete updatedRecipe.sub;
 
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, {visibility:"public"}, {}, pageNumber ? pageNumber : 0, 10);
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
+                    updatedRecipe.reviews = reviews;
+                    if (reviews) console.log(reviews);
 
-            //deleting user Id in the recipes before returning to the server for security reason
-            const updatedRecipes = recipes.map((recipe) => {
-                delete recipe.sub;
-                return recipe;
-            })
+                    return updatedRecipe;
+                })
+            );
+
+            console.log(updatedRecipes);
             if (updatedRecipes && updatedRecipes.length > 0) {
                 result.setTrue("Recipes Fetched.");
                 result.data = updatedRecipes;
             } else result.setFalse("Recipes not found");
             return NextResponse.json(result, { status: 200 });
-
         }
     } catch (err) {
         return NextResponse.json({ error: 'Error fetching the recipes from the custom recipes collection.' }, { status: 400 });
-
     }
 });
 
@@ -101,6 +105,7 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             }
             body.recipe.sub = user.sub;
             body.recipe.created_at = new Date().toISOString();
+            body.recipe.reviews = [];
             body.recipe.visibility = "private";
             body.recipe.nickname = user.nickname;
             body.recipe.strAuthor = user.nickname;
@@ -128,7 +133,6 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
     }
     if (req.body) {
         const body = await readRequestBody(req.body);
-        console.log(body);
         if (!body) {
             return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
         }
@@ -152,7 +156,6 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             }
 
             const id = body.recipe._id;
-            console.log(body);
             delete body.recipe._id;
 
             const bruh = await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(id) }, body.recipe);
@@ -179,7 +182,6 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
     }
 
     const drinkId = new ObjectId(req.nextUrl.searchParams.get('_id'));
-    console.log(drinkId);
 
     if (!drinkId) {
         return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });

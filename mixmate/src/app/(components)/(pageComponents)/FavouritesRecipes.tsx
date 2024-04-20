@@ -17,7 +17,7 @@ import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
-import { Pagination } from "@mui/material";
+import { Box, Pagination } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
 function Favourites() {
   // Toast Message
@@ -151,6 +151,7 @@ function Favourites() {
         </Grid>
         <Grid item xs={12} sm={9}>
           <Recipe_Component
+            applicationPage={APPLICATION_PAGE.favourites}
             title="My Favourite Recipes"
             recipes={recipesFiltered}
             setLoadingPage={setLoadingPage}
@@ -158,14 +159,24 @@ function Favourites() {
             reloadRecipes={loadFavoriteRecipes}
           />
         </Grid>
+      </Grid>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        margin={4} 
+        
+      >
         <Pagination
+          shape="rounded"
+          variant="outlined"
           count={pageIndexCount}
           defaultPage={6}
           siblingCount={0}
           boundaryCount={2}
           onChange={onPageIndexChange}
         />
-      </Grid>
+      </Box>
     </>
   );
 }

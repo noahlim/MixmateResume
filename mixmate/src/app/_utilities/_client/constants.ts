@@ -41,7 +41,7 @@ const API_ROUTES = {
   drinkbyid: '/drinkbyid',  
   mongoLogin: '/auth/loginmongo',
   recipeReviews: '/social/recipereviews',
-  recipeShare: '/social/recipeshare',
+  recipeShare: '/social/recipeshare',  
   sharedRecipeById: '/social/recipeshare/recipeid',
   image: '/image',
   sharedRecipesCount: '/social/recipeshare/recipecount',
