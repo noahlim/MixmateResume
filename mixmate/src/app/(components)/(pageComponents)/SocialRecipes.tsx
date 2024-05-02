@@ -29,7 +29,7 @@ function CustomRecipes() {
   const [pageIndex, setpageIndex] = useState(1);
 
   // Toast Message
-  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>(
     SEVERITY.Info
   );
@@ -40,7 +40,7 @@ function CustomRecipes() {
     setToast_severity(severity);
     setToast_title(title);
     setToast_message(message);
-    setOpenToasMessage(true);
+    setOpenToastMessage(true);
   };
   const [filter, setFilter] = useState<{
     filter: string;
@@ -212,9 +212,9 @@ function CustomRecipes() {
     <>
       {/* Toast message */}
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToasMessage(false)}
+        onClose={() => setOpenToastMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>

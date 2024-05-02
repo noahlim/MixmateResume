@@ -157,10 +157,10 @@ function RecipesComponent() {
 
             loadAlcoholicTypes();
           }
+        },(error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
         }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
+      )
     } else {
       setRecipeIngredients(allIngredients.map((x) => x.strIngredient1).sort());
       loadAlcoholicTypes();
@@ -359,7 +359,7 @@ function RecipesComponent() {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { user: user, recipe: recipe },
+      { userId: user.sub, recipe: recipe },
       (response) => {
         if (response.isOk)
           showToastMessage("Recipe", response.message, SEVERITY.Success);

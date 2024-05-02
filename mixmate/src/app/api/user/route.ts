@@ -1,88 +1,114 @@
-// // // POST /api/user.js
-// // import * as cfg from "../../database/config";
-// // import * as dbRtns from "../../database/db_routines.js";
+import { NextRequest, NextResponse } from "next/server";
+import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
+import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
+import { userCollection } from "@/app/_utilities/_server/database/config";
+import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
+import { ObjectId } from "mongodb";
 
-// import { NextRequest, NextResponse } from 'next/server'
-// import { Result, isSet, readRequestBody } from '@/app/_utilities/_server/util';
-// import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-// import { userCollection, saltRounds } from '@/app/_utilities/_server/database/config';
+//After logging in with Auth0 library, checks if the user is on our mongodb,
+//if so skip, if not add it to the database
+export const POST = withApiAuthRequired(async function postIngredient(req: NextRequest) {
 
-// //GET method : Fetch user data from the database
-// export async function GET(req: NextRequest, res: NextResponse) {
+    let result = new Result(true);
 
-//   //fetching the nickname query from the request url
-//   //http://localhost:3000/api/user?nickname=Harry&password=password
-//   //and the nickname variable value will be "Harry"
-//   const nickname = req.nextUrl.searchParams.get('nickname');
-//   const password = req.nextUrl.searchParams.get('password');
-  
-//   let result = new Result();
+    const body = await readRequestBody(req.body);
+    if (!body.ingredient) {
+        return NextResponse.json({ error: 'No data passed' }, { status: 404 });
+    }
 
-//   // // Get user info by nickname
-//   let db = await dbRtns.getDBInstance();
-//   let userInfo = await dbRtns.findOne(db, userCollection, {
-//     nickname: nickname,
-//   });
-//   if (isSet(userInfo)) {
-//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+    try {
 
-//     if (userInfo.password !== hashedPassword) {
-//       result.setFalse("Invalid password.");
-//       return NextResponse.json(result);
-//     }
-//     result.setTrue();
+        const { user } = await getSession();
+        if (user.sub !== body.userId) {
+            return NextResponse.json({ error: 'User information does not match.' }, { status: 400 });
+        }
+        // Validate if user exist
+        let db = await dbRtns.getDBInstance();
 
-//     result.data = userInfo;
-//   } else result.setFalse("User does not exist");
+        //body.sub is unique id of each user
+        let userExist = await dbRtns.findOne(db, userCollection, { sub: body.sub });
+        if (isSet(userExist)) {
+            const tempIngredientsArray = userExist.ingredients;
+            const duplicatedIngredient = tempIngredientsArray.find(ingredient => ingredient.strIngredient === body.ingredient.strIngredient);
+            if (duplicatedIngredient) {
+                return NextResponse.json({ error: 'Ingredient already exists' }, { status: 400 });
+            }
+            tempIngredientsArray.push(body.ingredients);
+            await dbRtns.updateOne(db, userCollection, { sub: body.sub }, { ingredients: tempIngredientsArray });
 
-//   return NextResponse.json(result);
+        } else {
+            return NextResponse.json({ error: 'No associated user data found.' }, { status: 400 });
+        }
 
-// }
+        return NextResponse.json(result, { status: 201 });
 
-// //POST method : Add new user to the database
-// export async function POST(req: NextRequest, res: NextResponse) {
-//   if (req.body) {
-//     const body = await readRequestBody(req.body);
+    } catch (err) {
+        console.log(err);
+        return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+})
+export const DELETE = withApiAuthRequired(async function deleteIngredient(req: NextRequest) {
+    let result = new Result(true);
+    if (!req.body) {
+        return NextResponse.json({ error: 'No data passed' }, { status: 404 });
+    }
+    const body = await readRequestBody(req.body);
 
-//     if (!body) {
-//       return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
-//     }
-//     let result = new Result(true);
+    try {
+        const {user} = await getSession();
+        if(body.userId !== user.sub){
+            return NextResponse.json({ error: 'Not authorized to update the ingredients list' }, { status: 400 });
+        }
+        // Validate if user exist
+        let db = await dbRtns.getDBInstance();
 
-//     // Validate if user already exist
-//     let db = await dbRtns.getDBInstance();
-//     let userExist = await dbRtns.findOne(db, userCollection, { nickname: body.nickname });
+        //body.sub is unique id of each user
+        let userExist = await dbRtns.findOne(db, userCollection, { sub: body.sub });
+        if (isSet(userExist)) {
+            const tempIngredientsArray = userExist.ingredients;
+            tempIngredientsArray.pop(body.ingredient);
+            await dbRtns.updateOne(db, userCollection, { sub: body.sub }, { ingredients: tempIngredientsArray });
+        } else {
+            return NextResponse.json({ error: 'No associated user data found.' }, { status: 400 });
+        }
 
-//     if (isSet(userExist)) {
-//       result.setFalse('Nickname already in use');
-//       return NextResponse.json(result, { status: 409 });
-//     }
+        return NextResponse.json(result, { status: 201 });
 
-//     // Save new user
-//     if (result.isOk) {
-//       try {
-//         // Hash the password
-//         const hashedPassword = await bcrypt.hash(body.password, saltRounds);
-//         body.password = hashedPassword;
-//         delete body.passwordConfirm;   
-
-//         body.createdOn = new Date().toLocaleString();
-//         body.updatedOn = "";
-//         // Save the user with the hashed password
-//         await dbRtns.addOne(db, userCollection, body);
-
-//         result.setTrue(`User [${body.nickname} added!`);
-
-//       } catch (error) {
-//         // Handle potential errors in the hashing process
-//         return NextResponse.json({ error: 'Error hashing password' });
-//       }
-//       return NextResponse.json(result, { status: 201 });
+    } catch (err) {
+        console.log(err);
+        return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+})
 
 
-//     } else {
-//       return NextResponse.json({ error: 'Failed to add user' }, { status: 400 });
-//     }
-//   }
-// }
+export const GET =  withApiAuthRequired(async function getUser(req: NextRequest) {
+    
+    let result = new Result();
+    try {
 
+        const { user } = await getSession();
+        const userId = req.nextUrl.searchParams.get('userId');
+        if (!userId || userId !== user.sub) {
+            return NextResponse.json({ error: 'Invalid user data.' }, { status: 400 });
+        }
+
+        let db = await dbRtns.getDBInstance();
+        let userFetched = await dbRtns.findOne(
+            db,
+            userCollection,
+            { _id: new ObjectId(user.sub) }
+        );
+
+        if (!userFetched) {
+            return NextResponse.json({ error: 'User not found.' }, { status: 400 });
+        }
+
+        result.data = userFetched;
+    } catch (ex) {
+        return NextResponse.json({ error: 'User not found.' }, { status: 400 });
+
+    }
+
+    return NextResponse.json(result, { status: 200 });
+
+})

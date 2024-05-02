@@ -31,6 +31,7 @@ const APPLICATION_PAGE =
 
 const API_ROUTES = {
   user: '/user',
+  userIngredients: '/user/ingredients',
   password: '/user/password',
   login: '/api/auth/login',
   tokenVerify: '/verifytoken',
@@ -49,8 +50,10 @@ const API_ROUTES = {
   drinksByFilter: '/drinks/filter',
   favouritesByFilter : '/user/favourite/filtered',
   favouriteCount : '/user/favourite/count',
-  favouriteFilteredCount : '/user/favourite/filteredcount'
-
+  favouriteFilteredCount : '/user/favourite/filteredcount',
+  walmartItems: '/shoppinglist/walmart',
+  lcboItems: '/shoppinglist/lcbo',
+  availableRecipes: '/user/availablerecipes',
 }
 
 const API_DRINK_ROUTES = {

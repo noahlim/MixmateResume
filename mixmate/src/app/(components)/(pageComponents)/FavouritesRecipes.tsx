@@ -21,7 +21,7 @@ import { Box, Pagination } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
 function Favourites() {
   // Toast Message
-  const [openToasMessage, setOpenToastMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>(
     SEVERITY.Info
   );
@@ -119,7 +119,7 @@ function Favourites() {
     <>
       {/* Toast message */}
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
         onClose={() => setOpenToastMessage(false)}
       >

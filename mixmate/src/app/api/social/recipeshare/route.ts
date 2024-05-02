@@ -50,15 +50,13 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                     const updatedRecipe = { ...recipe };
                     delete updatedRecipe.sub;
 
-                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {}, 0, 0, {created_at: -1});                  
                     updatedRecipe.reviews = reviews;
-                    if (reviews) console.log(reviews);
 
                     return updatedRecipe;
                 })
             );
 
-            console.log(updatedRecipes);
             if (updatedRecipes && updatedRecipes.length > 0) {
                 result.setTrue("Recipes Fetched.");
                 result.data = updatedRecipes;

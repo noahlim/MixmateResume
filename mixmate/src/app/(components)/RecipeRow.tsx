@@ -21,7 +21,7 @@ import LocalBarIcon from "@mui/icons-material/LocalBar";
 import { capitalizeWords } from "@/app/_utilities/_client/utilities";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
-function RecipeRow(props){
+function RecipeRow(props) {
   // Variables
   const { drink } = props;
   console.log(drink);

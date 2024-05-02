@@ -10,7 +10,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
     }
-    console.log("Are you here");
     //fetching the drink query from the request url
     //http://localhost:3000/api/user/drinkbyid?drinkid=123123
     //and the drinkId variable value will be '123123'

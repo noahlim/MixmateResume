@@ -22,8 +22,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
         if (isSet(userExist)) {
             result.setTrue("user already exists");
             return NextResponse.json(result, { status: 200 });
+            
         } else {
             body.created_at = body.updated_at;
+            body.ingredients = [];
             await dbRtns.addOne(db, userCollection, body);
         }
 

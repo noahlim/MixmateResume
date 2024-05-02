@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Rating from "@mui/material/Rating";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import moment from "moment";
 import CancelIcon from "@mui/icons-material/Cancel";
+import CloseIcon from "@mui/icons-material/Close";
 import InfoIcon from "@mui/icons-material/Info";
 import MapsUgcIcon from "@mui/icons-material/MapsUgc";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -31,7 +32,7 @@ import {
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent } from "@mui/material";
+import { Typography, CardContent, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
@@ -50,10 +51,8 @@ import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import Divider from "@mui/material/Divider";
 import Avatar from "@mui/material/Avatar";
-import { usePathname } from "next/navigation";
-import { styled } from '@mui/system';
-
-
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import AddEditRecipe_Component from "./AddEditRecipe_Component";
 import {
   FacebookIcon,
@@ -92,6 +91,10 @@ function Recipe_Component(props) {
   };
   const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
   const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
     setSelectedRecipeIdAddEdit(selectedRecipeId);
     setOpenAddEditRecipemodal(true);
@@ -99,6 +102,27 @@ function Recipe_Component(props) {
   let modalAddEditRecipe_onClose = () => {
     setSelectedRecipeIdAddEdit(null);
     setOpenAddEditRecipemodal(false);
+  };
+
+  let btnRemoveReview_onClick = (reviewid) => {
+    // Validate session
+    if (!isLoading && !user) return;
+    makeRequest(
+      API_ROUTES.recipeReviews,
+      REQ_METHODS.delete,
+      { _id: reviewid },
+      (response) => {
+        showToastMessage("Reviews", response.message, SEVERITY.Success);
+        reloadRecipes();
+      },
+      (err) => {
+        showToastMessage(
+          "Error",
+          "Error deleting selected review",
+          SEVERITY.Error
+        );
+      }
+    );
   };
   let btnRemoveRecipe_onClick = () => {
     // Validate session
@@ -109,7 +133,7 @@ function Recipe_Component(props) {
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.delete,
-        { _id: infoRecipeToDelete._id },
+        { userId:user.sub, _id: infoRecipeToDelete._id },
         (response) => {
           showToastMessage("Favorites", response.message, SEVERITY.Success);
           setInfoRecipeToDelete(null);
@@ -156,25 +180,17 @@ function Recipe_Component(props) {
       ));
       //console.log(ingredientsList);
       // Title icon
-      let recipeIconItem = (
-        <FavoriteIcon
-          color={
-            applicationPage === APPLICATION_PAGE.favourites
-              ? "error"
-              : "primary"
-          }
-          className="margin-left-20px"
-        />
-      );
-      if (applicationPage === APPLICATION_PAGE.social) {
+      let recipeIconItem = null;
+      if (applicationPage === APPLICATION_PAGE.favourites) {
         recipeIconItem = (
-          <Tooltip
-            //title={"Shared by: " + drink.userNickname}
-            title="Test User"
-            placement="top"
-          >
-            <InfoIcon color={"success"} className="margin-left-20px" />
-          </Tooltip>
+          <FavoriteIcon
+            color={
+              applicationPage === APPLICATION_PAGE.favourites
+                ? "error"
+                : "primary"
+            }
+            className="margin-left-20px"
+          />
         );
       }
 
@@ -198,10 +214,7 @@ function Recipe_Component(props) {
 
       // Comments and reviews
       let reviewComments = null;
-      const StyledPaper = styled(Paper)(({ theme }) => ({
-        padding: theme.spacing(2),
-        marginBottom: theme.spacing(2),
-      }));
+
       if (
         isSet(showReviewsOption) &&
         drink.reviews &&
@@ -209,31 +222,83 @@ function Recipe_Component(props) {
       ) {
         reviewComments = (
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            {drink.reviews.map((review, index) => (
-              <StyledPaper key={index}>
-                <Box display="flex" alignItems="center">
+            {drink.reviews.map((review, index) => {
+              const createdAt = moment(review.created_at);
+              const now = moment();
+              const daysDiff = now.diff(createdAt, "days");
+              const hoursDiff = now.diff(createdAt, "hours");
+              const minutesDiff = now.diff(createdAt, "minutes");
+
+              let displayDate;
+              if (daysDiff < 1) {
+                if (hoursDiff < 1) {
+                  displayDate = `${minutesDiff} minutes ago`;
+                } else {
+                  displayDate = `${hoursDiff} hours ago`;
+                }
+              } else if (daysDiff < 30) {
+                displayDate = `${daysDiff} days ago`;
+              } else {
+                displayDate = createdAt.format("YYYY-MM-DD");
+              }
+
+              return (
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  sx={{
+                    marginBottom: 2,
+                    width: isSmallScreen ? "100%" : "70%",
+                  }}
+                >
+                  {/**Delete review button */}
+
                   <Avatar
                     src={review.userPictureUrl}
                     alt={review.userNickname}
-                    sx={{ width: 48, height: 48, marginRight: 2 }}
+                    sx={{ width: 40, height: 40, marginRight: 2 }}
                   />
-                  <Box>
-                    <Typography variant="subtitle1">
-                      {review.userNickname}
+                  <Box display="flex" flexDirection="column" flexGrow={1}>
+                    <Box display="flex" alignItems="center" marginBottom={-1}>
+                      <Typography variant="subtitle1" sx={{ marginRight: 1 }}>
+                        {review.userNickname}
+                      </Typography>
+                      <Rating
+                        value={review.rating}
+                        readOnly
+                        size="small"
+                        sx={{ marginRight: 1 }}
+                      />
+
+                      {review.userId === user.sub && (
+                        <IconButton
+                          color="error"
+                          onClick={() => btnRemoveReview_onClick(review._id)}
+                          sx={{ marginRight: "10px" }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      )}
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      marginBottom={1}
+                    >
+                      {displayDate}
                     </Typography>
-                    <Rating
-                      value={review.rating}
-                      readOnly
-                      size="small"
-                      sx={{ marginLeft: 0, marginRight: 1 }}
-                    />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="h6"
+                      color="text.primary"
+                      sx={{ whiteSpace: "pre-line" }}
+                    >
                       {review.comment}
                     </Typography>
                   </Box>
                 </Box>
-              </StyledPaper>
-            ))}
+              );
+            })}
           </Grid>
         );
       }
@@ -242,11 +307,11 @@ function Recipe_Component(props) {
         <React.Fragment key={drink.idDrink}>
           <TableRow sx={{ "& > *": { borderTop: 0 } }} key={drink.idDrink}>
             <TableCell colSpan={2}>
-              <Box sx={{ margin: 3 }}>
-                <Grid container spacing={2}>
+              <Box>
+                <Grid container spacing={4}>
                   <Grid item xs={12} sm={12} md={6} lg={4}>
                     <img
-                      style={{ width: "90%", borderRadius: "7%" }}
+                      style={{ width: "100%", borderRadius: "7%" }}
                       src={
                         drink.strDrinkThumb
                           ? drink.strDrinkThumb
@@ -255,10 +320,10 @@ function Recipe_Component(props) {
                     ></img>
                   </Grid>
                   <Grid item xs={12} sm={12} md={6} lg={8}>
-                    <div className="text-tangerine text-55px margin-left-35px">
+                    <Typography>
                       {drink.strDrink}
                       {recipeIconItem}
-                    </div>
+                    </Typography>
 
                     {/* Category */}
                     <FormControl variant="standard">
@@ -360,65 +425,80 @@ function Recipe_Component(props) {
                         </Tooltip>
                       </>
                     )}
-                    {showReviewsOption && !showCommentsBox ? (
-                      <Tooltip title="Add comment" placement="top">
-                        <IconButton
-                          color="primary"
-                          onClick={() => txtWriteReview_onOpen(drink._id)}
-                        >
-                          <MapsUgcIcon />
-                        </IconButton>
-                      </Tooltip>
-                    ) : null}
-                    {showReviewsOption &&
-                      showCommentsBox &&
-                      selectedRecipeToComment?._id === drink._id && (
-                        <Paper
-                          component="form"
-                          sx={{
-                            p: "2px 4px",
-                            display: "flex",
-                            alignItems: "center",
-                            width: "80%",
-                          }}
-                        >
-                          <IconButton
-                            color="primary"
-                            onClick={() => txtWriteReview_onClose()}
-                          >
-                            <MapsUgcIcon />
-                          </IconButton>
-                          <InputBase
-                            sx={{ ml: 1, flex: 1 }}
-                            placeholder={"Review and grade " + drink.strDrink}
-                            onChange={(e) => setReviewValue(e.target.value)}
-                          />
-                          <Rating
-                            value={ratingValue}
-                            onChange={(event, newValue) =>
-                              setRatingValue(newValue)
-                            }
-                          />
-                          <Divider
-                            sx={{ height: 28, m: 0.5 }}
-                            orientation="vertical"
-                          />
-                          <IconButton
-                            type="button"
-                            color="error"
-                            onClick={() => txtWriteReview_onClose()}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                          <IconButton
-                            type="button"
-                            color="success"
-                            onClick={() => btnWriteReview_onCkick()}
-                          >
-                            <CheckCircleIcon />
-                          </IconButton>
-                        </Paper>
-                      )}
+                  </Grid>
+                  {/**Comments input section */}
+                  <Grid container justifyContent="flex-start" item>
+                    {showReviewsOption && (
+                      <>
+                        {!showCommentsBox ? (
+                          <Tooltip title="Add a Review" placement="top">
+                            <IconButton
+                              color="primary"
+                              onClick={() => txtWriteReview_onOpen(drink._id)}
+                            >
+                              <MapsUgcIcon />
+                            </IconButton>
+                          </Tooltip>
+                        ) : null}
+                        {showCommentsBox &&
+                          selectedRecipeToComment?._id === drink._id && (
+                            <Paper
+                              sx={{
+                                display: "grid",
+                                width: isSmallScreen ? "100%" : "70%",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  alignSelf: "flex-start",
+                                }}
+                              >
+                                <Tooltip title="Close" placement="top">
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => txtWriteReview_onClose()}
+                                  >
+                                    <CancelIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                              <TextField
+                                label="Write a review"
+                                sx={{ margin: "0 20px 20px 20px" }}
+                                multiline
+                                onChange={(event) =>
+                                  setReviewValue(event.target.value)
+                                }
+                              ></TextField>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-end",
+                                  gap: "10px",
+                                  marginRight: "20px",
+                                  marginBottom: "20px",
+                                }}
+                              >
+                                <Rating
+                                  value={ratingValue}
+                                  onChange={(event, newValue) =>
+                                    setRatingValue(newValue)
+                                  }
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outlined"
+                                  color="primary"
+                                  onClick={() => btnWriteReview_onCkick()}
+                                >
+                                  Add Review
+                                </Button>
+                              </Box>
+                            </Paper>
+                          )}
+                      </>
+                    )}
                   </Grid>
                 </Grid>
               </Box>

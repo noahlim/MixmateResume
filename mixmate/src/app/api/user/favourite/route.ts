@@ -21,8 +21,13 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
         return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
     }
     let result = new Result(true);
-    const { user } = await getSession();
     try {
+    const { user } = await getSession();
+
+      if(!body.userId !== user.sub){
+        return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+      }
+
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
       //user.sub is  unique id of each user
@@ -93,6 +98,8 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
   }
 
   const drinkId = new ObjectId(req.nextUrl.searchParams.get('_id'));
+  const userId = new ObjectId(req.nextUrl.searchParams.get('userId'));
+
 
   if (!drinkId) {
     return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
@@ -101,6 +108,13 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
 
 
   try {
+    const {user} = await getSession();
+
+    if(userId !== user.sub){
+      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+    }
+
+
     let db = await dbRtns.getDBInstance();
 
     let response = await dbRtns.findOne(db, userFavouriteCollection, { _id: drinkId });

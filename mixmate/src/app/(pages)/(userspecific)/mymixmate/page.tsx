@@ -24,6 +24,7 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import CustomRecipes from "@/app/(components)/(pageComponents)/CustomRecipes";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import SocialRecipes from "@/app/(components)/(pageComponents)/SocialRecipes";
+import MyIngredients from "@/app/(components)/(pageComponents)/(userIngredients)/MyIngredients";
 //import MyIngredients from './MyIngredient/MyIngredients'
 function MyMixMate() {
   // Validate session
@@ -37,7 +38,7 @@ function MyMixMate() {
   }, [isLoading, user, router]);
 
   // Toast Message
-  const [openToasMessage, setOpenToasMessage] = useState(false);
+  const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -45,7 +46,7 @@ function MyMixMate() {
     setToast_severity(severity);
     setToast_title(title);
     setToast_message(message);
-    setOpenToasMessage(true);
+    setOpenToastMessage(true);
   };
 
   // Variables
@@ -61,9 +62,9 @@ function MyMixMate() {
       
       {/* Toast message */}
       <Snackbar
-        open={openToasMessage}
+        open={openToastMessage}
         autoHideDuration={5000}
-        onClose={() => setOpenToasMessage(false)}
+        onClose={() => setOpenToastMessage(false)}
       >
         <Alert severity={toast_severity}>
           <AlertTitle>{toast_title}</AlertTitle>
@@ -97,7 +98,7 @@ function MyMixMate() {
         {selectedTab === 0 && <Favourites />}
         {selectedTab === 1 && <CustomRecipes />}
         {selectedTab === 2 && <SocialRecipes />}
-        {selectedTab === 3 && <TestPage />}
+        {selectedTab === 3 && <MyIngredients />}
       </Box>
     </>
   );
