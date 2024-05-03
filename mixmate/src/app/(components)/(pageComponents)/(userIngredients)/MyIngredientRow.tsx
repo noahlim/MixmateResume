@@ -112,7 +112,7 @@ function MyIngredientRow(props) {
 
   // Functions
   let loadIngredientInfo = () => {
-    let verifiedIngredient = capitalizeWords(ingredient);
+    let verifiedIngredient = capitalizeWords(ingredient.strIngredient1);
     if (isNotSet(ingredientInfo)) {
       ingredientDetails = (
         <Box sx={{ position: "relative", margin: 3 }}>
@@ -154,7 +154,7 @@ function MyIngredientRow(props) {
             <Button
               onClick={() => onModalOpenClick()}
               color="primary"
-              variant="contained"
+              variant="outlined"
               startIcon={<DeleteIcon />}
               style={{ margin: 20 }}
             >
@@ -165,7 +165,7 @@ function MyIngredientRow(props) {
                 fetchStockInfoFromWeb(verifiedIngredient);
               }}
               color="success"
-              variant="contained"
+              variant="outlined"
               startIcon={
                 props.isAlcoholic ? <WineBarIcon /> : <ShoppingCartIcon />
               }
@@ -199,7 +199,7 @@ function MyIngredientRow(props) {
           <Button
             onClick={() => deleteIngredientFromList(ingredient)}
             color="error"
-            variant="contained"
+            variant="outlined"
             startIcon={<DeleteForeverIcon />}
           >
             Yes
@@ -207,7 +207,7 @@ function MyIngredientRow(props) {
           <Button
             onClick={() => setModalDeleteIngredientOpen(false)}
             color="primary"
-            variant="contained"
+            variant="outlined"
             startIcon={<ClearIcon />}
           >
             No
@@ -218,7 +218,7 @@ function MyIngredientRow(props) {
         open={shoppingListDialogOpen}
         onClose={() => setShoppingListDialogOpen(false)}
         products={ingredientProducts}
-        ing={ingredient}
+        ing={ingredient.strIngredient1}
         isAlcoholic_={props.isAlcoholic}
       />
       <AvailableRecipes
@@ -239,7 +239,7 @@ function MyIngredientRow(props) {
         </TableCell>
         <TableCell component="th" scope="row" sx={{ width: "85%" }}>
           <Typography style={{ fontSize: "1.2em" }} color="black">
-            {capitalizeWords(ingredient)}
+            {capitalizeWords(ingredient.strIngredient1)}
           </Typography>
         </TableCell>
       </TableRow>

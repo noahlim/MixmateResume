@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection, recipeCollection } from '@/app/_utilities/_server/database/config';
+import { userIngredientCollection, recipeCollection } from '@/app/_utilities/_server/database/config';
 import { Result } from "@/app/_utilities/_server/util";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { API_DRINK_ROUTES } from "@/app/_utilities/_client/constants";
@@ -23,27 +23,33 @@ export const GET = withApiAuthRequired(async function getAvailableRecipes(req: N
         }
 
         let db = await dbRtns.getDBInstance();
-        let userFetched = await dbRtns.findOne(
+        let ingredientsFetched = await dbRtns.findOne(
             db,
-            userCollection,
-            { sub: new ObjectId(user.sub) }
+            userIngredientCollection,
+            { sub: user.sub }
         );
 
-        if (!userFetched) {
-            return NextResponse.json({ error: 'User not found?.' }, { status: 400 });
+        if (!ingredientsFetched) {
+            return NextResponse.json({ error: 'User not found.' }, { status: 400 });
         }
 
-        let recipes = await dbRtns.findAll(db, recipeCollection, {}, {});
-        let filteredRecipes = recipes.filter((recipe) =>
-            userFetched.ingredients.some((ingredient) =>
-                Object.keys(recipe).some(
-                    (key) =>
-                        key.startsWith("strIngredient") && recipe[key] === ingredient
-                )
-            )
-        );
+        let ingredientsArray = ingredientsFetched.ingredients.map(ingredient => ingredient.strIngredient1);
+
+        console.log(ingredientsArray);
+        let filteredRecipes = await dbRtns.findAll(db, recipeCollection, {"ingredients.ingredient": {"$in": ingredientsArray}}, {}, 0, 
+        0);
+        
+        // let filteredRecipes = recipes.filter((recipe) =>
+        //     ingredientsFetched.ingredients.some((fetchedIngredient) =>
+        //         recipe.ingredients.some(
+        //             (recipeIngredient) =>
+        //                 recipeIngredient.ingredient === fetchedIngredient.strIngredient1
+        //         )
+        //     )
+        // );
 
         result.data = filteredRecipes;
+        console.log(filteredRecipes.length);
     } catch (ex) {
         return NextResponse.json({ error: ex.message }, { status: 400 });
 
@@ -53,4 +59,3 @@ export const GET = withApiAuthRequired(async function getAvailableRecipes(req: N
 
 }
 )
-    

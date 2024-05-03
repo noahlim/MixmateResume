@@ -44,6 +44,7 @@ import Select from "@mui/material/Select";
 import { useTheme } from "@mui/material/styles";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Chip from "@mui/material/Chip";
+import { Pagination } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -57,7 +58,6 @@ const MenuProps = {
 };
 const AvailableRecipes = (props) => {
   const theme = useTheme();
-
   const { user, error, isLoading } = useUser();
   function getStyles(name, personName, theme) {
     return {
@@ -76,20 +76,21 @@ const AvailableRecipes = (props) => {
     const {
       target: { value },
     } = event;
-
     const selectedFilterIngredients =
       typeof value === "string" ? value.split(",") : value;
+      console.log(selectedFilterIngredients);
     setPersonName(typeof value === "string" ? value.split(",") : value);
 
     let filteredRecipes = filteredAllRecipes.filter((recipe) =>
       selectedFilterIngredients.every((ingredient) =>
-        Object.keys(recipe).some(
-          (key) =>
-            key.startsWith("strIngredient") &&
-            recipe[key]?.toLowerCase() === ingredient.toLowerCase()
+        Object.values(recipe).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase() === ingredient.toLowerCase()
         )
       )
     );
+    console.log(filteredRecipes);
     setFilteredByIngredientsRecipes(filteredRecipes);
   };
 
@@ -127,7 +128,7 @@ const AvailableRecipes = (props) => {
   useEffect(() => {
     loadAvailableRecipes();
     loadUserIngredients();
-  }, [props.ingredients]);
+  }, [userIngredients]);
 
   const loadUserIngredients = () => {
     if (userIngredients.length === 0)
@@ -136,7 +137,9 @@ const AvailableRecipes = (props) => {
         REQ_METHODS.get,
         { userId: user.sub },
         (response) => {
-          dispatch(userInfoActions.setUserIngredients(response.data.ingredients));
+          dispatch(
+            userInfoActions.setUserIngredients(response.data.ingredients)
+          );
         }
       );
   };
@@ -156,6 +159,7 @@ const AvailableRecipes = (props) => {
   function RecipeRow(props) {
     // Variables
     const { drink } = props;
+    console.log(drink);
     const [rowOpen, setRowOpen] = useState(false);
     const [drinkInfo, setDrinkInfo] = useState(null);
     const btnAddToMyMixMate_onClick = (recipe) => {
@@ -180,37 +184,27 @@ const AvailableRecipes = (props) => {
           REQ_METHODS.get,
           { drinkid: drink._id },
           (response) => {
+            console.log(response.data);
             let drinkDetails = null;
-            if (isSet(response.data.drinks)) {
-              let drink = response.data.drinks[0];
+            if (isSet(response.data)) {
+              let drink = response.data;
 
               // Format ingredients
               let drinkIngredients = [];
-              for (let x = 1; x <= 99; x++) {
-                let txtIngredient = null;
-                let txtMesurement = null;
-                if (isSet(drink["strIngredient" + x]))
-                  txtIngredient = drink["strIngredient" + x];
-                if (isSet(drink["strMeasure" + x]))
-                  txtMesurement = drink["strMeasure" + x];
+              drink.ingredients.forEach((ingredient) => {
+                let txtIngredient = ingredient.ingredient
+                  ? ingredient.ingredient
+                  : "N/A";
+                let txtMesurement = ingredient.measure
+                  ? ingredient.measure
+                  : "N/A";
 
-                if (isSet(txtIngredient))
-                  if (MatchIngredient(txtIngredient)) {
-                    drinkIngredients.push(
-                      <Typography className="margin-left-35px included-ingredients">
-                        {capitalizeWords(txtIngredient)}{" "}
-                        <i>({txtMesurement})</i>
-                      </Typography>
-                    );
-                  } else {
-                    drinkIngredients.push(
-                      <Typography className="margin-left-35px no-included-ingredients">
-                        {txtIngredient} <i>({txtMesurement})</i>
-                      </Typography>
-                    );
-                  }
-                else break;
-              }
+                drinkIngredients.push(
+                  <Typography className="margin-left-35px included-ingredients">
+                    {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
+                  </Typography>
+                );
+              });
 
               drinkDetails = (
                 <Box>
@@ -299,7 +293,7 @@ const AvailableRecipes = (props) => {
                       <Button
                         onClick={() => btnAddToMyMixMate_onClick(drink)}
                         color="primary"
-                        variant="contained"
+                        variant="outlined"
                         startIcon={<FavoriteIcon />}
                       >
                         Add to Favorites
@@ -378,10 +372,12 @@ const AvailableRecipes = (props) => {
             color: "skyblue",
           }}
         >
-          {props.ingredients.length === 0
+          {userIngredients.length === 0
             ? "No Available Recipes"
-            : props.ingredients.length === 1
-            ? `Available Recipes with ${capitalizeWords(props.ingredients[0])}`
+            : userIngredients.length === 1
+            ? `Available Recipes with ${capitalizeWords(
+                userIngredients[0].strIngredient1
+              )}`
             : "Available Recipes with your Current Ingredients"}
         </Typography>
         <IconButton
@@ -482,6 +478,15 @@ const AvailableRecipes = (props) => {
             </Table>
           </Grid>
         </Grid>
+        <Pagination
+          shape="rounded"
+          variant="outlined"
+          count={0}
+          defaultPage={6}
+          siblingCount={0}
+          boundaryCount={2}
+          onChange={()=>{console.log("pagination")}}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -23,7 +23,13 @@ import MyIngredientRow from "./MyIngredientRow";
 import LiquorIcon from "@mui/icons-material/Liquor";
 import AvailableRecipes from "../AvailableRecipes";
 import IngredientRow from "./IngredientRow";
-import { API_DRINK_ROUTES, API_ROUTES, REQ_METHODS, SEVERITY, ingredientsByAlcoholic } from "@/app/_utilities/_client/constants";
+import {
+  API_DRINK_ROUTES,
+  API_ROUTES,
+  REQ_METHODS,
+  SEVERITY,
+  ingredientsByAlcoholic,
+} from "@/app/_utilities/_client/constants";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -32,7 +38,7 @@ function MyIngredients() {
 
   const dispatch = useDispatch();
   const userIngredients = useSelector(
-    (state:any) => state.userInfo.userIngredients
+    (state: any) => state.userInfo.userIngredients
   );
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
@@ -55,7 +61,7 @@ function MyIngredients() {
   // Variables
   const [loadingPage, setLoadingPage] = useState(true);
 
-  const {user, error, isLoading} = useUser();
+  const { user, error, isLoading } = useUser();
 
   const [allIngredients, setAllIngredients] = useState([]);
   const [filteredIngredients, setFilteredIngredients] = useState([]);
@@ -63,55 +69,65 @@ function MyIngredients() {
   const [availableRecipesModalOpen, setAvailableRecipesModalOpen] =
     useState(false);
   let loadUserIngredients = () => {
-    makeRequest(API_ROUTES.userIngredients, REQ_METHODS.get, { userId: user.sub }, (response) => {  
-      
-        dispatch(userInfoActions.setUserIngredients(response.data));
-        showToastMessage(
-          "Ingredients",
-          response.data.ingredients.length? response.data.ingredients.length : "0" + " ingredient(s) found!",
-          SEVERITY.Success
-        );
-      
-    
-    },(error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+    if (userIngredients.length === 0 || userIngredients === undefined) {
+      makeRequest(
+        API_ROUTES.userIngredients,
+        REQ_METHODS.get,
+        { userId: user.sub },
+        (response) => {
+          console.log(response);
+          dispatch(userInfoActions.setUserIngredients(response.data.ingredients));
+          showToastMessage(
+            "Ingredients",
+            response.data.length
+              ? response.data.length
+              : "0" + " ingredient(s) found!",
+            SEVERITY.Success
+          );
+        },
+        (error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
+        }
+      );     
     }
-    );
     setLoadingPage(false);
+
   };
   // Loading recipe options
 
   let loadIngredients = () =>
-    
     makeRequest(
       API_ROUTES.drinks,
       REQ_METHODS.get,
       { criteria: API_DRINK_ROUTES.ingredients },
       (response) => {
-        if (response.isOk) {
+        console.log(response);
+        
           const updatedIngredients = response.data.drinks.map((item) => {
             if (item.strIngredient1 === "AÃ±ejo rum") {
               return { ...item, strIngredient1: "Añejo Rum" };
             }
             return item;
           });
-          const sortedIngredients = updatedIngredients.map((x) => x.strIngredient1).sort();
+        
+          const sortedIngredients = updatedIngredients
+            .map((x) => x.strIngredient1)
+            .sort();
           setAllIngredients(sortedIngredients);
-          console.log(sortedIngredients);
           setFilteredIngredients(sortedIngredients);
           dispatch(recipeActions.setIngredients(updatedIngredients));
-
-          if (userIngredients.length === 0) {
+          if (userIngredients.length === 1) {
+            console.log("calling loadUserIngredients");
             loadUserIngredients();
           } else {
             setLoadingPage(false);
           }
-        }
-      },(error) => {
+        
+      },
+      (error) => {
         showToastMessage("Error", error.message, SEVERITY.warning);
       }
-    )
-    
+    );
 
   useEffect(() => {
     loadIngredients();
@@ -149,12 +165,11 @@ function MyIngredients() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      
       <AvailableRecipes
         open={availableRecipesModalOpen}
         setOpen={setAvailableRecipesModalOpen}
-        ingredients={userIngredients.map((ing) => {
-          return ing.strIngredient1;
-        })}
+        ingredients={userIngredients}
         showToastMessage={showToastMessage}
       />
       {/* Page body */}
@@ -180,7 +195,7 @@ function MyIngredients() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {userIngredients.length === 0 ? (
+                {userIngredients === undefined || userIngredients.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={2}
@@ -200,17 +215,13 @@ function MyIngredients() {
                   <>
                     {userIngredients.map((ing) => {
                       let isAlcoholic_ = false;
-                      if (
-                        ingredientsByAlcoholic.Alcoholic.includes(
-                          ing.strIngredient1
-                        )
-                      )
+                      if (ingredientsByAlcoholic.Alcoholic.includes(ing))
                         isAlcoholic_ = true;
                       return (
                         <MyIngredientRow
-                          ingredient={ing.strIngredient1}
+                          ingredient={ing}
                           showToastMessage={showToastMessage}
-                          key={ing.strIngredient1}
+                          key={ing}
                           isAlcoholic={isAlcoholic_}
                           setLoadingPage={setLoadingPage}
                         />
@@ -308,6 +319,7 @@ function MyIngredients() {
                       key={ing}
                       ingredient={ing}
                       showToastMessage={showToastMessage}
+                      setLoadingPage={setLoadingPage}
                     />
                   ))}
               </TableBody>

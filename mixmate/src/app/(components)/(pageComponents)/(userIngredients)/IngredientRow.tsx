@@ -23,7 +23,7 @@ const IngredientRow = (props) => {
 
   const dispatch = useDispatch();
   const userIngredients = useSelector(
-    (state:any) => state.userInfo.userIngredients
+    (state: any) => state.userInfo.userIngredients
   );
   const { ingredient } = props;
   const [rowOpen, setRowOpen] = useState(false);
@@ -33,6 +33,7 @@ const IngredientRow = (props) => {
     const matchedIngredients = userIngredients.find(
       (ing) => ing.strIngredient1 === ingredient
     );
+    props.setLoadingPage(true);
     if (matchedIngredients !== undefined) {
       props.showToastMessage(
         "Ingredients",
@@ -70,9 +71,10 @@ const IngredientRow = (props) => {
             SEVERITY.Error
           );
         }
+        props.setLoadingPage(false);
       }
     );
-   
+    props.setLoadingPage(false);
   };
   // Functions
   let loadIngredientInfo = () => {
@@ -105,7 +107,7 @@ const IngredientRow = (props) => {
             <Button
               onClick={() => addIngredientToList(ingredient)}
               color="primary"
-              variant="contained"
+              variant="outlined"
               startIcon={<AddIcon />}
               style={{ margin: 20 }}
             >

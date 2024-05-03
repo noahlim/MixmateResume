@@ -29,7 +29,7 @@ export const POST = withApiAuthRequired(async function postIngredient(req: NextR
         let userExist = await dbRtns.findOne(db, userCollection, { sub: body.sub });
         if (isSet(userExist)) {
             const tempIngredientsArray = userExist.ingredients;
-            const duplicatedIngredient = tempIngredientsArray.find(ingredient => ingredient.strIngredient === body.ingredient.strIngredient);
+            const duplicatedIngredient = tempIngredientsArray.find(ingredient => ingredient.strIngredient1 === body.ingredient.strIngredient1);
             if (duplicatedIngredient) {
                 return NextResponse.json({ error: 'Ingredient already exists' }, { status: 400 });
             }

@@ -31,7 +31,7 @@ const APPLICATION_PAGE =
 
 const API_ROUTES = {
   user: '/user',
-  userIngredients: '/user/ingredients',
+  userIngredients: '/user/ingredient',
   password: '/user/password',
   login: '/api/auth/login',
   tokenVerify: '/verifytoken',
