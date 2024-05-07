@@ -96,7 +96,6 @@ function CustomRecipes() {
         criteria: criteria,
       },
       (response) => {
-        console.log(response);
         setPageIndexCount(Math.ceil(response.data / 10));
       }
     );

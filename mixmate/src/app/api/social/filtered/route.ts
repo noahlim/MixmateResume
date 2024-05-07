@@ -11,7 +11,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
     }
-    //http://localhost:3000/api/drinks/filter?db=social&filter=ingredient&criteria=lemon
 
     const filterType = req.nextUrl.searchParams.get('filter');
     const filterCriteria = req.nextUrl.searchParams.get('criteria');

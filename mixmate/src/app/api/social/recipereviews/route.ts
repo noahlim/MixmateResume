@@ -34,7 +34,7 @@ export const GET = withApiAuthRequired(async function getAllReviews(req: NextReq
         })
         result.setTrue("Reviews Fetched.");
         result.data = updatedRecipes;
-        result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} reviews found!` : "No reviews found."
+        result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} reviews found.` : "No reviews found."
 
 
         return NextResponse.json(result, { status: 200 });
@@ -121,11 +121,8 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             if (isNotSet(userExist)) {
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
-
-            const id = body.review._id;
+            body.review.updated_at = new Date().toISOString();
             delete body.review._id;
-
-            const bruh = await dbRtns.updateOne(db, recipeReviewCollection, { _id: new ObjectId(id) }, body.recipe);
 
             delete body.recipe._id;
             await dbRtns.updateOne(db, recipeReviewCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);

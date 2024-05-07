@@ -117,7 +117,6 @@ function MyIngredients() {
           setFilteredIngredients(sortedIngredients);
           dispatch(recipeActions.setIngredients(updatedIngredients));
           if (userIngredients.length === 1) {
-            console.log("calling loadUserIngredients");
             loadUserIngredients();
           } else {
             setLoadingPage(false);
@@ -167,10 +166,11 @@ function MyIngredients() {
       </Backdrop>
       
       <AvailableRecipes
+        isSingleIngredient={false}
         open={availableRecipesModalOpen}
         setOpen={setAvailableRecipesModalOpen}
-        ingredients={userIngredients}
         showToastMessage={showToastMessage}
+        setLoadingPage={setLoadingPage}
       />
       {/* Page body */}
       <Grid container spacing={2} style={{ marginTop: 10 }}>
@@ -215,7 +215,7 @@ function MyIngredients() {
                   <>
                     {userIngredients.map((ing) => {
                       let isAlcoholic_ = false;
-                      if (ingredientsByAlcoholic.Alcoholic.includes(ing))
+                      if (ingredientsByAlcoholic.Alcoholic.includes(ing.strIngredient1))
                         isAlcoholic_ = true;
                       return (
                         <MyIngredientRow
@@ -224,6 +224,7 @@ function MyIngredients() {
                           key={ing}
                           isAlcoholic={isAlcoholic_}
                           setLoadingPage={setLoadingPage}
+                          loadIngredients={loadIngredients}
                         />
                       );
                     })}

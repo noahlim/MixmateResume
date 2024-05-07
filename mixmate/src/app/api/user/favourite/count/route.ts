@@ -18,7 +18,7 @@ export const GET = withApiAuthRequired(async (req: NextRequest) => {
         let recipeCount = await dbRtns.count(db, userFavouriteCollection, {sub: session.user.sub});
 
         if (isSet(recipeCount)) {
-            result.setTrue();
+            result.setTrue(`${recipeCount} recipes found`);
             result.data = recipeCount;
         }
         else

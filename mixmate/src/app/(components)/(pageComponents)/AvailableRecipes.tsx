@@ -59,6 +59,18 @@ const MenuProps = {
 const AvailableRecipes = (props) => {
   const theme = useTheme();
   const { user, error, isLoading } = useUser();
+  const [pageIndexCount, setPageIndexCount] = useState(1);
+  const [filteredAllRecipes, setFilteredRecipes] = useState([]);
+  const [filteredByIngredientsRecipes, setFilteredByIngredientsRecipes] =
+    useState([]);
+  const [ingredientName, setIngredientName] = useState([]);
+  const [page, setPage] = useState(1);
+
+  const dispatch = useDispatch();
+  const userIngredients = useSelector(
+    (state: any) => state.userInfo.userIngredients
+  );
+
   function getStyles(name, personName, theme) {
     return {
       fontWeight:
@@ -68,56 +80,88 @@ const AvailableRecipes = (props) => {
     };
   }
 
+  function findRecipesWithAllIngredients(recipes, selectedFilterIngredients) {
+    console.log(selectedFilterIngredients);
+
+    // Filter recipes that contain all selected ingredients
+    const filteredRecipes = recipes.filter((recipe) => {
+      const recipeIngredients = recipe.ingredients.map((ingredient) =>
+        ingredient.ingredient.toLowerCase()
+      );
+
+      return selectedFilterIngredients.every((ingredient) =>
+        recipeIngredients.includes(ingredient.toLowerCase())
+      );
+    });
+
+    // Sort the filteredRecipes array by the strDrink property
+    filteredRecipes.sort((a, b) => {
+      const drinkA = a.strDrink.toLowerCase();
+      const drinkB = b.strDrink.toLowerCase();
+
+      if (drinkA < drinkB) return -1;
+      if (drinkA > drinkB) return 1;
+      return 0;
+    });
+    console.log(filteredRecipes);
+    return filteredRecipes;
+  }
+
   const handleClose = () => {
     props.setOpen(false);
-    setPersonName([]);
+    setIngredientName([]);
   };
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    const selectedFilterIngredients =
-      typeof value === "string" ? value.split(",") : value;
-      console.log(selectedFilterIngredients);
-    setPersonName(typeof value === "string" ? value.split(",") : value);
+  let onPageIndexChange = (e) => {
+    const buttonLabel = e.currentTarget.getAttribute("aria-label");
+    props.setLoadingPage(true);
 
-    let filteredRecipes = filteredAllRecipes.filter((recipe) =>
-      selectedFilterIngredients.every((ingredient) =>
-        Object.values(recipe).some(
-          (value) =>
-            typeof value === "string" &&
-            value.toLowerCase() === ingredient.toLowerCase()
-        )
-      )
+    if (buttonLabel === "Go to next page") {
+      setPage(page + 1);
+      loadAvailableRecipes(page + 1);
+    } else if (buttonLabel === "Go to previous page" || page > 1) {
+      setPage(page - 1);
+      loadAvailableRecipes(page - 1);
+    } else if (e.target.innerText) {
+      setPage(parseInt(e.target.innerText));
+      loadAvailableRecipes(parseInt(e.target.innerText));
+    } else {
+      alert("Invalid page index");
+    }
+  };
+
+  let loadAvailableRecipes = (pageIndex = 1) => {
+    const startIndex = (pageIndex - 1) * 10;
+    const endIndex = startIndex + 10;
+
+    const filteredRecipesByIndex = filteredAllRecipes.slice(
+      startIndex,
+      endIndex
     );
-    console.log(filteredRecipes);
-    setFilteredByIngredientsRecipes(filteredRecipes);
+    setFilteredByIngredientsRecipes(filteredRecipesByIndex);
+    props.setLoadingPage(false);
   };
-
-  const handleDeleteIngredientFilter = (ingToDelete) => () => {
-    console.log(ingToDelete);
-    setPersonName((ingredients) =>
-      ingredients.filter((ing) => ing !== ingToDelete)
-    );
-  };
-
-  const [filteredAllRecipes, setFilteredRecipes] = useState([]);
-  const [filteredByIngredientsRecipes, setFilteredByIngredientsRecipes] =
-    useState([]);
-  const [personName, setPersonName] = useState([]);
-
-  const dispatch = useDispatch();
-  const userIngredients = useSelector(
-    (state: any) => state.userInfo.userIngredients
-  );
-  let loadAvailableRecipes = () => {
+  let loadAllAvailableRecipes = (pageIndex = 1) => {
+    const criteria = props.isSingleIngredient  ? {
+      userId: user.sub,
+      singleIngredient: props.isSingleIngredient,
+      ingredient: props.ingredient.strIngredient1,
+    } : {userId: user.sub};
     makeRequest(
       API_ROUTES.availableRecipes,
       REQ_METHODS.get,
-      { userId: user.sub },
+      criteria,
       (response) => {
         setFilteredRecipes(response.data);
-        setFilteredByIngredientsRecipes(response.data);
+
+        setPageIndexCount(Math.ceil(response.data.length / 10));
+        const startIndex = (pageIndex - 1) * 10;
+        const endIndex = startIndex + 10;
+
+        const filteredRecipesByIndex = response.data.slice(
+          startIndex,
+          endIndex
+        );
+        setFilteredByIngredientsRecipes(filteredRecipesByIndex);
       },
       (error) => {
         props.showToastMessage("Error", error.message, SEVERITY.warning);
@@ -125,10 +169,43 @@ const AvailableRecipes = (props) => {
     );
   };
 
+  const handleIngredientsFilterChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPage(1);
+    const selectedFilterIngredients =
+      typeof value === "string" ? value.split(",") : value;
+    setIngredientName(typeof value === "string" ? value.split(",") : value);
+    const filteredRecipes = findRecipesWithAllIngredients(
+      filteredAllRecipes,
+      selectedFilterIngredients
+    );
+    //setFilteredRecipes(filteredRecipes);
+    setPageIndexCount(Math.ceil(filteredRecipes.length / 10));
+
+    // Calculate the start and end indices for the slice based on the current page index
+    const startIndex = 0;
+    const endIndex = 10;
+    const filteredRecipesByIndex = filteredRecipes.slice(startIndex, endIndex);
+
+    setFilteredByIngredientsRecipes(filteredRecipesByIndex);
+  };
+
+  // const handleDeleteIngredientFilter = (ingToDelete) => () => {
+  //   console.log(ingToDelete);
+  //   setIngredientName((ingredients) =>
+  //     ingredients.filter((ing) => ing !== ingToDelete)
+  //   );
+  // };
+
   useEffect(() => {
-    loadAvailableRecipes();
     loadUserIngredients();
-  }, [userIngredients]);
+
+    if (props.open) {
+      loadAllAvailableRecipes();
+    }
+  }, [userIngredients, props.open]);
 
   const loadUserIngredients = () => {
     if (userIngredients.length === 0)
@@ -159,10 +236,9 @@ const AvailableRecipes = (props) => {
   function RecipeRow(props) {
     // Variables
     const { drink } = props;
-    console.log(drink);
     const [rowOpen, setRowOpen] = useState(false);
     const [drinkInfo, setDrinkInfo] = useState(null);
-    const btnAddToMyMixMate_onClick = (recipe) => {
+    const handleAddToFavourites = (recipe) => {
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.post,
@@ -171,7 +247,7 @@ const AvailableRecipes = (props) => {
           props.showToastMessage("Recipe", response.message, SEVERITY.Success);
         },
         (error) => {
-          props.showToastMessage("Recipe", error.message, SEVERITY.Warning);
+          alert(error.message);
         }
       );
     };
@@ -184,7 +260,6 @@ const AvailableRecipes = (props) => {
           REQ_METHODS.get,
           { drinkid: drink._id },
           (response) => {
-            console.log(response.data);
             let drinkDetails = null;
             if (isSet(response.data)) {
               let drink = response.data;
@@ -291,7 +366,7 @@ const AvailableRecipes = (props) => {
                       sx={{ padding: 4 }}
                     >
                       <Button
-                        onClick={() => btnAddToMyMixMate_onClick(drink)}
+                        onClick={() => handleAddToFavourites(drink)}
                         color="primary"
                         variant="outlined"
                         startIcon={<FavoriteIcon />}
@@ -336,7 +411,7 @@ const AvailableRecipes = (props) => {
             </IconButton>
           </TableCell>
           <TableCell component="th" scope="row">
-            {drink.strDrink}
+            {capitalizeWords(drink.strDrink)}
           </TableCell>
         </TableRow>
         <TableRow sx={{ "& > *": { borderTop: 0 } }}>
@@ -374,7 +449,7 @@ const AvailableRecipes = (props) => {
         >
           {userIngredients.length === 0
             ? "No Available Recipes"
-            : userIngredients.length === 1
+            : userIngredients.length === 1 
             ? `Available Recipes with ${capitalizeWords(
                 userIngredients[0].strIngredient1
               )}`
@@ -415,57 +490,64 @@ const AvailableRecipes = (props) => {
                         paddingBottom: 0,
                       }}
                     >
-                      <Typography variant="h6">Recipes</Typography>
-                      <FormControl sx={{ m: 1, width: 300 }}>
-                        <InputLabel id="demo-multiple-chip-label">
-                          Filter by Ingredients
-                        </InputLabel>
-                        <Select
-                          labelId="demo-multiple-chip-label"
-                          id="demo-multiple-chip"
-                          multiple
-                          value={personName}
-                          onChange={handleChange}
-                          input={
-                            <OutlinedInput
-                              id="select-multiple-chip"
-                              label="Filter by Ingredients"
-                            />
-                          }
-                          renderValue={(selected) => (
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 0.5,
-                              }}
-                            >
-                              {selected.map((value) => (
-                                <Chip
-                                  key={value}
-                                  label={value}
-                                  // Add hover effect
-                                />
-                              ))}
-                            </Box>
-                          )}
-                          MenuProps={MenuProps}
-                        >
-                          {userIngredients.map((ing) => (
-                            <MenuItem
-                              key={ing.strIngredient1}
-                              value={ing.strIngredient1}
-                              style={getStyles(
-                                ing.strIngredient1,
-                                personName,
-                                theme
-                              )}
-                            >
-                              {ing.strIngredient1}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Box
+                        display="flow"
+                        justifyContent="center"
+                        alignItems="center"
+                        margin={2}
+                      >
+                        <Typography variant="h6">Recipes</Typography>
+                        <FormControl sx={{ m: 1, width: "100%" }}>
+                          {!props.isSingleIngredient && (<>
+                          <InputLabel id="demo-multiple-chip-label">
+                            Filter by Ingredients
+                          </InputLabel>
+                          <Select
+                            labelId="demo-multiple-chip-label"
+                            id="demo-multiple-chip"
+                            multiple
+                            value={ingredientName}
+                            onChange={handleIngredientsFilterChange}
+                            input={
+                              <OutlinedInput
+                                id="select-multiple-chip"
+                                label="Filter by Ingredients"
+                              />
+                            }
+                            renderValue={(selected) => (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 0.5,
+                                }}
+                              >
+                                {selected.map((value) => (
+                                  <Chip
+                                    key={value}
+                                    label={value}
+                                  />
+                                ))}
+                              </Box>
+                            )}
+                            MenuProps={MenuProps}
+                          >
+                            {userIngredients.map((ing) => (
+                              <MenuItem
+                                key={ing.strIngredient1}
+                                value={ing.strIngredient1}
+                                style={getStyles(
+                                  ing.strIngredient1,
+                                  ingredientName,
+                                  theme
+                                )}
+                              >
+                                {ing.strIngredient1}
+                              </MenuItem>
+                            ))}
+                          </Select></>)}
+                        </FormControl>
+                      </Box>
                     </CardContent>
                   </TableCell>
                 </TableRow>
@@ -478,15 +560,23 @@ const AvailableRecipes = (props) => {
             </Table>
           </Grid>
         </Grid>
-        <Pagination
-          shape="rounded"
-          variant="outlined"
-          count={0}
-          defaultPage={6}
-          siblingCount={0}
-          boundaryCount={2}
-          onChange={()=>{console.log("pagination")}}
-        />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          marginTop={5}
+          marginX={2}
+        >
+          <Pagination
+            shape="rounded"
+            variant="outlined"
+            count={pageIndexCount}
+            page={page}
+            defaultPage={1}
+            boundaryCount={10}
+            onChange={onPageIndexChange}
+          />
+        </Box>
       </DialogContent>
     </Dialog>
   );

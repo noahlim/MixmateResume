@@ -9,6 +9,7 @@ import LCBOShoppingItemCard from "./LCBOShoppingItemCard";
 import WalmartShoppingItemCard from "./WalmartShoppingItemCard";
 
 import { Button, Typography } from "@mui/material";
+import { capitalizeWords } from "@/app/_utilities/_client/utilities";
 
 const ShoppingItemCardGridDialog = (props) => {
   return (
@@ -32,7 +33,7 @@ const ShoppingItemCardGridDialog = (props) => {
           color="primary"
           style={{ fontSize: "1.2em", fontWeight: "bold" }}
         >
-          Available Items of {props.ing} on{" "}
+          Available Items of {capitalizeWords(props.ing)} on{" "}
           {props.isAlcoholic_ ? "LCBO" : "Walmart"}
         </Typography>
         <IconButton

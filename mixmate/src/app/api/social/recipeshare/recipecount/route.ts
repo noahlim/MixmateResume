@@ -12,17 +12,14 @@ export const GET = withApiAuthRequired(async (req: NextRequest) => {
     let result = new Result();
 
     try {
-        //fetching the drink query from the request url
-        //http://localhost:3000/api/social/recipeshare/recipeid
-        //and the drinkId variable value will be '123123'
         const userId = req.nextUrl.searchParams.get('userid');
         
         let db = await dbRtns.getDBInstance();
         //if user id is provided, get the recipes by the user who made the call only, if not get all        
         let recipeCount = await dbRtns.count(db, sharedRecipeCollection, userId ? {sub:userId} : {visibility:"public"});
-        console.log(recipeCount);
+       
         if (isSet(recipeCount)) {
-            result.setTrue();
+            result.setTrue(`${recipeCount} recipes found`);
             result.data = recipeCount;
         }
         else

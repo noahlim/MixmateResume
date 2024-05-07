@@ -51,7 +51,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       }
       await dbRtns.addOne(db, userFavouriteCollection, favouriteRecipe);
 
-      result.setTrue(`The recipe has been added to your favourite!`);
+      result.setTrue(`The recipe has been added to your favourite.`);
 
     } catch (error) {
       return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });

@@ -40,6 +40,7 @@ export const POST = withApiAuthRequired(async function postIngredient(req: NextR
             return NextResponse.json({ error: 'No associated user data found.' }, { status: 400 });
         }
 
+        result.message = 'Ingredient added successfully';
         return NextResponse.json(result, { status: 201 });
 
     } catch (err) {

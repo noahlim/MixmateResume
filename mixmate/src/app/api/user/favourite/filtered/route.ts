@@ -86,7 +86,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
 
             }
             const recipesFiltered = await dbRtns.findAll(db, userFavouriteCollection, criteria, {}, index, 5);
-            const filteredCount = await dbRtns.count(db, userFavouriteCollection, criteria);
             if (recipesFiltered.length === 0) {
                 result.message = "No recipes found!";
             } else {

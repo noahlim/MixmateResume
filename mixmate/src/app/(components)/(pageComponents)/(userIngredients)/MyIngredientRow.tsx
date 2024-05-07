@@ -25,7 +25,11 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import ShoppingItemCardGridDialog from "./ShoppingItemCard/ShoppingItemCardGrid";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { API_ROUTES, REQ_METHODS, SEVERITY } from "@/app/_utilities/_client/constants";
+import {
+  API_ROUTES,
+  REQ_METHODS,
+  SEVERITY,
+} from "@/app/_utilities/_client/constants";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 
 function MyIngredientRow(props) {
@@ -34,7 +38,6 @@ function MyIngredientRow(props) {
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
-
   // Variables
   const { ingredient, showToastMessage } = props;
   const [rowOpen, setRowOpen] = useState(false);
@@ -73,40 +76,35 @@ function MyIngredientRow(props) {
       ).catch((error) => {
         showToastMessage("Error", error.message, SEVERITY.warning);
       });
-   
     }
     setShoppingListDialogOpen(true);
   };
   const deleteIngredientFromList = async (ingredient) => {
+    props.setLoadingPage(true);
     let tempIngredients = [...userIngredients];
     tempIngredients = tempIngredients.filter(
-      (ing) => ing.strIngredient1 !== ingredient
+      (ing) => ing.strIngredient1 !== ingredient.strIngredient1
     );
 
     //deleting the item from the redux state
     dispatch(userInfoActions.setUserIngredients(tempIngredients));
 
-    makeRequest(API_ROUTES.userIngredients, REQ_METHODS.delete,
-      { userId:user.sub, ingredient: ingredient }, 
+    makeRequest(
+      API_ROUTES.userIngredients,
+      REQ_METHODS.delete,
+      { userId: user.sub, ingredient: ingredient.strIngredient1 },
       (response) => {
-        if (response.isOk) {
-          showToastMessage(
-            "Ingredients",
-            ingredient + " has been deleted from the list!",
-            SEVERITY.Success
-          );
-        } 
+        showToastMessage(
+          "Ingredients",
+          response.message,
+          SEVERITY.Success
+        );
+        props.loadIngredients();        
       }
-
-    ).catch((error) => {  
-      showToastMessage(
-        "Ingredients",
-        "Error deleting ingredient from the list.",
-        SEVERITY.Error
-      );
-    
+    ).catch((error) => {
+      showToastMessage("Ingredients", error.message, SEVERITY.Error);
     });
-
+    props.setLoadingPage(false);
     setModalDeleteIngredientOpen(false);
   };
 
@@ -189,10 +187,13 @@ function MyIngredientRow(props) {
         onClose={() => setModalDeleteIngredientOpen(false)}
         open={modalDeleteIngredientOpen}
       >
-        <DialogTitle>Deleting {ingredient} from the list</DialogTitle>
+        <DialogTitle>
+          Deleting {ingredient.strIngredient1} from the list
+        </DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete {ingredient} from the list?
+            Are you sure you want to delete {ingredient.strIngredient1} from the
+            list?
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -222,10 +223,12 @@ function MyIngredientRow(props) {
         isAlcoholic_={props.isAlcoholic}
       />
       <AvailableRecipes
+        isSingleIngredient={true}
         open={modalViewRecipesOpen}
         setOpen={setModalViewRecipesOpen}
-        ingredients={[ingredient]}
+        ingredient={ingredient}
         showToastMessage={showToastMessage}
+        setLoadingPage={props.setLoadingPage}
       />
       <TableRow>
         <TableCell sx={{ width: "15%" }}>
