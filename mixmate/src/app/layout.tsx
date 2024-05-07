@@ -12,8 +12,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">      
-      <UserProvider loginUrl={API_ROUTES.login} profileUrl={API_ROUTES.userJson}>
+    <html lang="en">
+      <UserProvider
+        loginUrl={API_ROUTES.login}
+        profileUrl={API_ROUTES.userJson}
+      >
         <body className={inter.className}>
           <RootPage>{children}</RootPage>
         </body>
