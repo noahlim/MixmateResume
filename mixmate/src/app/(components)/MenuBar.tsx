@@ -41,6 +41,8 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { notFound } from "next/navigation";
 
 import Link from "next/link";
+import { Backdrop, CircularProgress } from "@mui/material";
+import { stat } from "fs";
 const USER_SESSION = "userSession";
 
 function MenuBar() {
@@ -50,7 +52,10 @@ function MenuBar() {
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
-
+  const loadingPage = useSelector(
+    (state: any) => state.pageState.isLoading
+  );
+  const toastMessage = useSelector((state : any) => state.pageState.toastMessage)
   const router = useRouter();
   const dispatch = useDispatch();
   const userSession = useUser();
@@ -69,7 +74,7 @@ function MenuBar() {
       }
       dispatch(userInfoActions.setUserInfo(userSession.user));
     }
-  }, [userSession.user]);
+  }, [userSession.user,  loadingPage]);
 
   const loginHandleMongo = async (userInfoData) => {
     try {
@@ -253,7 +258,12 @@ function MenuBar() {
           {toast_message}
         </Alert>
       </Snackbar>
-
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 9999 }}
+        open={loadingPage}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       {/* Top Bar */}
       <AppBar position="static">
         <Toolbar>

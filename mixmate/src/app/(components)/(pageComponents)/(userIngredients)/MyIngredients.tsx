@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
-
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -33,6 +30,7 @@ import {
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function MyIngredients() {
   // Validate session
 
@@ -59,7 +57,6 @@ function MyIngredients() {
   };
 
   // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
 
   const { user, error, isLoading } = useUser();
 
@@ -75,58 +72,58 @@ function MyIngredients() {
         REQ_METHODS.get,
         { userId: user.sub },
         (response) => {
-          console.log(response);
-          dispatch(userInfoActions.setUserIngredients(response.data.ingredients));
+          dispatch(
+            userInfoActions.setUserIngredients(response.data.ingredients)
+          );
           showToastMessage(
             "Ingredients",
             response.data.length
-              ? response.data.length
-              : "0" + " ingredient(s) found!",
+              ? response.data.length + " ingredient(s) found."
+              : "No ingredient(s) found.",
             SEVERITY.Success
           );
-        },
-        (error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
         }
-      );     
+      )
+        .catch((error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
+        })
+        .finally(() => {
+          loadUserIngredients();
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     }
-    setLoadingPage(false);
-
   };
   // Loading recipe options
 
-  let loadIngredients = () =>
+  let loadIngredients = () => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
       API_ROUTES.drinks,
       REQ_METHODS.get,
       { criteria: API_DRINK_ROUTES.ingredients },
       (response) => {
-        console.log(response);
-        
-          const updatedIngredients = response.data.drinks.map((item) => {
-            if (item.strIngredient1 === "AÃ±ejo rum") {
-              return { ...item, strIngredient1: "Añejo Rum" };
-            }
-            return item;
-          });
-        
-          const sortedIngredients = updatedIngredients
-            .map((x) => x.strIngredient1)
-            .sort();
-          setAllIngredients(sortedIngredients);
-          setFilteredIngredients(sortedIngredients);
-          dispatch(recipeActions.setIngredients(updatedIngredients));
-          if (userIngredients.length === 1) {
-            loadUserIngredients();
-          } else {
-            setLoadingPage(false);
+        const updatedIngredients = response.data.drinks.map((item) => {
+          if (item.strIngredient1 === "AÃ±ejo rum") {
+            return { ...item, strIngredient1: "Añejo Rum" };
           }
-        
-      },
-      (error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+          return item;
+        });
+
+        const sortedIngredients = updatedIngredients
+          .map((x) => x.strIngredient1)
+          .sort();
+        setAllIngredients(sortedIngredients);
+        setFilteredIngredients(sortedIngredients);
+        dispatch(recipeActions.setIngredients(updatedIngredients));
       }
-    );
+    )
+      .catch((error) => {
+        showToastMessage("Error", error.message, SEVERITY.warning);
+      })
+      .finally(() => {
+        loadUserIngredients();
+      });
+  };
 
   useEffect(() => {
     loadIngredients();
@@ -157,20 +154,11 @@ function MyIngredients() {
         </Alert>
       </Snackbar>
 
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      
       <AvailableRecipes
         isSingleIngredient={false}
         open={availableRecipesModalOpen}
         setOpen={setAvailableRecipesModalOpen}
         showToastMessage={showToastMessage}
-        setLoadingPage={setLoadingPage}
       />
       {/* Page body */}
       <Grid container spacing={2} style={{ marginTop: 10 }}>
@@ -195,7 +183,8 @@ function MyIngredients() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {userIngredients === undefined || userIngredients.length === 0 ? (
+                {userIngredients === undefined ||
+                userIngredients.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={2}
@@ -215,7 +204,11 @@ function MyIngredients() {
                   <>
                     {userIngredients.map((ing) => {
                       let isAlcoholic_ = false;
-                      if (ingredientsByAlcoholic.Alcoholic.includes(ing.strIngredient1))
+                      if (
+                        ingredientsByAlcoholic.Alcoholic.includes(
+                          ing.strIngredient1
+                        )
+                      )
                         isAlcoholic_ = true;
                       return (
                         <MyIngredientRow
@@ -223,7 +216,6 @@ function MyIngredients() {
                           showToastMessage={showToastMessage}
                           key={ing}
                           isAlcoholic={isAlcoholic_}
-                          setLoadingPage={setLoadingPage}
                           loadIngredients={loadIngredients}
                         />
                       );
@@ -320,7 +312,6 @@ function MyIngredients() {
                       key={ing}
                       ingredient={ing}
                       showToastMessage={showToastMessage}
-                      setLoadingPage={setLoadingPage}
                     />
                   ))}
               </TableBody>

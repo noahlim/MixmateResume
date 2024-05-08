@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DeckIcon from "@mui/icons-material/Deck";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -71,14 +69,6 @@ function MyMixMate() {
           {toast_message}
         </Alert>
       </Snackbar>
-
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
 
       {/* SubMenu */}
       <Box sx={{ width: "100%" }}>

@@ -61,16 +61,18 @@ import {
   TwitterShareButton,
   XIcon,
 } from "react-share";
+import { useDispatch } from "react-redux";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function Recipe_Component(props) {
   // Inherited variables
   const {
     applicationPage,
     title,
     recipes,
-    setLoadingPage,
     showToastMessage,
     reloadRecipes,
   } = props;
+  const dispatch = useDispatch();
 
   const isEditablePage =
     applicationPage === APPLICATION_PAGE.favourites ||
@@ -128,7 +130,6 @@ function Recipe_Component(props) {
     // Validate session
     if (!isLoading && !user) return;
 
-    setLoadingPage(true);
     if (title === "My Favourite Recipes")
       makeRequest(
         API_ROUTES.favourite,
@@ -543,7 +544,7 @@ function Recipe_Component(props) {
           reloadRecipes();
         } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
     );
   };
@@ -596,18 +597,11 @@ function Recipe_Component(props) {
           reloadRecipes();
         } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
+
       }
     );
-    // doPost(API.Social.writeReview, newReview, (response) => {
-    //   if (response.isOk) {
-    //     reloadRecipes();
-    //     txtWriteReview_onClose();
-    //     showToastMessage("Reviews", "New review added!", SEVERITY.Success);
-    //   } else showToastMessage("Reviews", response.message, SEVERITY.Error);
 
-    //   setLoadingPage(false);
-    // });
   };
   return (
     <>
@@ -615,7 +609,6 @@ function Recipe_Component(props) {
         openModal={openAddEditRecipeModal}
         closeModal={modalAddEditRecipe_onClose}
         showToastMessage={showToastMessage}
-        setLoadingPage={setLoadingPage}
         reloadPage={reloadRecipes}
         recipeId={selectedRecipeIdAddEdit}
       />

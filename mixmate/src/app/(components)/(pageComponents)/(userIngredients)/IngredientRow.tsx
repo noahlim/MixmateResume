@@ -17,7 +17,7 @@ import { Typography } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
 const IngredientRow = (props) => {
   const { user, error, isLoading } = useUser();
 
@@ -33,7 +33,7 @@ const IngredientRow = (props) => {
     const matchedIngredients = userIngredients.find(
       (ing) => ing.strIngredient1 === ingredient
     );
-    props.setLoadingPage(true);
+    props.dispatch(pageStateActions.setPageLoadingState(true));
     if (matchedIngredients !== undefined) {
       props.showToastMessage(
         "Ingredients",
@@ -71,10 +71,10 @@ const IngredientRow = (props) => {
             SEVERITY.Error
           );
         }
-        props.setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
     );
-    props.setLoadingPage(false);
+    dispatch(pageStateActions.setPageLoadingState(false));
   };
   // Functions
   let loadIngredientInfo = () => {

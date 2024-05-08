@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
@@ -19,6 +17,7 @@ import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
 import { Box, Pagination } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function Favourites() {
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
@@ -34,8 +33,8 @@ function Favourites() {
     setOpenToastMessage(true);
   };
   const { user, error, isLoading } = useUser();
+  const dispatch = useDispatch();
   // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
   const [pageIndex, setpageIndex] = useState(1);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [allFavouriteRecipes, setAllFavouriteRecipes] = useState([]);
@@ -47,6 +46,7 @@ function Favourites() {
   }>({ filter: "", criteria: "" });
   // Loading recipe options
   let loadFavoriteRecipes = (pageIndex = 1) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.get,
@@ -57,19 +57,24 @@ function Favourites() {
         setRecipesFiltered(response.data);
         setAllFavouriteRecipes(response.data);
         // Done
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });
   };
   let onPageIndexChange = (e) => {
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     if (!isFilterApplied) loadFavoriteRecipes(parseInt(e.target.innerText));
     else loadFilteredFavouriteRecipes();
-    setLoadingPage(false);
+    dispatch(pageStateActions.setPageLoadingState(false));
   };
   let loadFilteredFavouriteRecipes = () => {
     setIsFilterApplied(true);
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.favouritesByFilter,
       REQ_METHODS.get,
@@ -77,15 +82,14 @@ function Favourites() {
       (response) => {
         setRecipesFiltered(response.data);
         setIsFilterApplied(true);
-          loadFilteredRecipesCount(filter.filter, filter.criteria);
-        showToastMessage(
-          "Recipes found",
-          response.message,
-          SEVERITY.success
-        );
-        setLoadingPage(false);
+        loadFilteredRecipesCount(filter.filter, filter.criteria);
+        showToastMessage("Recipes found", response.message, SEVERITY.success);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });
   };
   let loadFilteredRecipesCount = (filter: string, criteria: string) => {
     makeRequest(
@@ -96,10 +100,12 @@ function Favourites() {
         criteria: criteria,
       },
       (response) => {
-        console.log(response);
         setPageIndexCount(Math.ceil(response.data / 5));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });
   };
   let loadRecipesCount = () => {
     makeRequest(
@@ -109,7 +115,10 @@ function Favourites() {
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });
   };
   useEffect(() => {
     loadFavoriteRecipes();
@@ -129,14 +138,6 @@ function Favourites() {
         </Alert>
       </Snackbar>
 
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipes_Component
@@ -154,7 +155,6 @@ function Favourites() {
             applicationPage={APPLICATION_PAGE.favourites}
             title="My Favourite Recipes"
             recipes={recipesFiltered}
-            setLoadingPage={setLoadingPage}
             showToastMessage={showToastMessage}
             reloadRecipes={loadFavoriteRecipes}
           />
@@ -164,8 +164,7 @@ function Favourites() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        margin={4} 
-        
+        margin={4}
       >
         <Pagination
           shape="rounded"

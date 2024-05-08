@@ -35,8 +35,9 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                 })
             );
 
+            const data = {recipes: updatedRecipes, count: updatedRecipes.length};
             result.setTrue("Recipes Fetched.");
-            result.data = updatedRecipes;
+            result.data = data;
             result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No recipe found.";
             return NextResponse.json(result, { status: 200 });
         } else {

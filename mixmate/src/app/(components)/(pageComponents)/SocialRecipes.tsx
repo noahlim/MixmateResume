@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import { CardContent, AlertColor, Pagination, Box } from "@mui/material";
-import Button from "@mui/material/Button";
+import { AlertColor, Pagination, Box } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -19,6 +16,7 @@ import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 
 function CustomRecipes() {
   const dispatch = useDispatch();
@@ -48,7 +46,6 @@ function CustomRecipes() {
   }>({ filter: "", criteria: "" });
 
   // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const alcoholicTypes = useSelector(
@@ -56,10 +53,12 @@ function CustomRecipes() {
   );
 
   let onPageIndexChange = (e) => {
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
     loadSocialRecipes(parseInt(e.target.innerText));
   };
   let loadSocialRecipes = (pageIndex = 1) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.get,
@@ -67,14 +66,18 @@ function CustomRecipes() {
       (response) => {
         setRecipesFiltered(response.data);
         loadRecipesCount();
-        // Done
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+    }).finally(()=>{
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });;
   };
 
   let loadFilteredMyRecipes = () => {
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
       REQ_METHODS.get,
@@ -83,9 +86,12 @@ function CustomRecipes() {
         setRecipesFiltered(response.data);
         loadFilteredRecipesCount(filter.filter, filter.criteria);
         showToastMessage("Recipes found", response.message, SEVERITY.success);
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });;
   };
   let loadFilteredRecipesCount = (filter: string, criteria: string) => {
     makeRequest(
@@ -98,115 +104,130 @@ function CustomRecipes() {
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 10));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });;
   };
+
   // Loading recipe options
   let loadRecipesCount = () => {
     makeRequest(
       API_ROUTES.sharedRecipesCount,
       REQ_METHODS.get,
-      { },
+      {},
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 10));
       }
-    );
+    ).catch((error) => {
+      showToastMessage("Error", error.message, SEVERITY.warning);
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });;
   };
-  let loadAlcoholicTypes = () => {
-    if (alcoholicTypes.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.alcoholicTypes },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setAlcoholicTypes(
-                response.data.drinks.map((x) => x.strAlcoholic).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadSocialRecipes();
-  };
+  //   if (alcoholicTypes.length === 0) {
+  //     dispatch(pageStateActions.setPageLoadingState(true));
 
-  let loadIngredients = () => {
-    if (allIngredients.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.ingredients },
-        (response) => {
-          if (response.isOk) {
-            const updatedIngredients = response.data.drinks
-              .map((item) => {
-                if (item.strIngredient1 === "AÃ±ejo rum") {
-                  return { ...item, strIngredient1: "Añejo Rum" };
-                }
-                return item;
-              })
-              .sort();
-            dispatch(recipeActions.setIngredients(updatedIngredients));
+  //     makeRequest(
+  //       API_ROUTES.drinks,
+  //       REQ_METHODS.get,
+  //       { criteria: API_DRINK_ROUTES.alcoholicTypes },
+  //       (response) => {
+  //         if (response.isOk) {
+  //           dispatch(
+  //             recipeActions.setAlcoholicTypes(
+  //               response.data.drinks.map((x) => x.strAlcoholic).sort()
+  //             )
+  //           );
+  //         }
+  //       }
+  //     ).catch((error) => {
+  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       dispatch(pageStateActions.setPageLoadingState(false));
+  //     });
+  //   }
+  //   loadSocialRecipes();
+  // };
 
-            loadAlcoholicTypes();
-          }
-        }
-      );
-    } else {
-      loadAlcoholicTypes();
-    }
-  };
-  let loadGlasses = () => {
-    if (glasses.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.glassTypes },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setGlasses(
-                response.data.drinks.map((x) => x.strGlass).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadIngredients();
-  };
-  let loadCategories = () => {
-    if (categories.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.drinkCategories },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setCategories(
-                response.data.drinks.map((x) => x.strCategory).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadGlasses();
-  };
+  // let loadIngredients = () => {
+  //   if (allIngredients.length === 0) {
+  //     dispatch(pageStateActions.setPageLoadingState(true));
+
+  //     makeRequest(
+  //       API_ROUTES.drinks,
+  //       REQ_METHODS.get,
+  //       { criteria: API_DRINK_ROUTES.ingredients },
+  //       (response) => {
+  //         if (response.isOk) {
+  //           const updatedIngredients = response.data.drinks
+  //             .map((item) => {
+  //               if (item.strIngredient1 === "AÃ±ejo rum") {
+  //                 return { ...item, strIngredient1: "Añejo Rum" };
+  //               }
+  //               return item;
+  //             })
+  //             .sort();
+  //           dispatch(recipeActions.setIngredients(updatedIngredients));
+  //         }
+  //       }
+  //     ).catch((error) => {
+  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       dispatch(pageStateActions.setPageLoadingState(false));
+  //     });
+  //   }
+  //   loadAlcoholicTypes();
+  // };
+  // let loadGlasses = () => {
+  //   if (glasses.length === 0) {
+  //     dispatch(pageStateActions.setPageLoadingState(true));
+
+  //     makeRequest(
+  //       API_ROUTES.drinks,
+  //       REQ_METHODS.get,
+  //       { criteria: API_DRINK_ROUTES.glassTypes },
+  //       (response) => {
+  //         if (response.isOk) {
+  //           dispatch(
+  //             recipeActions.setGlasses(
+  //               response.data.drinks.map((x) => x.strGlass).sort()
+  //             )
+  //           );
+  //         }
+  //       }
+  //     ).catch((error) => {
+  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       dispatch(pageStateActions.setPageLoadingState(false));
+  //     });
+  //   }
+  //   loadIngredients();
+  // };
+  // let loadCategories = () => {
+  //   dispatch(pageStateActions.setPageLoadingState(true));
+  //   if (categories.length === 0) {
+  //     makeRequest(
+  //       API_ROUTES.drinks,
+  //       REQ_METHODS.get,
+  //       { criteria: API_DRINK_ROUTES.drinkCategories },
+  //       (response) => {
+  //         if (response.isOk) {
+  //           dispatch(
+  //             recipeActions.setCategories(
+  //               response.data.drinks.map((x) => x.strCategory).sort()
+  //             )
+  //           );
+  //         }
+  //       }
+  //     ).catch((error) => {
+  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       dispatch(pageStateActions.setPageLoadingState(false));
+  //     });
+  //   }
+  //   loadGlasses();
+  // };
   useEffect(() => {
-    loadCategories();
+    loadSocialRecipes();
     loadRecipesCount();
   }, []);
 
- 
   return (
     <>
       {/* Toast message */}
@@ -221,18 +242,9 @@ function CustomRecipes() {
         </Alert>
       </Snackbar>
 
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => 9999 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-
       {/* Page body */}
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
-          
           <FilterRecipes_Component
             recipeAllRecipes={recipeAllRecipes}
             loadFilteredRecipes={loadFilteredMyRecipes}
@@ -247,7 +259,6 @@ function CustomRecipes() {
             applicationPage={APPLICATION_PAGE.social}
             title="My MixMate Recipes"
             recipes={recipesFiltered}
-            setLoadingPage={setLoadingPage}
             showToastMessage={showToastMessage}
             reloadRecipes={loadSocialRecipes}
             recipeCategories={categories}
@@ -260,8 +271,7 @@ function CustomRecipes() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        margin={4} 
-        
+        margin={4}
       >
         <Pagination
           shape="rounded"

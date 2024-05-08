@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -20,8 +20,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
-import { fileFrom } from "node-fetch";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function FilterRecipes_Component(props) {
   // Variables
   let {
@@ -31,7 +30,7 @@ function FilterRecipes_Component(props) {
     page,
     filterCriteriaSetter,
     filterCriteria,
-    loadFilteredRecipes
+    loadFilteredRecipes,
   } = props;
   const dispatch = useDispatch();
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
@@ -40,63 +39,23 @@ function FilterRecipes_Component(props) {
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
-  // Filter recipes controls
-
 
   let btnClear_onClick = () => {
-    filterCriteriaSetter({filter:"", criteria:""});
+    filterCriteriaSetter({ filter: "", criteria: "" });
     setRecipesFiltered(recipeAllRecipes);
   };
 
-  let btnFind_onClick = () => {    
+  let btnFind_onClick = () => {
     if (isSet(filterCriteria.criteria)) {
       loadFilteredRecipes(recipeAllRecipes);
-      
-    }else{
-      showToastMessage("Missing Filter/Criteria", "Please fill in the Filter/Criteria.", SEVERITY.warning);
+    } else {
+      showToastMessage(
+        "Missing Filter/Criteria",
+        "Please fill in the Filter/Criteria.",
+        SEVERITY.warning
+      );
     }
   };
-  //   let filters = [];
-  //   console.log(recipeAllRecipes);
-  //   //makeRequest(API_ROUTES.drinksByFilter, REQ_METHODS.get, )
-  //   let filter;
-  //   let criteria;
-  //   for (let x of recipeAllRecipes) {
-  //     if (isSet(selectedCategory) && x.strCategory === selectedCategory)
-
-  //       //filters.push(x);
-  //     else if (isSet(selectedGlass) && x.strGlass === selectedGlass)
-  //       filters.push(x);
-  //     else if (
-  //       isSet(selectedIngredient) &&
-  //       x.ingredients.some((k) => k === selectedIngredient)
-  //     )
-  //       filters.push(x);
-  //     else if (
-  //       isSet(selectedAlcoholicType) &&
-  //       x.strAlcoholic === selectedAlcoholicType
-  //     )
-  //       filters.push(x);
-  //     else if (
-  //       isSet(recipeName) &&
-  //       x.strDrink.toLowerCase().includes(recipeName.toLowerCase())
-  //     )
-  //       filters.push(x);
-  //   }
-
-  //   if (filters.length === 0)
-  //     showToastMessage("Filter", "No recipes found", SEVERITY.Info);
-  //   else
-  //     showToastMessage(
-  //       "Recipes",
-  //       filters.length + " recipe(s) found",
-  //       SEVERITY.Success
-  //     );
-
-  //   setRecipesFiltered(filters);
-  // } else
-  //   showToastMessage("Filter", "No criteria to search", SEVERITY.Warning);
-  // };
 
   let loadAlcoholicTypes = () => {
     if (alcoholicTypes.length === 0) {
@@ -114,7 +73,10 @@ function FilterRecipes_Component(props) {
           }
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.warning);        
+      }).finally(() => {
+        console.log("reached finally");
+        dispatch(pageStateActions.setPageLoadingState(false));
       });
     }
   };
@@ -126,21 +88,26 @@ function FilterRecipes_Component(props) {
         REQ_METHODS.get,
         { criteria: API_DRINK_ROUTES.ingredients },
         (response) => {
-          if (response.isOk) {
-            const updatedIngredients = response.data.drinks
-              .map((item) => {
-                if (item.strIngredient1 === "AÃ±ejo rum") {
-                  return { ...item, strIngredient1: "Añejo Rum" };
-                }
-                return item;
-              })
-              .sort();
-            dispatch(recipeActions.setIngredients(updatedIngredients));
+          const updatedIngredients = response.data.drinks
+            .map((item) => {
+              if (item.strIngredient1 === "AÃ±ejo rum") {
+                return { ...item, strIngredient1: "Añejo Rum" };
+              }
+              return item;
+            })
+            .sort();
+          dispatch(recipeActions.setIngredients(updatedIngredients));
 
-            loadAlcoholicTypes();
-          }
+          loadAlcoholicTypes();
         }
-      );
+      )
+        .catch((error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
+          dispatch(pageStateActions.setPageLoadingState(false));
+        })
+        .finally(() => {
+          loadAlcoholicTypes();
+        });
     } else {
       loadAlcoholicTypes();
     }
@@ -160,13 +127,19 @@ function FilterRecipes_Component(props) {
             );
           }
         }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
+      )
+        .catch((error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
+          dispatch(pageStateActions.setPageLoadingState(false));
+        })
+        .finally(() => {
+          loadIngredients();
+        });
     }
     loadIngredients();
   };
   let loadCategories = () => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     if (categories.length === 0) {
       makeRequest(
         API_ROUTES.drinks,
@@ -181,11 +154,17 @@ function FilterRecipes_Component(props) {
             );
           }
         }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
+      )
+        .catch((error) => {
+          showToastMessage("Error", error.message, SEVERITY.warning);
+          dispatch(pageStateActions.setPageLoadingState(false));
+        })
+        .finally(() => {
+          loadGlasses();
+        });
+    } else {
+      loadGlasses();
     }
-    loadGlasses();
   };
 
   useEffect(() => {
@@ -201,7 +180,7 @@ function FilterRecipes_Component(props) {
         </CardContent>
 
         {/* Filters */}
-        
+
         <div style={{ padding: 25 }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel id="filter-select-label">Filter by</InputLabel>
@@ -306,9 +285,12 @@ function FilterRecipes_Component(props) {
                   })
                 }
               >
-                {allIngredients?.map((ingre) => {                  
+                {allIngredients?.map((ingre) => {
                   return (
-                    <MenuItem key={ingre.strIngredient1} value={ingre.strIngredient1}>
+                    <MenuItem
+                      key={ingre.strIngredient1}
+                      value={ingre.strIngredient1}
+                    >
                       {ingre.strIngredient1}
                     </MenuItem>
                   );

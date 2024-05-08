@@ -31,7 +31,7 @@ import {
   SEVERITY,
 } from "@/app/_utilities/_client/constants";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function MyIngredientRow(props) {
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
@@ -58,7 +58,7 @@ function MyIngredientRow(props) {
 
   const fetchStockInfoFromWeb = async (ingredient) => {
     if (!isDataFetched) {
-      props.setLoadingPage(true);
+      props.dispatch(pageStateActions.setPageLoadingState(true));
 
       const apiEndpoint = props.isAlcoholic
         ? API_ROUTES.lcboItems
@@ -71,7 +71,7 @@ function MyIngredientRow(props) {
         (response) => {
           setIngredientProducts(response.data);
           setIsDataFetched(true);
-          props.setLoadingPage(false);
+          dispatch(pageStateActions.setPageLoadingState(false));
         }
       ).catch((error) => {
         showToastMessage("Error", error.message, SEVERITY.warning);
@@ -80,7 +80,7 @@ function MyIngredientRow(props) {
     setShoppingListDialogOpen(true);
   };
   const deleteIngredientFromList = async (ingredient) => {
-    props.setLoadingPage(true);
+    props.dispatch(pageStateActions.setPageLoadingState(true));
     let tempIngredients = [...userIngredients];
     tempIngredients = tempIngredients.filter(
       (ing) => ing.strIngredient1 !== ingredient.strIngredient1
@@ -104,7 +104,7 @@ function MyIngredientRow(props) {
     ).catch((error) => {
       showToastMessage("Ingredients", error.message, SEVERITY.Error);
     });
-    props.setLoadingPage(false);
+    dispatch(pageStateActions.setPageLoadingState(false));
     setModalDeleteIngredientOpen(false);
   };
 

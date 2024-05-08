@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import {
@@ -28,26 +28,25 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 
 function AddEditRecipe_Component(props) {
   const {
     openModal,
     closeModal,
     showToastMessage,
-    setLoadingPage,
     recipeId,
     reloadPage,
   } = props;
 
-  
+  const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
-  const [recipeIdLoaded, setRecipeIdLoaded] = useState(false);
   const [newIngredient, setNewIngredient] = useState("");
   const [newMeasure, setNewMeasure] = useState("");
   const [originalListIngredients, setOriginalListIngredients] = useState([]);
@@ -69,7 +68,7 @@ function AddEditRecipe_Component(props) {
   // Load data if recipe ID exist
   let loadRecipeIfExist = () => {
     if (isSet(recipeId)) {
-      setLoadingPage(true);
+      dispatch(pageStateActions.setPageLoadingState(false));
       makeRequest(
         API_ROUTES.sharedRecipeById,
         REQ_METHODS.get,
@@ -91,9 +90,9 @@ function AddEditRecipe_Component(props) {
           });
           setCurrentRecipeIngredients(ingredients);
           setCurrentRecipeMeasure(measures);
-          setCurrentRecipeInstructions(response.data.strInstructions);
-          setRecipeIdLoaded(true);
-          setLoadingPage(false);
+          setCurrentRecipeInstructions(response.data.strInstructions);          
+          dispatch(pageStateActions.setPageLoadingState(false));
+          
         }
       );
     }
@@ -105,7 +104,6 @@ function AddEditRecipe_Component(props) {
   useEffect(()=>{loadRecipeIfExist()},[openModal])
   // Modal events
   let closeNewRecipeModal_onClick = () => {
-    setRecipeIdLoaded(false);
     setNewIngredient("");
     setNewMeasure("");
     setOriginalListIngredients([]);
@@ -121,7 +119,7 @@ function AddEditRecipe_Component(props) {
     setCurrentRecipeIngredients([]);
     setCurrentRecipeMeasure([]);
     setCurrentRecipeInstructions("");
-    setLoadingPage(false);
+    dispatch(pageStateActions.setPageLoadingState(false));
     closeModal();
   };
   let fileSelectImage_onChange = (file) => {
@@ -202,7 +200,7 @@ function AddEditRecipe_Component(props) {
       
     //validated!
     else {
-      setLoadingPage(true);
+      dispatch(pageStateActions.setPageLoadingState(true));
       //if the recipe is newly created, or if from favorite page, create a copy of the recipe
       console.log(currentRecipeRowId);
       if (isNotSet(currentRecipeRowId) || currentRecipeType === "Favorite") {
@@ -266,8 +264,8 @@ function AddEditRecipe_Component(props) {
             } else
               showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
-            setLoadingPage(false);
-          }
+              dispatch(pageStateActions.setPageLoadingState(false));
+            }
         );
       } else {
         
@@ -312,8 +310,8 @@ function AddEditRecipe_Component(props) {
             } else
               showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
-            setLoadingPage(false);
-          }
+              dispatch(pageStateActions.setPageLoadingState(false));
+            }
         );
       }
     }

@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
   API_ROUTES,
   API_DRINK_ROUTES,
@@ -37,7 +35,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
 function RecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
@@ -105,13 +103,13 @@ function RecipesComponent() {
           setRecipesFiltered(response.data);
 
           // Done
-          setLoadingPage(false);
+          dispatch(pageStateActions.setPageLoadingState(false));
         }
       ).catch((error) => {
         showToastMessage("Error", error.message, SEVERITY.warning);
       });
     } else {
-      setLoadingPage(false);
+      dispatch(pageStateActions.setPageLoadingState(false));
       setRecipesFiltered(allRecipes);
     }
   };
@@ -246,7 +244,7 @@ function RecipesComponent() {
       selectedAlcoholicType !== "" ||
       (recipeNameRef.current ? recipeNameRef.current.value !== "" : false)
     ) {
-      setLoadingPage(true);
+      dispatch(pageStateActions.setPageLoadingState(true));
       if (allRecipes.length === 0) await loadAllRecipes();
 
       switch (selectedFilter) {
@@ -337,10 +335,10 @@ function RecipesComponent() {
             SEVERITY.Warning
           );
       }
-      setLoadingPage(false);
+      dispatch(pageStateActions.setPageLoadingState(false));
     } else {
       showToastMessage("Filter", "No criteria to search", SEVERITY.Warning);
-      setLoadingPage(false);
+      dispatch(pageStateActions.setPageLoadingState(false));
     }
   };
 
@@ -355,7 +353,7 @@ function RecipesComponent() {
       );
     }
 
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
@@ -364,7 +362,7 @@ function RecipesComponent() {
         if (response.isOk)
           showToastMessage("Recipe", response.message, SEVERITY.Success);
         else showToastMessage("Recipe", response.message, SEVERITY.Warning);
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
       showToastMessage("Error", error.message, SEVERITY.warning);
@@ -385,13 +383,6 @@ function RecipesComponent() {
         </Alert>
       </Snackbar>
 
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
 
       {/* Page body */}
 

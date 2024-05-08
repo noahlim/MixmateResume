@@ -45,7 +45,7 @@ import { useTheme } from "@mui/material/styles";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Chip from "@mui/material/Chip";
 import { Pagination } from "@mui/material";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -113,7 +113,7 @@ const AvailableRecipes = (props) => {
   };
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-    props.setLoadingPage(true);
+    props.dispatch(pageStateActions.setPageLoadingState(true));
 
     if (buttonLabel === "Go to next page") {
       setPage(page + 1);
@@ -138,7 +138,7 @@ const AvailableRecipes = (props) => {
       endIndex
     );
     setFilteredByIngredientsRecipes(filteredRecipesByIndex);
-    props.setLoadingPage(false);
+    dispatch(pageStateActions.setPageLoadingState(false));
   };
   let loadAllAvailableRecipes = (pageIndex = 1) => {
     const criteria = props.isSingleIngredient  ? {

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -23,6 +21,8 @@ import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import AddEditRecipe_Component from "../AddEditRecipe_Component";
+import { pages } from "next/dist/build/templates/app-page";
+import { pageStateActions } from "lib/redux/pageStateSlice";
 
 function CustomRecipes() {
   const { user, error, isLoading } = useUser();
@@ -38,7 +38,6 @@ function CustomRecipes() {
   const [toast_severity, setToast_severity] = useState<AlertColor>(
     SEVERITY.Info
   );
-  const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   const [toast_title, setToast_title] = useState("");
   const [toast_message, setToast_message] = useState("");
@@ -54,16 +53,14 @@ function CustomRecipes() {
   }>({ filter: "", criteria: "" });
 
   // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
-  const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
 
   let onPageIndexChange = (e) => {
-    setLoadingPage(true);
+    dispatch(pageStateActions.setPageLoadingState(true));
     loadMyRecipes(parseInt(e.target.innerText));
   };
   let loadMyRecipes = (pageIndex = 1) => {
@@ -72,29 +69,33 @@ function CustomRecipes() {
       REQ_METHODS.get,
       { userid: user?.sub, index: pageIndex },
       (response) => {
-        setRecipesFiltered(response.data);
-        loadRecipesCount();
-        // Done
-        setLoadingPage(false);
+        setRecipesFiltered(response.data.recipes);
+        setPageIndexCount(Math.ceil(response.data.count / 10));
+
+        setPageIndexCount(Math.ceil(response.data.length / 10));
       }
-    );
+    ).catch((error)=>{
+      showToastMessage("Error", error.message, SEVERITY.success);
+    }).finally(() => {
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });
   };
 
   let loadFilteredMyRecipes = () => {
-    setIsFilterApplied(true);
-    setLoadingPage(true);
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
       REQ_METHODS.get,
       { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
       (response) => {
         setRecipesFiltered(response.data);
-        setIsFilterApplied(true);
         loadFilteredRecipesCount(filter.filter, filter.criteria);
         showToastMessage("Recipes found", response.message, SEVERITY.success);
-        setLoadingPage(false);
       }
-    );
+    ).catch((error)=>{
+      showToastMessage("Error", error.message, SEVERITY.success);
+    }).finally(() => {
+      dispatch(pageStateActions.setPageLoadingState(false));
+    });;
   };
   let loadFilteredRecipesCount = (filter: string, criteria: string) => {
     makeRequest(
@@ -105,115 +106,14 @@ function CustomRecipes() {
         criteria: criteria,
       },
       (response) => {
-        console.log(response);
         setPageIndexCount(Math.ceil(response.data / 10));
       }
     );
   };
   // Loading recipe options
-  let loadRecipesCount = () => {
-    makeRequest(
-      API_ROUTES.sharedRecipesCount,
-      REQ_METHODS.get,
-      { userid: user.sub },
-      (response) => {
-        setPageIndexCount(Math.ceil(response.data / 10));
-      }
-    );
-  };
-  let loadAlcoholicTypes = () => {
-    if (alcoholicTypes.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.alcoholicTypes },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setAlcoholicTypes(
-                response.data.drinks.map((x) => x.strAlcoholic).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadMyRecipes();
-  };
-
-  let loadIngredients = () => {
-    if (allIngredients.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.ingredients },
-        (response) => {
-          if (response.isOk) {
-            const updatedIngredients = response.data.drinks
-              .map((item) => {
-                if (item.strIngredient1 === "AÃ±ejo rum") {
-                  return { ...item, strIngredient1: "Añejo Rum" };
-                }
-                return item;
-              })
-              .sort();
-            dispatch(recipeActions.setIngredients(updatedIngredients));
-
-            loadAlcoholicTypes();
-          }
-        }
-      );
-    } else {
-      loadAlcoholicTypes();
-    }
-  };
-  let loadGlasses = () => {
-    if (glasses.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.glassTypes },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setGlasses(
-                response.data.drinks.map((x) => x.strGlass).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadIngredients();
-  };
-  let loadCategories = () => {
-    if (categories.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.drinkCategories },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setCategories(
-                response.data.drinks.map((x) => x.strCategory).sort()
-              )
-            );
-          }
-        }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
-      });
-    }
-    loadGlasses();
-  };
+ 
   useEffect(() => {
-    loadCategories();
-    loadRecipesCount();
+    loadMyRecipes();
   }, []);
 
   // Add edit recipes
@@ -241,21 +141,13 @@ function CustomRecipes() {
           {toast_message}
         </Alert>
       </Snackbar>
-
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => 9999 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+ 
 
       {/* Add new recipe modal */}
       <AddEditRecipe_Component
         openModal={openAddEditRecipeModal}
         closeModal={modalAddEditRecipe_onClose}
         showToastMessage={showToastMessage}
-        setLoadingPage={setLoadingPage}
         reloadPage={loadMyRecipes}
         recipeId={selectedRecipeIdAddEdit}
       />
@@ -293,7 +185,6 @@ function CustomRecipes() {
             applicationPage={APPLICATION_PAGE.myRecipes}
             title="My MixMate Recipes"
             recipes={recipesFiltered}
-            setLoadingPage={setLoadingPage}
             showToastMessage={showToastMessage}
             reloadRecipes={loadMyRecipes}
             recipeCategories={categories}
