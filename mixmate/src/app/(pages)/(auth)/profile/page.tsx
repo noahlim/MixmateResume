@@ -30,12 +30,6 @@ function Profile() {
   const router = useRouter();
   const {user, error, isLoading} = useUser()
 
-//   useEffect(() => {
-//     if (isNotSet(user)) {
-//       router.push("/");
-//     }
-//   }, [userInfo, router, user]);
-
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
   const [toast_severity, setToast_severity] = useState<AlertColor>("info");

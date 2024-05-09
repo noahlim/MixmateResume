@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DeckIcon from "@mui/icons-material/Deck";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -18,58 +17,33 @@ import LiquorIcon from "@mui/icons-material/Liquor";
 import { AlertColor } from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
 import TestPage from "@/app/(components)/(pageComponents)/TestPage";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import CustomRecipes from "@/app/(components)/(pageComponents)/CustomRecipes";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import SocialRecipes from "@/app/(components)/(pageComponents)/SocialRecipes";
 import MyIngredients from "@/app/(components)/(pageComponents)/(userIngredients)/MyIngredients";
-//import MyIngredients from './MyIngredient/MyIngredients'
+import { useDispatch, useSelector } from "react-redux";
+import { userInfoActions } from "lib/redux/userInfoSlice";
+
 function MyMixMate() {
   // Validate session
   const { user, error, isLoading } = useUser();
+  
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!userSession.isLoading && !user) {
+      const tempSession = useUser();
+      const dispatch = useDispatch();
+      dispatch(userInfoActions.setUserInfo(tempSession));
       router.push(APPLICATION_PAGE.root);
     }
-  }, [isLoading, user, router]);
-
-  // Toast Message
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>("info");
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
-  const showToastMessage = (title, message, severity = SEVERITY.Info) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
-  };
-
-  // Variables
-  const [loadingPage, setLoadingPage] = useState(false);
+  }, [userSession, router]);
 
   // Tabs
-  const [selectedTab, setSelectedTab] = useState(0);
- 
-
-  
+  const [selectedTab, setSelectedTab] = useState(0);  
   return (
     <>
-      
-      {/* Toast message */}
-      <Snackbar
-        open={openToastMessage}
-        autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
-      >
-        <Alert severity={toast_severity}>
-          <AlertTitle>{toast_title}</AlertTitle>
-          {toast_message}
-        </Alert>
-      </Snackbar>
-
       {/* SubMenu */}
       <Box sx={{ width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

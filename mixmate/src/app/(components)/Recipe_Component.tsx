@@ -13,7 +13,6 @@ import {
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import Button from "@mui/material/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import Dialog from "@mui/material/Dialog";
@@ -48,8 +47,6 @@ import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import clipboard from "clipboard-copy";
 import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-import Divider from "@mui/material/Divider";
 import Avatar from "@mui/material/Avatar";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -61,7 +58,7 @@ import {
   TwitterShareButton,
   XIcon,
 } from "react-share";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 function Recipe_Component(props) {
   // Inherited variables
@@ -108,7 +105,7 @@ function Recipe_Component(props) {
 
   let btnRemoveReview_onClick = (reviewid) => {
     // Validate session
-    if (!isLoading && !user) return;
+    if (!user) return;
     makeRequest(
       API_ROUTES.recipeReviews,
       REQ_METHODS.delete,
@@ -128,7 +125,7 @@ function Recipe_Component(props) {
   };
   let btnRemoveRecipe_onClick = () => {
     // Validate session
-    if (!isLoading && !user) return;
+    if (!user) return;
 
     if (title === "My Favourite Recipes")
       makeRequest(

@@ -69,7 +69,7 @@ function CustomRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
     }).finally(()=>{
       dispatch(pageStateActions.setPageLoadingState(false));
     });;
@@ -89,7 +89,7 @@ function CustomRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });;
   };
@@ -105,7 +105,7 @@ function CustomRecipes() {
         setPageIndexCount(Math.ceil(response.data / 10));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });;
   };
@@ -120,7 +120,7 @@ function CustomRecipes() {
         setPageIndexCount(Math.ceil(response.data / 10));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });;
   };
@@ -141,7 +141,7 @@ function CustomRecipes() {
   //         }
   //       }
   //     ).catch((error) => {
-  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       showToastMessage("Error", error.message, SEVERITY.Warning);
   //       dispatch(pageStateActions.setPageLoadingState(false));
   //     });
   //   }
@@ -170,7 +170,7 @@ function CustomRecipes() {
   //         }
   //       }
   //     ).catch((error) => {
-  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       showToastMessage("Error", error.message, SEVERITY.Warning);
   //       dispatch(pageStateActions.setPageLoadingState(false));
   //     });
   //   }
@@ -194,7 +194,7 @@ function CustomRecipes() {
   //         }
   //       }
   //     ).catch((error) => {
-  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       showToastMessage("Error", error.message, SEVERITY.Warning);
   //       dispatch(pageStateActions.setPageLoadingState(false));
   //     });
   //   }
@@ -217,7 +217,7 @@ function CustomRecipes() {
   //         }
   //       }
   //     ).catch((error) => {
-  //       showToastMessage("Error", error.message, SEVERITY.warning);
+  //       showToastMessage("Error", error.message, SEVERITY.Warning);
   //       dispatch(pageStateActions.setPageLoadingState(false));
   //     });
   //   }

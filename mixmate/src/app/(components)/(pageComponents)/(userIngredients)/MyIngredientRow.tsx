@@ -25,6 +25,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import ShoppingItemCardGridDialog from "./ShoppingItemCard/ShoppingItemCardGrid";
 import { useUser } from "@auth0/nextjs-auth0/client";
+
 import {
   API_ROUTES,
   REQ_METHODS,
@@ -34,6 +35,7 @@ import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 function MyIngredientRow(props) {
   const { user, error, isLoading } = useUser();
+
   const dispatch = useDispatch();
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
@@ -74,7 +76,7 @@ function MyIngredientRow(props) {
           dispatch(pageStateActions.setPageLoadingState(false));
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       });
     }
     setShoppingListDialogOpen(true);

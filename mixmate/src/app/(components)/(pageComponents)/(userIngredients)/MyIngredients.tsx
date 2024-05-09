@@ -38,25 +38,6 @@ function MyIngredients() {
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
-  // Toast Message
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>(
-    SEVERITY.Info
-  );
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
-  const showToastMessage = (
-    title: string,
-    message: string,
-    severity: AlertColor = SEVERITY.Info
-  ) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
-  };
-
-  // Variables
 
   const { user, error, isLoading } = useUser();
 
@@ -85,7 +66,7 @@ function MyIngredients() {
         }
       )
         .catch((error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
+          showToastMessage("Error", error.message, SEVERITY.Warning);
         })
         .finally(() => {
           loadUserIngredients();
@@ -118,7 +99,7 @@ function MyIngredients() {
       }
     )
       .catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       })
       .finally(() => {
         loadUserIngredients();

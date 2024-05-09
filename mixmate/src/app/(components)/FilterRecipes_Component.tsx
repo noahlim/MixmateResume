@@ -21,13 +21,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
 function FilterRecipes_Component(props) {
   // Variables
   let {
     recipeAllRecipes,
-    showToastMessage,
     setRecipesFiltered,
-    page,
     filterCriteriaSetter,
     filterCriteria,
     loadFilteredRecipes,
@@ -49,11 +48,13 @@ function FilterRecipes_Component(props) {
     if (isSet(filterCriteria.criteria)) {
       loadFilteredRecipes(recipeAllRecipes);
     } else {
-      showToastMessage(
-        "Missing Filter/Criteria",
-        "Please fill in the Filter/Criteria.",
-        SEVERITY.warning
-      );
+      const toastMessageObject: ToastMessage = {
+        open: true,
+        message: "Please fill in the Filter/Criteria.",
+        severity: SEVERITY.Warning,
+        title: "Missing Filter/Criteria",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
     }
   };
 
@@ -72,12 +73,20 @@ function FilterRecipes_Component(props) {
             );
           }
         }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);        
-      }).finally(() => {
-        console.log("reached finally");
-        dispatch(pageStateActions.setPageLoadingState(false));
-      });
+      )
+        .catch((error) => {
+          const toastMessageObject: ToastMessage = {
+            open: true,
+            message: error.message,
+            severity: SEVERITY.Error,
+            title: "Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        })
+        .finally(() => {
+          console.log("reached finally");
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     }
   };
 
@@ -102,7 +111,13 @@ function FilterRecipes_Component(props) {
         }
       )
         .catch((error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
+          const toastMessageObject: ToastMessage = {
+            open: true,
+            message: error.message,
+            severity: SEVERITY.Warning,
+            title: "Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
           dispatch(pageStateActions.setPageLoadingState(false));
         })
         .finally(() => {
@@ -129,7 +144,13 @@ function FilterRecipes_Component(props) {
         }
       )
         .catch((error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
+          const toastMessageObject: ToastMessage = {
+            open: true,
+            message: error.message,
+            severity: SEVERITY.Warning,
+            title: "Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
           dispatch(pageStateActions.setPageLoadingState(false));
         })
         .finally(() => {
@@ -156,7 +177,13 @@ function FilterRecipes_Component(props) {
         }
       )
         .catch((error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
+          const toastMessageObject: ToastMessage = {
+            open: true,
+            message: error.message,
+            severity: SEVERITY.Warning,
+            title: "Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
           dispatch(pageStateActions.setPageLoadingState(false));
         })
         .finally(() => {

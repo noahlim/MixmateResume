@@ -59,6 +59,7 @@ const MenuProps = {
 const AvailableRecipes = (props) => {
   const theme = useTheme();
   const { user, error, isLoading } = useUser();
+
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [filteredAllRecipes, setFilteredRecipes] = useState([]);
   const [filteredByIngredientsRecipes, setFilteredByIngredientsRecipes] =
@@ -164,7 +165,7 @@ const AvailableRecipes = (props) => {
         setFilteredByIngredientsRecipes(filteredRecipesByIndex);
       },
       (error) => {
-        props.showToastMessage("Error", error.message, SEVERITY.warning);
+        props.showToastMessage("Error", error.message, SEVERITY.Warning);
       }
     );
   };
@@ -389,7 +390,7 @@ const AvailableRecipes = (props) => {
             setDrinkInfo(drinkDetails);
           },
           (error) => {
-            props.showToastMessage("Error", error.message, SEVERITY.warning);
+            props.showToastMessage("Error", error.message, SEVERITY.Warning);
           }
         );
       }

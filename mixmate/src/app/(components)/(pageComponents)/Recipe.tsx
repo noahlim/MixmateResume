@@ -30,7 +30,6 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
@@ -39,6 +38,7 @@ import { pageStateActions } from "lib/redux/pageStateSlice";
 function RecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
+
   const router = useRouter();
   const allRecipes = useSelector((state: any) => state.recipe.recipes);
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
@@ -47,21 +47,6 @@ function RecipesComponent() {
   );
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
-
-  // Toast Message
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>("info");
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
-  const showToastMessage = (title, message, severity = SEVERITY.Info) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
-  };
-
-  // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
 
   const [selectedFilter, setSelectedFilter] = useState("");
 
@@ -106,7 +91,7 @@ function RecipesComponent() {
           dispatch(pageStateActions.setPageLoadingState(false));
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       });
     } else {
       dispatch(pageStateActions.setPageLoadingState(false));
@@ -129,7 +114,7 @@ function RecipesComponent() {
           }
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       });
     }
     loadAllRecipes();
@@ -156,7 +141,7 @@ function RecipesComponent() {
             loadAlcoholicTypes();
           }
         },(error) => {
-          showToastMessage("Error", error.message, SEVERITY.warning);
+          showToastMessage("Error", error.message, SEVERITY.Warning);
         }
       )
     } else {
@@ -180,7 +165,7 @@ function RecipesComponent() {
           }
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       });
     }
     loadIngredients();
@@ -203,16 +188,16 @@ function RecipesComponent() {
           }
         }
       ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.warning);
+        showToastMessage("Error", error.message, SEVERITY.Warning);
       });
     }
     loadGlasses();
   };
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!user) {
       router.push(APPLICATION_PAGE.root);
     }
-  }, [isLoading, user, router]);
+  }, [user, router]);
   useEffect(() => {
     loadCategories();
   }, []);
@@ -365,7 +350,7 @@ function RecipesComponent() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
     });
   };
 

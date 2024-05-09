@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  API_DRINK_ROUTES,
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
@@ -13,25 +12,11 @@ import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
-import { recipeActions } from "lib/redux/recipeSlice";
 import { AlertColor } from "@mui/material/Alert";
 import { Box, Pagination } from "@mui/material";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 function Favourites() {
   // Toast Message
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>(
-    SEVERITY.Info
-  );
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
-  const showToastMessage = (title, message, severity = SEVERITY.Info) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
-  };
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   // Variables
@@ -60,7 +45,7 @@ function Favourites() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -87,7 +72,7 @@ function Favourites() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -103,7 +88,7 @@ function Favourites() {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -116,7 +101,7 @@ function Favourites() {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.warning);
+      showToastMessage("Error", error.message, SEVERITY.Warning);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
