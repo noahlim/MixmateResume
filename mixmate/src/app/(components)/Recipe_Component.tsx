@@ -60,15 +60,11 @@ import {
 } from "react-share";
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { useUser } from "@auth0/nextjs-auth0/client";
 function Recipe_Component(props) {
   // Inherited variables
-  const {
-    applicationPage,
-    title,
-    recipes,
-    showToastMessage,
-    reloadRecipes,
-  } = props;
+  const { applicationPage, title, recipes, showToastMessage, reloadRecipes } =
+    props;
   const dispatch = useDispatch();
 
   const isEditablePage =
@@ -131,7 +127,7 @@ function Recipe_Component(props) {
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.delete,
-        { userId:user.sub, _id: infoRecipeToDelete._id },
+        { userId: user.sub, _id: infoRecipeToDelete._id },
         (response) => {
           showToastMessage("Favorites", response.message, SEVERITY.Success);
           setInfoRecipeToDelete(null);
@@ -176,8 +172,6 @@ function Recipe_Component(props) {
           {ing.ingredient} <i>({ing.measure})</i>
         </Typography>
       ));
-      //console.log(ingredientsList);
-      // Title icon
       let recipeIconItem = null;
       if (applicationPage === APPLICATION_PAGE.favourites) {
         recipeIconItem = (
@@ -595,10 +589,8 @@ function Recipe_Component(props) {
         } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
         dispatch(pageStateActions.setPageLoadingState(false));
-
       }
     );
-
   };
   return (
     <>
@@ -741,12 +733,14 @@ function Recipe_Component(props) {
               renderRecipes()
             ) : (
               <TableRow>
-                <Typography
-                  variant="h6"
-                  style={{ textAlign: "center", marginTop: "20px" }}
-                >
-                  No recipes found.
-                </Typography>
+                <TableCell>
+                  <Typography
+                    variant="h6"
+                    style={{ textAlign: "center", marginTop: "20px" }}
+                  >
+                    No recipes found.
+                  </Typography>
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

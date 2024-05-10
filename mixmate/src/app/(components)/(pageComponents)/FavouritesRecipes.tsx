@@ -3,18 +3,16 @@ import {
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
-import { makeRequest } from "@/app/_utilities/_client/utilities";
+import { displayErrorSnackMessage, makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
 import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
-import { AlertColor } from "@mui/material/Alert";
 import { Box, Pagination } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
+import { useUser } from "@auth0/nextjs-auth0/client";
 function Favourites() {
   // Toast Message
   const { user, error, isLoading } = useUser();
@@ -45,7 +43,7 @@ function Favourites() {
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.Warning);
+      displayErrorSnackMessage(error, dispatch);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -68,11 +66,17 @@ function Favourites() {
         setRecipesFiltered(response.data);
         setIsFilterApplied(true);
         loadFilteredRecipesCount(filter.filter, filter.criteria);
-        showToastMessage("Recipes found", response.message, SEVERITY.success);
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          title: "Recipes found",
+          severity: SEVERITY.success,
+          message: response.message,
+        };        
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));        
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.Warning);
+      displayErrorSnackMessage(error, dispatch);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -87,8 +91,8 @@ function Favourites() {
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
-    ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.Warning);
+    ).catch((error) => {      
+      displayErrorSnackMessage(error, dispatch);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -101,7 +105,13 @@ function Favourites() {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
     ).catch((error) => {
-      showToastMessage("Error", error.message, SEVERITY.Warning);
+      const toastMessageObject: ToastMessage = {
+        open: true,
+        message: error.message,
+        severity: SEVERITY.Error,
+        title: "Error",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
       dispatch(pageStateActions.setPageLoadingState(false));
     });
   };
@@ -111,25 +121,12 @@ function Favourites() {
   }, []);
   return (
     <>
-      {/* Toast message */}
-      <Snackbar
-        open={openToastMessage}
-        autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
-      >
-        <Alert severity={toast_severity}>
-          <AlertTitle>{toast_title}</AlertTitle>
-          {toast_message}
-        </Alert>
-      </Snackbar>
-
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipes_Component
             recipeAllRecipes={allFavouriteRecipes}
             loadFilteredRecipes={loadFilteredFavouriteRecipes}
             setRecipesFiltered={setRecipesFiltered}
-            showToastMessage={showToastMessage}
             page="Favourite"
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
@@ -140,7 +137,6 @@ function Favourites() {
             applicationPage={APPLICATION_PAGE.favourites}
             title="My Favourite Recipes"
             recipes={recipesFiltered}
-            showToastMessage={showToastMessage}
             reloadRecipes={loadFavoriteRecipes}
           />
         </Grid>

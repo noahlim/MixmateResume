@@ -11,13 +11,18 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddIcon from "@mui/icons-material/Add";
 import { useSelector, useDispatch } from "react-redux";
 import { userInfoActions } from "../../../../lib/redux/userInfoSlice";
-import { isNotSet, capitalizeWords } from "@/app/_utilities/_client/utilities";
+import {
+  isNotSet,
+  capitalizeWords,
+  displayErrorSnackMessage,
+} from "@/app/_utilities/_client/utilities";
 import { SEVERITY } from "@/app/_utilities/_client/constants";
 import { Typography } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
 const IngredientRow = (props) => {
   const { user, error, isLoading } = useUser();
 
@@ -33,13 +38,15 @@ const IngredientRow = (props) => {
     const matchedIngredients = userIngredients.find(
       (ing) => ing.strIngredient1 === ingredient
     );
-    props.dispatch(pageStateActions.setPageLoadingState(true));
+    dispatch(pageStateActions.setPageLoadingState(true));
     if (matchedIngredients !== undefined) {
-      props.showToastMessage(
-        "Ingredients",
-        "Selected Ingredient already exists on your list!",
-        SEVERITY.Info
-      );
+      const toastMessageObject: ToastMessage = {
+        open: true,
+        message: "Selected Ingredient already exists on your list!",
+        severity: SEVERITY.Warning,
+        title: "Ingredients",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
       return;
     }
     const tempIngredients = [...userIngredients];
@@ -58,23 +65,21 @@ const IngredientRow = (props) => {
       REQ_METHODS.post,
       { userId: user.sub, ingredient: ingredient },
       (response) => {
-        if (response.isOk) {
-          props.showToastMessage(
-            "Ingredients",
-            ingredient + " added to the list!",
-            SEVERITY.Success
-          );
-        } else {
-          props.showToastMessage(
-            "Ingredients",
-            "Error adding ingredient from the list.",
-            SEVERITY.Error
-          );
-        }
-        dispatch(pageStateActions.setPageLoadingState(false));
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          message: "Ingredient added to the list!",
+          severity: SEVERITY.Success,
+          title: "Ingredients",
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
       }
-    );
-    dispatch(pageStateActions.setPageLoadingState(false));
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
   // Functions
   let loadIngredientInfo = () => {

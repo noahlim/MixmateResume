@@ -11,7 +11,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
-import { isSet, makeRequest } from "@/app/_utilities/_client/utilities";
+import { capitalizeWords, isSet, makeRequest } from "@/app/_utilities/_client/utilities";
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
@@ -45,6 +45,7 @@ function FilterRecipes_Component(props) {
   };
 
   let btnFind_onClick = () => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     if (isSet(filterCriteria.criteria)) {
       loadFilteredRecipes(recipeAllRecipes);
     } else {
@@ -56,6 +57,7 @@ function FilterRecipes_Component(props) {
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
     }
+    dispatch(pageStateActions.setPageLoadingState(false));
   };
 
   let loadAlcoholicTypes = () => {
@@ -84,7 +86,6 @@ function FilterRecipes_Component(props) {
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
         })
         .finally(() => {
-          console.log("reached finally");
           dispatch(pageStateActions.setPageLoadingState(false));
         });
     }
@@ -114,7 +115,7 @@ function FilterRecipes_Component(props) {
           const toastMessageObject: ToastMessage = {
             open: true,
             message: error.message,
-            severity: SEVERITY.Warning,
+            severity: SEVERITY.Error,
             title: "Error",
           };
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
@@ -147,7 +148,7 @@ function FilterRecipes_Component(props) {
           const toastMessageObject: ToastMessage = {
             open: true,
             message: error.message,
-            severity: SEVERITY.Warning,
+            severity: SEVERITY.Error,
             title: "Error",
           };
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
@@ -180,7 +181,7 @@ function FilterRecipes_Component(props) {
           const toastMessageObject: ToastMessage = {
             open: true,
             message: error.message,
-            severity: SEVERITY.Warning,
+            severity: SEVERITY.Error,
             title: "Error",
           };
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
@@ -203,7 +204,7 @@ function FilterRecipes_Component(props) {
         <CardContent
           style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
         >
-          <Typography variant="h6">Filter recipes</Typography>
+          <Typography variant="h6">Search By...</Typography>
         </CardContent>
 
         {/* Filters */}
@@ -231,7 +232,7 @@ function FilterRecipes_Component(props) {
               ].map((f) => {
                 return (
                   <MenuItem key={f} value={f}>
-                    {f}
+                    {capitalizeWords(f)}
                   </MenuItem>
                 );
               })}
@@ -259,7 +260,7 @@ function FilterRecipes_Component(props) {
                 {categories?.map((cat) => {
                   return (
                     <MenuItem key={cat} value={cat}>
-                      {cat}
+                      {capitalizeWords(cat)}
                     </MenuItem>
                   );
                 })}
@@ -287,7 +288,7 @@ function FilterRecipes_Component(props) {
                 {glasses?.map((glass) => {
                   return (
                     <MenuItem key={glass} value={glass}>
-                      {glass}
+                      {capitalizeWords(glass)}
                     </MenuItem>
                   );
                 })}
@@ -318,7 +319,7 @@ function FilterRecipes_Component(props) {
                       key={ingre.strIngredient1}
                       value={ingre.strIngredient1}
                     >
-                      {ingre.strIngredient1}
+                      {capitalizeWords(ingre.strIngredient1)}
                     </MenuItem>
                   );
                 })}
@@ -348,7 +349,7 @@ function FilterRecipes_Component(props) {
                 {alcoholicTypes?.map((at) => {
                   return (
                     <MenuItem key={at} value={at}>
-                      {at}
+                      {capitalizeWords(at)}
                     </MenuItem>
                   );
                 })}

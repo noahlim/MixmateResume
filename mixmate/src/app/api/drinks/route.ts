@@ -23,8 +23,20 @@ export async function GET(req: NextRequest, res: NextResponse) {
                 }
                 case API_DRINK_ROUTES.allRecipes: {
                     let db = await dbRtns.getDBInstance();
-                    let allRecipes = await dbRtns.findAll(db, recipeCollection, {}, {});
-                    result.data = allRecipes;
+                    let allRecipes = await dbRtns.findAll(db, recipeCollection, {}, {}, 0, 0);
+
+                    const sortedRecipes = allRecipes.sort((a, b) => {
+                        const drinkA = a.strDrink.toUpperCase();
+                        const drinkB = b.strDrink.toUpperCase();
+                        if (drinkA < drinkB) {
+                            return -1;
+                        }
+                        if (drinkA > drinkB) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    result.data = sortedRecipes;
                     break;
                 }
                 case API_DRINK_ROUTES.drinkCategories: {

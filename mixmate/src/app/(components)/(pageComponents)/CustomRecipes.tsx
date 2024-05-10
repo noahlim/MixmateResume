@@ -172,7 +172,6 @@ function CustomRecipes() {
             recipeAllRecipes={recipeAllRecipes}
             loadFilteredRecipes={loadFilteredMyRecipes}
             setRecipesFiltered={setRecipesFiltered}
-            showToastMessage={showToastMessage}
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
           />

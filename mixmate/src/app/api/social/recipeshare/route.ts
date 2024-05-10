@@ -51,7 +51,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                     const updatedRecipe = { ...recipe };
                     delete updatedRecipe.sub;
 
-                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {}, 0, 0, {created_at: -1});                  
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {}, 0, 0);                  
                     updatedRecipe.reviews = reviews;
 
                     return updatedRecipe;

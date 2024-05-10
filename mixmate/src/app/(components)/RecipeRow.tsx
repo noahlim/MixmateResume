@@ -24,7 +24,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 function RecipeRow(props) {
   // Variables
   const { drink } = props;
-  console.log(drink);
   const [rowOpen, setRowOpen] = useState(false);
   const [drinkInfo, setDrinkInfo] = useState(null);
   // Functions

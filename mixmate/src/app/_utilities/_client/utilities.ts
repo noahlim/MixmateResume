@@ -1,6 +1,6 @@
-import { END_POINT } from "./constants";
-import { GetAccessToken } from "@auth0/nextjs-auth0";
-
+import { pageStateActions } from "lib/redux/pageStateSlice";
+import { END_POINT, SEVERITY } from "./constants";
+import { Dispatch } from "redux";
 const doPost = (api, data, funOk, funErr = null) => {
   let query =
     'query {server(api: "' +
@@ -25,6 +25,14 @@ type FetchOptions = {
   body?: FormData | string;
 };
 
+const displayErrorSnackMessage = (error:any, dispatch:Dispatch) => {
+  dispatch(pageStateActions.setToastMessage({
+    title: "Error",
+    message: error.message,
+    severity: SEVERITY.Error,
+    open: true,
+  }));
+}
 
 function jsonToQueryString(baseUrl: string, apiRoute: string, params: Record<string, string> | null = null): string {
   const url = new URL("api" + apiRoute, baseUrl);
@@ -148,4 +156,4 @@ function getCallerLine() {
   //   setRecipesFiltered(data);
   // };
   // Loading recipe options
-export { doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine };
+export { displayErrorSnackMessage, doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine };

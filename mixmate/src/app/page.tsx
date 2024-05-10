@@ -6,19 +6,15 @@ import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
 import { EdgeStoreProvider } from "lib/edgestore";
-
+import { Box } from "@mui/material";
 
 function RootPage({ children }) {
-
-
   // Check if the current route is the home page
-
 
   if (usePathname() === "/") {
     return (
       <ReduxProvider>
         <EdgeStoreProvider>
-
           <MenuBar />
 
           <HomePage />
@@ -31,10 +27,11 @@ function RootPage({ children }) {
   return (
     <ReduxProvider>
       <EdgeStoreProvider>
+        <Box bgcolor="#DFFFFE">
+          <MenuBar />
 
-        <MenuBar />
-
-        {children}
+          {children}
+        </Box>
       </EdgeStoreProvider>
     </ReduxProvider>
   );

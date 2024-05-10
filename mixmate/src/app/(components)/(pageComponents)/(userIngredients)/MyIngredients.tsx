@@ -27,10 +27,11 @@ import {
   SEVERITY,
   ingredientsByAlcoholic,
 } from "@/app/_utilities/_client/constants";
-import { makeRequest } from "@/app/_utilities/_client/utilities";
+import { displayErrorSnackMessage, makeRequest } from "@/app/_utilities/_client/utilities";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
 function MyIngredients() {
   // Validate session
 
@@ -56,17 +57,21 @@ function MyIngredients() {
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)
           );
-          showToastMessage(
-            "Ingredients",
-            response.data.length
+          const toastMessageObject : ToastMessage = {
+            open: true,
+            message: response.data.length
               ? response.data.length + " ingredient(s) found."
               : "No ingredient(s) found.",
-            SEVERITY.Success
-          );
+            severity: SEVERITY.Success,
+            title: "Ingredients",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
+
         }
+        
       )
         .catch((error) => {
-          showToastMessage("Error", error.message, SEVERITY.Warning);
+          displayErrorSnackMessage(error, dispatch);
         })
         .finally(() => {
           loadUserIngredients();
@@ -99,7 +104,7 @@ function MyIngredients() {
       }
     )
       .catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.Warning);
+        displayErrorSnackMessage(error, dispatch);
       })
       .finally(() => {
         loadUserIngredients();
@@ -123,23 +128,10 @@ function MyIngredients() {
 
   return (
     <>
-      {/* Toast message */}
-      <Snackbar
-        open={openToastMessage}
-        autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
-      >
-        <Alert severity={toast_severity}>
-          <AlertTitle>{toast_title}</AlertTitle>
-          {toast_message}
-        </Alert>
-      </Snackbar>
-
       <AvailableRecipes
         isSingleIngredient={false}
         open={availableRecipesModalOpen}
         setOpen={setAvailableRecipesModalOpen}
-        showToastMessage={showToastMessage}
       />
       {/* Page body */}
       <Grid container spacing={2} style={{ marginTop: 10 }}>
@@ -194,7 +186,6 @@ function MyIngredients() {
                       return (
                         <MyIngredientRow
                           ingredient={ing}
-                          showToastMessage={showToastMessage}
                           key={ing}
                           isAlcoholic={isAlcoholic_}
                           loadIngredients={loadIngredients}
@@ -292,7 +283,6 @@ function MyIngredients() {
                     <IngredientRow
                       key={ing}
                       ingredient={ing}
-                      showToastMessage={showToastMessage}
                     />
                   ))}
               </TableBody>

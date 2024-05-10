@@ -11,7 +11,7 @@ const backdropStyle = {
 
 // Dynamically import the Recipe component with a preloader
 const RecipeLazyLoaded = dynamic(
-  () => import('@/app/(components)/(pageComponents)/Recipe'),
+  () => import('@/app/(components)/(pageComponents)/DefaultRecipes'),
   {
     loading: () => (
       <Backdrop open={true} sx={backdropStyle}>

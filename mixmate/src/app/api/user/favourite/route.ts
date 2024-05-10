@@ -24,7 +24,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
     try {
     const { user } = await getSession();
 
-      if(!body.userId !== user.sub){
+      if(body.userId !== user.sub){
         return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
       }
 

@@ -54,19 +54,19 @@ function MenuBar(props) {
   );
   const router = useRouter();
   const dispatch = useDispatch();
-  const userSession = await useUser();
+  const {user, isLoading, error} = useUser();
 
   useEffect(() => {
     if (!userInfo) {
-      dispatch(userInfoActions.setUserInfo(userSession));
+      dispatch(userInfoActions.setUserInfo(user));
 
-      if (userSession.error) {
+      if (error) {
         notFound();
-      } else if (userSession.user) {
-        loginHandleMongo(userSession.user);
+      } else if (user) {
+        loginHandleMongo(user);
       }
     }
-  }, [userInfo, userSession, dispatch]);
+  }, [userInfo, user, dispatch]);
 
   const loginHandleMongo = async (userInfoData) => {
     makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
@@ -87,8 +87,8 @@ function MenuBar(props) {
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (!userSession.isLoading) {
-    if (isSet(userSession.user)) {
+  if (!isLoading) {
+    if (isSet(user)) {
       // Set menu icon
       menuIcon = (
         <>
@@ -203,7 +203,7 @@ function MenuBar(props) {
           <a href={API_ROUTES.userJson}>
             <img
               className="w-10 h-10 ml-5 rounded-full object-cover"
-              src={userSession.user.picture}
+              src={user.picture}
             />
           </a>
         </>

@@ -53,8 +53,7 @@ const findAll = async (
   criteria: any,
   projection: any,
   page: number = 1,
-  limit: number = 5, // Default to 10 documents per page,
-  sort: any = null
+  limit: number = 10, // Default to 10 documents per page,
 ): Promise<any[]> => {
   const skip = limit > 0 ? (page - 1) * limit : 0;
   return db
