@@ -6,19 +6,31 @@ import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
 import { EdgeStoreProvider } from "lib/edgestore";
-import { Box } from "@mui/material";
+import { Box, ThemeProvider, createTheme } from "@mui/material";
 
 function RootPage({ children }) {
   // Check if the current route is the home page
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#489FB5",
+      },
+      secondary: {
+        main: "#F3E3FF",
+      },
+    },
+  });
 
   if (usePathname() === "/") {
     return (
       <ReduxProvider>
-        <EdgeStoreProvider>
-          <MenuBar />
+        <ThemeProvider theme={theme}>
+          <EdgeStoreProvider>
+            <MenuBar />
 
-          <HomePage />
-        </EdgeStoreProvider>
+            <HomePage />
+          </EdgeStoreProvider>
+        </ThemeProvider>
       </ReduxProvider>
     );
   }
@@ -26,13 +38,15 @@ function RootPage({ children }) {
   // For all other routes, render the children normally
   return (
     <ReduxProvider>
-      <EdgeStoreProvider>
-        <Box bgcolor="#DFFFFE">
-          <MenuBar />
+      <ThemeProvider theme={theme}>
+        <EdgeStoreProvider>
+          <Box bgcolor="#DFFFFE">
+            <MenuBar />
 
-          {children}
-        </Box>
-      </EdgeStoreProvider>
+            {children}
+          </Box>
+        </EdgeStoreProvider>
+      </ThemeProvider>
     </ReduxProvider>
   );
 }

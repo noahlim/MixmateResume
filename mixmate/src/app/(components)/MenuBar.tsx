@@ -54,7 +54,7 @@ function MenuBar(props) {
   );
   const router = useRouter();
   const dispatch = useDispatch();
-  const {user, isLoading, error} = useUser();
+  const { user, isLoading, error } = useUser();
 
   useEffect(() => {
     if (!userInfo) {
@@ -247,7 +247,16 @@ function MenuBar(props) {
           <Toolbar>
             {menuIcon}
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              <Link href={APPLICATION_PAGE.home}>MixMate</Link>
+              <Link href={APPLICATION_PAGE.home}>
+                <img
+                  src="/mixmatelogomini.png"
+                  alt="MixMate Logo"
+                  loading="lazy"
+                  style={{
+                    width:"150px",
+                  }}
+                />
+              </Link>
             </Typography>
             {loginControls}
           </Toolbar>
