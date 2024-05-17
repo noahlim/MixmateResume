@@ -41,9 +41,11 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { notFound } from "next/navigation";
 
 import Link from "next/link";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { Avatar, Backdrop, CircularProgress } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import Image from 'next/image'
+
 function MenuBar(props) {
   // Toast Message
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
@@ -201,8 +203,7 @@ function MenuBar(props) {
             </Button>
           </a>
           <a href={API_ROUTES.userJson}>
-            <img
-              className="w-10 h-10 ml-5 rounded-full object-cover"
+            <Avatar
               src={user.picture}
             />
           </a>
@@ -248,12 +249,14 @@ function MenuBar(props) {
             {menuIcon}
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               <Link href={APPLICATION_PAGE.home}>
-                <img
+                <Image
                   src="/mixmatelogomini.png"
                   alt="MixMate Logo"
-                  loading="lazy"
+                  decoding="async"
+                  width={686}
+                  height={364}
                   style={{
-                    width:"150px",
+                    width:"100px",
                   }}
                 />
               </Link>

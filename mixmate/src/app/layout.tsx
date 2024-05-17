@@ -1,9 +1,21 @@
-import { Inter } from "next/font/google";
+import { Inter, Roboto, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { API_DRINK_ROUTES, API_ROUTES } from "./_utilities/_client/constants";
 import RootPage from "./page";
 const inter = Inter({ subsets: ["latin"] });
+
+const roboto_init = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "300"],
+  variable: "--font-roboto",
+});
+
+const noto_sans = Noto_Sans({
+  subsets: ["latin"],
+  weight: ["100", "300"],
+  variable: "--font-noto-sans",
+});
 
 export const metadata = {
   title: "Mixmate",
