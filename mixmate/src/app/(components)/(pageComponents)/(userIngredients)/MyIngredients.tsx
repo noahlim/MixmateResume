@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { Typography, CardContent, AlertColor } from "@mui/material";
+import {
+  Typography,
+  CardContent,
+  AlertColor,
+  Box,
+  Pagination,
+} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -27,7 +33,11 @@ import {
   SEVERITY,
   ingredientsByAlcoholic,
 } from "@/app/_utilities/_client/constants";
-import { displayErrorSnackMessage, makeRequest } from "@/app/_utilities/_client/utilities";
+import {
+  displayErrorSnackMessage,
+  isNotSet,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
@@ -47,8 +57,23 @@ function MyIngredients() {
   const [searchboxValue, setSearchboxValue] = useState("");
   const [availableRecipesModalOpen, setAvailableRecipesModalOpen] =
     useState(false);
+  const [pageIndexCount, setPageIndexCount] = useState(1);
+
+  let onPageIndexChange = (e) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+    loadNextIngredients(parseInt(e.target.innerText));
+  };
+
+  let loadNextIngredients = (pageIndex = 1) => {
+    setFilteredIngredients(
+      allIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
+    );
+    dispatch(pageStateActions.setPageLoadingState(false));
+  };
+
   let loadUserIngredients = () => {
-    if (userIngredients.length === 0 || userIngredients === undefined) {
+    dispatch(pageStateActions.setPageLoadingState(false));
+    if (isNotSet(userIngredients)) {
       makeRequest(
         API_ROUTES.userIngredients,
         REQ_METHODS.get,
@@ -57,7 +82,8 @@ function MyIngredients() {
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)
           );
-          const toastMessageObject : ToastMessage = {
+
+          const toastMessageObject: ToastMessage = {
             open: true,
             message: response.data.length
               ? response.data.length + " ingredient(s) found."
@@ -66,9 +92,7 @@ function MyIngredients() {
             title: "Ingredients",
           };
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
-
         }
-        
       )
         .catch((error) => {
           displayErrorSnackMessage(error, dispatch);
@@ -79,7 +103,6 @@ function MyIngredients() {
         });
     }
   };
-  // Loading recipe options
 
   let loadIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -94,12 +117,14 @@ function MyIngredients() {
           }
           return item;
         });
-
+        console.log(response.data);
+        setPageIndexCount(Math.ceil(response.data.drinks.length / 10));
+        
         const sortedIngredients = updatedIngredients
           .map((x) => x.strIngredient1)
           .sort();
         setAllIngredients(sortedIngredients);
-        setFilteredIngredients(sortedIngredients);
+        setFilteredIngredients(sortedIngredients.slice(0, 10));
         dispatch(recipeActions.setIngredients(updatedIngredients));
       }
     )
@@ -107,6 +132,7 @@ function MyIngredients() {
         displayErrorSnackMessage(error, dispatch);
       })
       .finally(() => {
+        //dispatch(pageStateActions.setPageLoadingState(false));
         loadUserIngredients();
       });
   };
@@ -280,16 +306,29 @@ function MyIngredients() {
                     return 0;
                   })
                   .map((ing) => (
-                    <IngredientRow
-                      key={ing}
-                      ingredient={ing}
-                    />
+                    <IngredientRow key={ing} ingredient={ing} />
                   ))}
               </TableBody>
             </Table>
           </div>
         </Grid>
       </Grid>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        mt={4} // Margin top of 4 (adjust as needed)
+      >
+        <Pagination
+          shape="rounded"
+          variant="outlined"
+          count={pageIndexCount}
+          defaultPage={1}
+          siblingCount={0}
+          boundaryCount={2}
+          onChange={onPageIndexChange}
+        />
+      </Box>
     </>
   );
 }

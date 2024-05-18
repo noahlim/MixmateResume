@@ -19,6 +19,20 @@ function RootPage({ children }) {
         main: "#F3E3FF",
       },
     },
+    typography: {
+      fontFamily: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(','),
+    },
   });
 
   if (usePathname() === "/") {
@@ -40,7 +54,7 @@ function RootPage({ children }) {
     <ReduxProvider>
       <ThemeProvider theme={theme}>
         <EdgeStoreProvider>
-          <Box bgcolor="#DFFFFE">
+          <Box>
             <MenuBar />
 
             {children}

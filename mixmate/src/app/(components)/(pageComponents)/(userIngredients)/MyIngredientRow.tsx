@@ -60,7 +60,7 @@ function MyIngredientRow(props) {
 
   const fetchStockInfoFromWeb = async (ingredient) => {
     if (!isDataFetched) {
-      props.dispatch(pageStateActions.setPageLoadingState(true));
+      dispatch(pageStateActions.setPageLoadingState(true));
 
       const apiEndpoint = props.isAlcoholic
         ? API_ROUTES.lcboItems

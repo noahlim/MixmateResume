@@ -35,7 +35,6 @@ import {
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
 import { useRouter } from "next/navigation";
-import { AlertColor } from "@mui/material/Alert";
 import { userInfoActions } from "lib/redux/userInfoSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { notFound } from "next/navigation";
@@ -243,7 +242,6 @@ function MenuBar(props) {
         >
           <CircularProgress color="inherit" />
         </Backdrop>
-        {/* Top Bar */}
         <AppBar position="static">
           <Toolbar>
             {menuIcon}

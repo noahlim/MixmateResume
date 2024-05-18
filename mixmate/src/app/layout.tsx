@@ -5,17 +5,6 @@ import { API_DRINK_ROUTES, API_ROUTES } from "./_utilities/_client/constants";
 import RootPage from "./page";
 const inter = Inter({ subsets: ["latin"] });
 
-const roboto_init = Roboto({
-  subsets: ["latin"],
-  weight: ["100", "300"],
-  variable: "--font-roboto",
-});
-
-const noto_sans = Noto_Sans({
-  subsets: ["latin"],
-  weight: ["100", "300"],
-  variable: "--font-noto-sans",
-});
 
 export const metadata = {
   title: "Mixmate",
@@ -29,7 +18,7 @@ export default function RootLayout({ children }) {
         loginUrl={API_ROUTES.login}
         profileUrl={API_ROUTES.userJson}
       >
-        <body className={inter.className}>
+        <body className={inter.className} style={{backgroundColor: "#DFFFFE"}}>
           <RootPage>{children}</RootPage>
         </body>
       </UserProvider>

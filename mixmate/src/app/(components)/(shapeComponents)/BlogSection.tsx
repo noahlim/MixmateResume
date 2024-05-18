@@ -20,14 +20,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  height: 0,
-  paddingTop: "56.25%", // 16:9
-  display: "block",
-  minWidth: 0,
-  width: "100%",
-  marginBottom: ".6rem",
-}));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
   paddingInlineStart: "1rem",
@@ -37,26 +29,42 @@ const BlogSection = () => {
   const [blogPosts, setBlogPosts] = useState(
     [
       {
-        image: "/profile1.png",
+        image: "/profilepics/profile1.png",
         title: "1",
         review: "A mind-blowing array of cocktail recipes!",
         author: "John Doe",
       },
       {
-        image: "/profile2.png",
+        image: "/profilepics/profile2.png",
         title: "2",
         review: "Never thought making cocktails could be so much fun!",
         author: "James K. Polk"
       },
       {
-        image: "/profile3.png",
+        image: "/profilepics/profile3.png",
         title: "3",
         review: "Mixmate has taken cocktail loving to a whole new level!",
         author: "Jane Doe",
 
+      },{
+        image: "/profilepics/profile4.png",
+        title: "4",
+        review: "The best cocktail making app I've ever used!",
+        author: "Thomas Jefferson",
       },
+      {
+        image: "/profilepics/profile5.png",
+        title: "5",
+        review: "Cocktails have never been this easy to make!",
+        author: "Abraham Lincoln"
+      },
+      {
+        image: "/profilepics/profile6.png",
+        title: "6",
+        review: "Before Mixmate, I never knew I could make cocktails this good!",
+        author: "Andrew Johnson",
 
-      // Add more blog post objects as needed
+      },
     ].map((post) => ({ ...post, isHovered: false }))
   );
 
@@ -104,7 +112,7 @@ const BlogSection = () => {
               />
               <StyledCardContent>
                 <Box sx={{margin: "30px 5px"}}>
-                  <Typography color="#1C4683" style={{fontSize:"17px"}}>
+                  <Typography color="#143463" style={{fontSize:"17px"}}>
                     {post.review}
                   </Typography>
                 </Box>

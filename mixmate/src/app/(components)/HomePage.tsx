@@ -1,16 +1,24 @@
 "use client";
-import { Box, Button, Divider, Grid, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import "@fontsource/dela-gothic-one";
-import router from "next/router";
 import { API_ROUTES, APPLICATION_PAGE } from "../_utilities/_client/constants";
-import page from "../page";
 import { useMediaQuery } from "@mui/material";
 import StarShape from "./(shapeComponents)/StarShape";
 import FloatingBoxWrapper from "./(shapeComponents)/FloatingBox";
 import Image from "next/image";
-import { useEffect } from "react";
 import HoverTypography from "./(shapeComponents)/HoverTypography";
-import BlogSection from "./(shapeComponents)/BlogPost";
+import BlogSection from "./(shapeComponents)/BlogSection";
+import { FaGithub, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
     theme.breakpoints.between("xs", "sm")
@@ -24,15 +32,8 @@ function HomePage() {
   const isLargeScreen = useMediaQuery((theme: any) =>
     theme.breakpoints.up("lg")
   );
-  const isExtraLargeScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.up("xl")
-  );
-  useEffect(() => {
-    console.log(isSmallMobileScreen, isMediumMobileScreen, isTabletScreen);
-    if (typeof window !== "undefined") {
-      console.log(window.innerWidth);
-    }
-  }, []);
+  const router = useRouter();
+
   return (
     <>
       <Grid container direction="column" justifyContent="center">
@@ -91,9 +92,9 @@ function HomePage() {
                     color: "white",
                   },
                 }}
-                onClick={() => (window.location.href = API_ROUTES.login)}
+                onClick={() => router.push(APPLICATION_PAGE.recipes)}
               >
-                Get Your Mix
+                Check Out The Recipes
               </Box>
             </Grid>
             <Grid item>
@@ -118,9 +119,9 @@ function HomePage() {
                     color: "white",
                   },
                 }}
-                onClick={() => (window.location.href = API_ROUTES.login)}
+                onClick={() => router.push(APPLICATION_PAGE.myMixMate)}
               >
-                Get Your Mix
+                Get Your Own Mixes
               </Box>
             </Grid>
           </Grid>
@@ -150,21 +151,21 @@ function HomePage() {
                 flexDirection={isSmallMobileScreen ? "row" : "column"}
                 justifyContent="flex-start"
                 alignItems="left"
-                sx={{ padding:3 }}
+                sx={{ padding: 3 }}
               >
                 <FloatingBoxWrapper
-                  isSmallMobileScreen={isSmallMobileScreen}
-                  isTabletScreen={isTabletScreen}
-                  isMediumMobileScreen={isMediumMobileScreen}
+                  $isSmallMobileScreen={isSmallMobileScreen}
+                  $isTabletScreen={isTabletScreen}
+                  $isMediumMobileScreen={isMediumMobileScreen}
                 />
                 <HoverTypography
-                  isSmallMobileScreen={isSmallMobileScreen}
-                  isLargeScreen={isLargeScreen}
-                  isTabletScreen={isTabletScreen}
+                  $isSmallMobileScreen={isSmallMobileScreen}
+                  $isLargeScreen={isLargeScreen}
+                  $isTabletScreen={isTabletScreen}
                   backgroundColor={"#F8C471"}
                   alignTo={"left"}
                   variant={isLargeScreen ? "h2" : isTabletScreen ? "h1" : "h3"}
-                  //variant={isLargeScreen ? 'h2' : (isTabletScreen ? 'h3' : 'h4')}                  
+                  //variant={isLargeScreen ? 'h2' : (isTabletScreen ? 'h3' : 'h4')}
                 >
                   MixMate-Serving You the Perfect Drink!
                 </HoverTypography>
@@ -229,14 +230,15 @@ function HomePage() {
                       sx={{ textAlign: isLargeScreen ? "left" : "center" }}
                     >
                       <HoverTypography
-                        isSmallMobileScreen={isSmallMobileScreen}
-                        isTabletScreen={isTabletScreen}
-                        isLargeScreen={isLargeScreen}
+                        $isSmallMobileScreen={isSmallMobileScreen}
+                        $isTabletScreen={isTabletScreen}
+                        $isLargeScreen={isLargeScreen}
                         backgroundColor={"#FBFB7C"}
                         alignTo={"left"}
-                        variant={isLargeScreen ? "h2" : "h3"}
+                        variant={isLargeScreen ? "h3" : "h4"}
                       >
-                        Greetings
+                        A cocktail treasure-trove packed with vibrant and unique
+                        recipes
                       </HoverTypography>
                     </Grid>
                     <Grid
@@ -251,11 +253,16 @@ function HomePage() {
                           variant="h6"
                           position="relative"
                           className="noto_sans"
-                          style={{ zIndex: 10 }}
+                          style={{
+                            zIndex: 10,
+                            paddingRight:
+                              isSmallMobileScreen || isMediumMobileScreen
+                                ? null
+                                : "30%",
+                          }}
                         >
-                          Unleash your inner mixologist with Mixmate, a land
-                          brimming with cocktail recipes that'll make your taste
-                          buds dance.
+                          From the classic ambrosial segments to the adventurous
+                          concoctions, relish endless possibilities.
                         </Typography>
                       </Box>
                     </Grid>
@@ -293,18 +300,18 @@ function HomePage() {
                     >
                       <Grid item>
                         <HoverTypography
-                          isSmallMobileScreen={isSmallMobileScreen}
-                          isTabletScreen={isTabletScreen}
-                          isLargeScreen={isLargeScreen}
+                          $isSmallMobileScreen={isSmallMobileScreen}
+                          $isTabletScreen={isTabletScreen}
+                          $isLargeScreen={isLargeScreen}
                           backgroundColor={"#BAFE84"}
                           alignTo={
                             isSmallMobileScreen || isMediumMobileScreen
                               ? "left"
                               : "right"
                           }
-                          variant={isLargeScreen ? "h2" : "h3"}
+                          variant={isLargeScreen ? "h3" : "h4"}
                         >
-                          Greetings2
+                          Tailor-made experience that fits your preferences
                         </HoverTypography>
                       </Grid>
                     </Grid>
@@ -320,11 +327,16 @@ function HomePage() {
                           variant="h6"
                           className="noto_sans"
                           position="relative"
-                          style={{ zIndex: 10 }}
+                          style={{
+                            zIndex: 10,
+                            paddingLeft:
+                              isSmallMobileScreen || isMediumMobileScreen
+                                ? null
+                                : "30%",
+                          }}
                         >
-                          damn your inner mixologist with Mixmate, a land
-                          brimming with cocktail recipes that'll make your taste
-                          buds dance.
+                          Create, share and savour your cocktail stories at
+                          Mixmate.
                         </Typography>
                       </Box>
                     </Grid>
@@ -417,7 +429,125 @@ function HomePage() {
           </Grid>
         </Grid>
         <Box bgcolor="white">
-          <BlogSection/>
+          <BlogSection />
+          <Divider />
+          <Grid
+            container
+            justifyContent="center"
+            style={{ padding: "30px 0px" }}
+          >
+            <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
+              <Grid xs={12} item>
+                <Typography
+                  variant="h6"
+                  style={{
+                    paddingBottom: "10px",
+                    color: "#205095",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Company
+                </Typography>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">About</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Team</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Careers</a>
+              </Grid>
+            </Grid>
+            <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
+              <Grid xs={12} item>
+                <Typography
+                  variant="h6"
+                  style={{
+                    paddingBottom: "10px",
+                    color: "#205095",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Support
+                </Typography>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">FAQs</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Privacy Policy</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Terms of Service</a>
+              </Grid>
+            </Grid>
+            <Grid
+              item
+              container
+              md={2}
+              xs={10}
+              style={{ padding: "30px 0px" }}
+              spacing={1}
+            >
+              <Grid xs={12} item>
+                <Typography
+                  variant="h6"
+                  style={{
+                    paddingBottom: "10px",
+                    color: "#205095",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Contact
+                </Typography>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Contact Us</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Locations</a>
+              </Grid>
+              <Grid xs={12} item>
+                <a href="#">Customer Support</a>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid container justifyContent="center">
+            <Grid item xs={9} md={6}>
+              <Divider />
+            </Grid>
+          </Grid>
+          <Grid
+            container
+            justifyContent="center"
+            style={{ paddingBottom: "30px" }}
+          >
+            <Grid
+              item
+              container
+              justifyContent="space-around"
+              md={4}
+              xs={10}
+              style={{ padding: "30px 0px" }}
+            >
+              <Grid xs={1} item>
+                <a href="https://github.com/harryGIbong"><FaGithub fontSize={40}/></a>
+              </Grid>
+              <Grid xs={1} item>
+                <FaFacebook fontSize={40} />
+              </Grid>
+              <Grid xs={1} item>
+                <FaInstagram fontSize={40} />
+              </Grid>
+              <Grid xs={1} item>
+                <FaYoutube fontSize={40} />
+              </Grid>
+            </Grid>
+            <Grid item xs={12} textAlign="center">
+              MixMate By Hongseok Kim
+            </Grid>
+          </Grid>
         </Box>
       </Grid>
     </>
