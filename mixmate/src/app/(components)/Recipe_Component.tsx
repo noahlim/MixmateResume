@@ -61,6 +61,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import Image from "next/image";
 function Recipe_Component(props) {
   // Inherited variables
   const { applicationPage, title, recipes, showToastMessage, reloadRecipes } =
@@ -302,14 +303,17 @@ function Recipe_Component(props) {
               <Box>
                 <Grid container spacing={4}>
                   <Grid item xs={12} sm={12} md={6} lg={4}>
-                    <img
-                      style={{ width: "100%", borderRadius: "7%" }}
-                      src={
-                        drink.strDrinkThumb
-                          ? drink.strDrinkThumb
-                          : "not-found-icon.png"
-                      }
-                    ></img>
+                      <Image
+                        src={
+                          drink.strDrinkThumb
+                            ? drink.strDrinkThumb
+                            : "not-found-icon.png"
+                        }
+                        alt="Drink"
+                        height={700}
+                        width={700} 
+                        style={{ borderRadius: "7%" }}
+                      />
                   </Grid>
                   <Grid item xs={12} sm={12} md={6} lg={8}>
                     <Typography>

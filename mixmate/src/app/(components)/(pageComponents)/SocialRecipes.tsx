@@ -25,7 +25,6 @@ import { ToastMessage } from "interface/toastMessage";
 function CustomRecipes() {
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
-  const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
   const [pageIndex, setpageIndex] = useState(1);

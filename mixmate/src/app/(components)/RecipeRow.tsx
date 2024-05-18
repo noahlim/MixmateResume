@@ -20,7 +20,7 @@ import ClassIcon from "@mui/icons-material/Class";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import { capitalizeWords } from "@/app/_utilities/_client/utilities";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-
+import Image from "next/image";
 function RecipeRow(props) {
   // Variables
   const { drink } = props;
@@ -50,10 +50,17 @@ function RecipeRow(props) {
         <Box sx={{ margin: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-              <img
-                style={{ width: "90%", borderRadius: "7%" }}
-                src={drink.strDrinkThumb}
-              ></img>
+              <Image
+                src={
+                  drink.strDrinkThumb
+                    ? drink.strDrinkThumb
+                    : "not-found-icon.png"
+                }
+                alt="Drink"
+                width={700}
+                height={700}
+                style={{ borderRadius: "7%" }}
+              />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={8}>
               <div className="text-tangerine text-55px margin-left-35px">

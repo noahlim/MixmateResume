@@ -23,6 +23,7 @@ import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import Image from "next/image";
 const IngredientRow = (props) => {
   const { user, error, isLoading } = useUser();
 
@@ -89,12 +90,15 @@ const IngredientRow = (props) => {
         <Box sx={{ margin: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-              <img
-                style={{ width: "90%", borderRadius: "7%" }}
+              <Image
+                style={{ borderRadius: "7%" }}
                 src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
                   ingredient
-                )}.png`}
-              ></img>
+                )}.png`} 
+                alt={ingredient}
+                height={700}
+                width={700}
+              />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={8}>
               <div className="text-tangerine text-55px margin-left-35px">
