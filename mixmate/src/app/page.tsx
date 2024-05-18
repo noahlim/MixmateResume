@@ -6,57 +6,45 @@ import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
 import { EdgeStoreProvider } from "lib/edgestore";
-
-function registerNewUserObject() {
-  return {
-    nickname: "",
-    password: "",
-    passwordConfirm: "",
-    name: "",
-    lastName: "",
-    email: "",
-  };
-}
-
-//This is a testing function, you have seen nothing :)
-async function addMeetupHandler() {
-  //this will send GET reqeust to /api/usern  route
-  //check api/user/route.ts file  to check how it works
-  // await makeRequest(
-  //   API_ROUTES.user,
-  //   REQ_METHODS.get,
-  //   { nickname: "Harry" },
-  //   (data) => {
-  //     console.log("Success callback:", data);
-  //   }
-  // ).catch((error) => {
-  //   console.log("Error handling:", error);
-  // });
-  let newUser = registerNewUserObject();
-  newUser.nickname = "asdfadarrsssy";
-  makeRequest(API_ROUTES.login, REQ_METHODS.post, { lol: "sick" }, (data) => {
-    // Handle success
-    console.log("Success callback:", data);
-  }).catch((error) => {
-    // Handle errors that occur during the request
-    if (error.message === "Nickname already in use") {
-      console.log("You suck");
-    } else {
-      console.log("Network Error!~");
-    }
-  });
-}
+import { Box, ThemeProvider, createTheme } from "@mui/material";
 
 function RootPage({ children }) {
   // Check if the current route is the home page
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#489FB5",
+      },
+      secondary: {
+        main: "#F3E3FF",
+      },
+    },
+    typography: {
+      fontFamily: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(','),
+    },
+  });
+
   if (usePathname() === "/") {
     return (
       <ReduxProvider>
-        <EdgeStoreProvider>
-          <MenuBar />
+        <ThemeProvider theme={theme}>
+          <EdgeStoreProvider>
+            <MenuBar />
 
-          <HomePage />
-        </EdgeStoreProvider>
+            <HomePage />
+          </EdgeStoreProvider>
+        </ThemeProvider>
       </ReduxProvider>
     );
   }
@@ -64,11 +52,15 @@ function RootPage({ children }) {
   // For all other routes, render the children normally
   return (
     <ReduxProvider>
-      <EdgeStoreProvider>
-        <MenuBar />
+      <ThemeProvider theme={theme}>
+        <EdgeStoreProvider>
+          <Box>
+            <MenuBar />
 
-        {children}
-      </EdgeStoreProvider>
+            {children}
+          </Box>
+        </EdgeStoreProvider>
+      </ThemeProvider>
     </ReduxProvider>
   );
 }

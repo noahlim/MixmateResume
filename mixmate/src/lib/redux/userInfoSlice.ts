@@ -1,13 +1,16 @@
-import {createSlice} from "@reduxjs/toolkit";
-const initialUserInfoState = {userInfo: null, userIngredients: []};
+import { createSlice } from "@reduxjs/toolkit";
+const initialUserInfoState = {
+    userInfo: null, 
+    userIngredients: []
+};
 const userInfoSlice = createSlice({
     name: "userInfo",
     initialState: initialUserInfoState,
     reducers: {
-        setUserInfo(state,action) {
+        setUserInfo(state, action) {
             state.userInfo = action.payload;
         },
-        setUserIngredients(state, action){
+        setUserIngredients(state, action) {
             state.userIngredients = action.payload;
         }
     }

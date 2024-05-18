@@ -16,9 +16,6 @@ import {
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 
 import {CardContent, Typography, Avatar } from "@mui/material";
-
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -32,12 +29,6 @@ function Profile() {
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
   const router = useRouter();
   const {user, error, isLoading} = useUser()
-
-//   useEffect(() => {
-//     if (isNotSet(user)) {
-//       router.push("/");
-//     }
-//   }, [userInfo, router, user]);
 
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
@@ -73,7 +64,6 @@ function Profile() {
   // );
 
   useEffect(() => {
-    setLoadingPage(false);
   }, []);
   // Cahnge pass button
   function resetPassObject() {
@@ -138,14 +128,6 @@ function Profile() {
 
   return (
     <>
-      {/* Loading */}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingPage}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-
       {/* Toast message */}
       <Snackbar
         open={openToastMessage}

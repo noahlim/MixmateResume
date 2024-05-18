@@ -2,3 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.roboto {
+  font-family: var(--font-roboto);
+}
+
+.noto_sans {
+  font-family: var(--font-noto-sans);
+}

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Rating from "@mui/material/Rating";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import moment from "moment";
 import CancelIcon from "@mui/icons-material/Cancel";
+import CloseIcon from "@mui/icons-material/Close";
 import InfoIcon from "@mui/icons-material/Info";
 import MapsUgcIcon from "@mui/icons-material/MapsUgc";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -12,7 +13,6 @@ import {
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import Button from "@mui/material/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import Dialog from "@mui/material/Dialog";
@@ -31,7 +31,7 @@ import {
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent } from "@mui/material";
+import { Typography, CardContent, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
@@ -47,9 +47,9 @@ import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import clipboard from "clipboard-copy";
 import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-import Divider from "@mui/material/Divider";
-import { usePathname } from "next/navigation";
+import Avatar from "@mui/material/Avatar";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import AddEditRecipe_Component from "./AddEditRecipe_Component";
 import {
   FacebookIcon,
@@ -58,22 +58,24 @@ import {
   TwitterShareButton,
   XIcon,
 } from "react-share";
+import { useDispatch, useSelector } from "react-redux";
+import { pageStateActions } from "lib/redux/pageStateSlice";
+import { useUser } from "@auth0/nextjs-auth0/client";
 function Recipe_Component(props) {
   // Inherited variables
-  const { title, recipes, setLoadingPage, showToastMessage, reloadRecipes } =
+  const { applicationPage, title, recipes, showToastMessage, reloadRecipes } =
     props;
+  const dispatch = useDispatch();
 
-  const pathName = usePathname();
-  const isFavouritePage =
-    title === "My Favourite Recipes" || title === "My MixMate Recipes";
+  const isEditablePage =
+    applicationPage === APPLICATION_PAGE.favourites ||
+    applicationPage === APPLICATION_PAGE.myRecipes;
+
   const { user, error, isLoading } = useUser();
 
-  // Variables to display elements on screen
-  const [showDeleteRecipes] = useState(isFavouritePage);
-  const [showAddEditRecipes] = useState(isFavouritePage);
-  const [showTableHeaders] = useState(isFavouritePage);
-  const [showShareOption] = useState(isFavouritePage);
-  const [showReviewsOption] = useState(pathName === APPLICATION_PAGE.social);
+  const [showReviewsOption] = useState(
+    applicationPage === APPLICATION_PAGE.social
+  );
   const [sharingUrl, setSharingUrl] = useState("");
   // Delete recipes
   const [modalDeleteRecipeOpen, setModalDeleteRecipeOpen] = useState(false);
@@ -84,6 +86,10 @@ function Recipe_Component(props) {
   };
   const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
   const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
     setSelectedRecipeIdAddEdit(selectedRecipeId);
     setOpenAddEditRecipemodal(true);
@@ -92,16 +98,36 @@ function Recipe_Component(props) {
     setSelectedRecipeIdAddEdit(null);
     setOpenAddEditRecipemodal(false);
   };
+
+  let btnRemoveReview_onClick = (reviewid) => {
+    // Validate session
+    if (!user) return;
+    makeRequest(
+      API_ROUTES.recipeReviews,
+      REQ_METHODS.delete,
+      { _id: reviewid },
+      (response) => {
+        showToastMessage("Reviews", response.message, SEVERITY.Success);
+        reloadRecipes();
+      },
+      (err) => {
+        showToastMessage(
+          "Error",
+          "Error deleting selected review",
+          SEVERITY.Error
+        );
+      }
+    );
+  };
   let btnRemoveRecipe_onClick = () => {
     // Validate session
-    if (!isLoading && !user) return;
+    if (!user) return;
 
-    setLoadingPage(true);
     if (title === "My Favourite Recipes")
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.delete,
-        { _id: infoRecipeToDelete._id },
+        { userId: user.sub, _id: infoRecipeToDelete._id },
         (response) => {
           showToastMessage("Favorites", response.message, SEVERITY.Success);
           setInfoRecipeToDelete(null);
@@ -138,6 +164,342 @@ function Recipe_Component(props) {
     }
   };
 
+  const renderRecipes = () => {
+    return recipes?.map((drink) => {
+      // Format ingredients
+      const ingredientsList = drink.ingredients?.map((ing, index) => (
+        <Typography className="margin-left-35px" key={index}>
+          {ing.ingredient} <i>({ing.measure})</i>
+        </Typography>
+      ));
+      let recipeIconItem = null;
+      if (applicationPage === APPLICATION_PAGE.favourites) {
+        recipeIconItem = (
+          <FavoriteIcon
+            color={
+              applicationPage === APPLICATION_PAGE.favourites
+                ? "error"
+                : "primary"
+            }
+            className="margin-left-20px"
+          />
+        );
+      }
+
+      // Ingredients, how to prepare and author info
+      let recipeComplementaryInfo = (
+        <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+          <InputLabel>Ingredients:</InputLabel>
+          {ingredientsList}
+          <br></br>
+          <InputLabel>How to prepare:</InputLabel>
+          <Typography className="margin-left-35px">
+            {drink.strInstructions}
+          </Typography>
+          <br></br>
+          <InputLabel>Author:</InputLabel>
+          <Typography className="margin-left-35px margin-bottom-15px">
+            {isSet(drink.strAuthor) ? drink.strAuthor : "www.cocktailDB.com"}
+          </Typography>
+        </Grid>
+      );
+
+      // Comments and reviews
+      let reviewComments = null;
+
+      if (
+        isSet(showReviewsOption) &&
+        drink.reviews &&
+        drink.reviews.length > 0
+      ) {
+        reviewComments = (
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            {drink.reviews.map((review, index) => {
+              const createdAt = moment(review.created_at);
+              const now = moment();
+              const daysDiff = now.diff(createdAt, "days");
+              const hoursDiff = now.diff(createdAt, "hours");
+              const minutesDiff = now.diff(createdAt, "minutes");
+
+              let displayDate;
+              if (daysDiff < 1) {
+                if (hoursDiff < 1) {
+                  displayDate = `${minutesDiff} minutes ago`;
+                } else {
+                  displayDate = `${hoursDiff} hours ago`;
+                }
+              } else if (daysDiff < 30) {
+                displayDate = `${daysDiff} days ago`;
+              } else {
+                displayDate = createdAt.format("YYYY-MM-DD");
+              }
+
+              return (
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  sx={{
+                    marginBottom: 2,
+                    width: isSmallScreen ? "100%" : "70%",
+                  }}
+                >
+                  {/**Delete review button */}
+
+                  <Avatar
+                    src={review.userPictureUrl}
+                    alt={review.userNickname}
+                    sx={{ width: 40, height: 40, marginRight: 2 }}
+                  />
+                  <Box display="flex" flexDirection="column" flexGrow={1}>
+                    <Box display="flex" alignItems="center" marginBottom={-1}>
+                      <Typography variant="subtitle1" sx={{ marginRight: 1 }}>
+                        {review.userNickname}
+                      </Typography>
+                      <Rating
+                        value={review.rating}
+                        readOnly
+                        size="small"
+                        sx={{ marginRight: 1 }}
+                      />
+
+                      {review.userId === user.sub && (
+                        <IconButton
+                          color="error"
+                          onClick={() => btnRemoveReview_onClick(review._id)}
+                          sx={{ marginRight: "10px" }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      )}
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      marginBottom={1}
+                    >
+                      {displayDate}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      color="text.primary"
+                      sx={{ whiteSpace: "pre-line" }}
+                    >
+                      {review.comment}
+                    </Typography>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Grid>
+        );
+      }
+
+      return (
+        <React.Fragment key={drink.idDrink}>
+          <TableRow sx={{ "& > *": { borderTop: 0 } }} key={drink.idDrink}>
+            <TableCell colSpan={2}>
+              <Box>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={12} md={6} lg={4}>
+                    <img
+                      style={{ width: "100%", borderRadius: "7%" }}
+                      src={
+                        drink.strDrinkThumb
+                          ? drink.strDrinkThumb
+                          : "not-found-icon.png"
+                      }
+                    ></img>
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={6} lg={8}>
+                    <Typography>
+                      {drink.strDrink}
+                      {recipeIconItem}
+                    </Typography>
+
+                    {/* Category */}
+                    <FormControl variant="standard">
+                      <InputLabel htmlFor="input-with-icon-adornment">
+                        Category
+                      </InputLabel>
+                      <Input
+                        id="input-with-icon-adornment"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <ClassIcon />
+                          </InputAdornment>
+                        }
+                        value={drink.strCategory}
+                      />
+                    </FormControl>
+                    <br />
+                    <br />
+
+                    {/* Alcoholic type */}
+                    <FormControl variant="standard">
+                      <InputLabel htmlFor="input-with-icon-adornment">
+                        Alcoholic type
+                      </InputLabel>
+                      <Input
+                        id="input-with-icon-adornment"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <LocalBarIcon />
+                          </InputAdornment>
+                        }
+                        value={drink.strAlcoholic}
+                      />
+                    </FormControl>
+                    <br />
+                    <br />
+
+                    {/* Glass type */}
+                    <FormControl variant="standard">
+                      <InputLabel htmlFor="input-with-icon-adornment">
+                        Glass
+                      </InputLabel>
+                      <Input
+                        id="input-with-icon-adornment"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <LocalDrinkIcon />
+                          </InputAdornment>
+                        }
+                        value={drink.strGlass}
+                      />
+                    </FormControl>
+                    <br />
+                    <br />
+                  </Grid>
+
+                  {recipeComplementaryInfo}
+                  {showReviewsOption && reviewComments}
+
+                  <Grid
+                    container
+                    justifyContent="end"
+                    item
+                    xs={12}
+                    sm={12}
+                    md={12}
+                    lg={12}
+                    xl={12}
+                  >
+                    {isEditablePage && (
+                      <Tooltip title="Delete from favourites" placement="top">
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            messageBoxDeleteRecipe(drink._id, drink.recipeName)
+                          }
+                        >
+                          <DeleteForeverIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {applicationPage === APPLICATION_PAGE.myRecipes && (
+                      <>
+                        <Tooltip title="Share recipe" placement="top">
+                          <IconButton
+                            color="success"
+                            onClick={() => modalShareRecipe_onOpen(drink)}
+                          >
+                            <ShareIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Create a new recipe" placement="top">
+                          <IconButton
+                            color="primary"
+                            onClick={() => modalAddEditRecipe_onOpen(drink._id)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                  </Grid>
+                  {/**Comments input section */}
+                  <Grid container justifyContent="flex-start" item>
+                    {showReviewsOption && (
+                      <>
+                        {!showCommentsBox ? (
+                          <Tooltip title="Add a Review" placement="top">
+                            <IconButton
+                              color="primary"
+                              onClick={() => txtWriteReview_onOpen(drink._id)}
+                            >
+                              <MapsUgcIcon />
+                            </IconButton>
+                          </Tooltip>
+                        ) : null}
+                        {showCommentsBox &&
+                          selectedRecipeToComment?._id === drink._id && (
+                            <Paper
+                              sx={{
+                                display: "grid",
+                                width: isSmallScreen ? "100%" : "70%",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  alignSelf: "flex-start",
+                                }}
+                              >
+                                <Tooltip title="Close" placement="top">
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => txtWriteReview_onClose()}
+                                  >
+                                    <CancelIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                              <TextField
+                                label="Write a review"
+                                sx={{ margin: "0 20px 20px 20px" }}
+                                multiline
+                                onChange={(event) =>
+                                  setReviewValue(event.target.value)
+                                }
+                              ></TextField>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-end",
+                                  gap: "10px",
+                                  marginRight: "20px",
+                                  marginBottom: "20px",
+                                }}
+                              >
+                                <Rating
+                                  value={ratingValue}
+                                  onChange={(event, newValue) =>
+                                    setRatingValue(newValue)
+                                  }
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outlined"
+                                  color="primary"
+                                  onClick={() => btnWriteReview_onCkick()}
+                                >
+                                  Add Review
+                                </Button>
+                              </Box>
+                            </Paper>
+                          )}
+                      </>
+                    )}
+                  </Grid>
+                </Grid>
+              </Box>
+            </TableCell>
+          </TableRow>
+        </React.Fragment>
+      );
+    });
+  };
   // Add edit recipes
 
   // Share recipes
@@ -162,7 +524,7 @@ function Recipe_Component(props) {
       { recipe: newRecipeObject },
       (response) => {
         if (response.isOk) {
-          setModalShareRecipeOpen(false);          
+          setModalShareRecipeOpen(false);
           showToastMessage(
             "Recipe Shared on the Social",
             "Your drink has been shared on the Social!",
@@ -171,10 +533,9 @@ function Recipe_Component(props) {
 
           // Reload recipes list
           reloadRecipes();
-        } else
-          showToastMessage("New Recipe", response.message, SEVERITY.Error);
+        } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
 
-        setLoadingPage(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
       }
     );
   };
@@ -199,30 +560,37 @@ function Recipe_Component(props) {
     if (isNotSet(reviewValue)) {
       showToastMessage(
         "Reviews",
-        "Write your review for the recipe",
+        "Please fill in the comment field.",
         SEVERITY.Warning
       );
       return;
     }
 
-    setLoadingPage(true);
     let newReview = {
       userId: user.sub,
       userNickname: user.nickname,
-      _id: selectedRecipeToComment._id,
+      recipeId: selectedRecipeToComment._id,
       comment: reviewValue,
       rating: ratingValue,
     };
-    console.log(newReview);
-    // doPost(API.Social.writeReview, newReview, (response) => {
-    //   if (response.isOk) {
-    //     reloadRecipes();
-    //     txtWriteReview_onClose();
-    //     showToastMessage("Reviews", "New review added!", SEVERITY.Success);
-    //   } else showToastMessage("Reviews", response.message, SEVERITY.Error);
 
-    //   setLoadingPage(false);
-    // });
+    makeRequest(
+      API_ROUTES.recipeReviews,
+      REQ_METHODS.post,
+      { newReview },
+      (response) => {
+        if (response.isOk) {
+          setSelectedRecipeToComment(null);
+          setRatingValue(1);
+          setShowCommentsBox(false);
+
+          // Reload recipes list
+          reloadRecipes();
+        } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
+
+        dispatch(pageStateActions.setPageLoadingState(false));
+      }
+    );
   };
   return (
     <>
@@ -230,12 +598,11 @@ function Recipe_Component(props) {
         openModal={openAddEditRecipeModal}
         closeModal={modalAddEditRecipe_onClose}
         showToastMessage={showToastMessage}
-        setLoadingPage={setLoadingPage}
         reloadPage={reloadRecipes}
         recipeId={selectedRecipeIdAddEdit}
       />
       {/* Delete Recipe Modal */}
-      {showDeleteRecipes && (
+      {isEditablePage && (
         <Dialog
           onClose={() => setModalDeleteRecipeOpen(false)}
           open={modalDeleteRecipeOpen}
@@ -270,7 +637,7 @@ function Recipe_Component(props) {
       )}
 
       {/* Share recipes */}
-      {showShareOption && (
+      {applicationPage === APPLICATION_PAGE.myRecipes && (
         <Dialog
           onClose={() => setModalShareRecipeOpen(false)}
           open={modalShareRecipeOpen}
@@ -321,7 +688,6 @@ function Recipe_Component(props) {
           </DialogActions>
 
           <DialogActions>
-
             <Button
               onClick={() => btnShareInSocial_onclick()}
               color="success"
@@ -344,7 +710,7 @@ function Recipe_Component(props) {
 
       <div style={{ paddingLeft: 25, paddingRight: 55 }}>
         <Table aria-label="collapsible table">
-          {showTableHeaders && (
+          {isEditablePage && (
             <TableHead>
               <TableRow>
                 <TableCell align="center" colSpan={2}>
@@ -363,299 +729,20 @@ function Recipe_Component(props) {
           )}
           <TableBody>
             {/* Print recipes on screen */}
-            {recipes?.map((drink) => {
-              // Format ingredients
-              const ingredientsList = drink.ingredients?.map((ing, index) => (
-                <Typography className="margin-left-35px" key={index}>
-                  {ing.ingredient} <i>({ing.measure})</i>
-                </Typography>
-              ));
-              //console.log(ingredientsList);
-              // Title icon
-              let recipeIconItem = (
-                <FavoriteIcon
-                  color={
-                    pathName === APPLICATION_PAGE.favourites
-                      ? "error"
-                      : "primary"
-                  }
-                  className="margin-left-20px"
-                />
-              );
-              if (pathName === APPLICATION_PAGE.social) {
-                recipeIconItem = (
-                  <Tooltip
-                    //title={"Shared by: " + drink.userNickname}
-                    title="Test User"
-                    placement="top"
+            {recipes && recipes.length > 0 ? (
+              renderRecipes()
+            ) : (
+              <TableRow>
+                <TableCell>
+                  <Typography
+                    variant="h6"
+                    style={{ textAlign: "center", marginTop: "20px" }}
                   >
-                    <InfoIcon color={"success"} className="margin-left-20px" />
-                  </Tooltip>
-                );
-              }
-
-              // Ingredients, how to prepare and author info
-              let recipeComplementaryInfo = (
-                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                  <InputLabel>Ingredients:</InputLabel>
-                  {ingredientsList}
-                  <br></br>
-                  <InputLabel>How to prepare:</InputLabel>
-                  <Typography className="margin-left-35px">
-                    {drink.strInstructions}
+                    No recipes found.
                   </Typography>
-                  <br></br>
-                  <InputLabel>Author:</InputLabel>
-                  <Typography className="margin-left-35px margin-bottom-15px">
-                    {isSet(drink.strAuthor)
-                      ? drink.strAuthor
-                      : "www.cocktailDB.com"}
-                  </Typography>
-                </Grid>
-              );
-
-              // Comments and reviews
-              let reviewComments = null;
-
-              if (
-                isSet(showReviewsOption) &&
-                drink.reviews &&
-                drink.reviews.length > 0
-              ) {
-                reviewComments = (
-                  <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                    {drink.reviews.map((x, index) => (
-                      <React.Fragment key={index}>
-                        <br></br>
-                        <InputLabel>{x.nickname}:</InputLabel>
-                        <Rating
-                          className="margin-left-35px"
-                          value={x.rating}
-                          readOnly
-                          size="small"
-                        />
-                        <Typography className="margin-left-35px">
-                          {x.comment}
-                        </Typography>
-                      </React.Fragment>
-                    ))}
-                  </Grid>
-                );
-              }
-
-              return (
-                <TableRow
-                  sx={{ "& > *": { borderTop: 0 } }}
-                  key={drink.idDrink}
-                >
-                  <TableCell
-                    style={{ paddingBottom: 0, paddingTop: 0 }}
-                    colSpan={2}
-                  >
-                    <Box sx={{ margin: 3 }}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={6} lg={4}>
-                          <img
-                            style={{ width: "90%", borderRadius: "7%" }}
-                            src={
-                              drink.strDrinkThumb
-                                ? drink.strDrinkThumb
-                                : "not-found-icon.png"
-                            }
-                          ></img>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={6} lg={8}>
-                          <div className="text-tangerine text-55px margin-left-35px">
-                            {drink.strDrink}
-                            {recipeIconItem}
-                          </div>
-
-                          {/* Category */}
-                          <FormControl variant="standard">
-                            <InputLabel htmlFor="input-with-icon-adornment">
-                              Category
-                            </InputLabel>
-                            <Input
-                              id="input-with-icon-adornment"
-                              startAdornment={
-                                <InputAdornment position="start">
-                                  <ClassIcon />
-                                </InputAdornment>
-                              }
-                              value={drink.strCategory}
-                            />
-                          </FormControl>
-                          <br />
-                          <br />
-
-                          {/* Alcoholic type */}
-                          <FormControl variant="standard">
-                            <InputLabel htmlFor="input-with-icon-adornment">
-                              Alcoholic type
-                            </InputLabel>
-                            <Input
-                              id="input-with-icon-adornment"
-                              startAdornment={
-                                <InputAdornment position="start">
-                                  <LocalBarIcon />
-                                </InputAdornment>
-                              }
-                              value={drink.strAlcoholic}
-                            />
-                          </FormControl>
-                          <br />
-                          <br />
-
-                          {/* Glass type */}
-                          <FormControl variant="standard">
-                            <InputLabel htmlFor="input-with-icon-adornment">
-                              Glass
-                            </InputLabel>
-                            <Input
-                              id="input-with-icon-adornment"
-                              startAdornment={
-                                <InputAdornment position="start">
-                                  <LocalDrinkIcon />
-                                </InputAdornment>
-                              }
-                              value={drink.strGlass}
-                            />
-                          </FormControl>
-                          <br />
-                          <br />
-                        </Grid>
-
-                        {recipeComplementaryInfo}
-                        {showReviewsOption && reviewComments}
-
-                        <Grid
-                          container
-                          justifyContent="end"
-                          item
-                          xs={12}
-                          sm={12}
-                          md={12}
-                          lg={12}
-                          xl={12}
-                        >
-                          {showDeleteRecipes && (
-                            <Tooltip
-                              title="Delete from favourites"
-                              placement="top"
-                            >
-                              <IconButton
-                                color="error"
-                                onClick={() =>
-                                  messageBoxDeleteRecipe(
-                                    drink._id,
-                                    drink.recipeName
-                                  )
-                                }
-                              >
-                                <DeleteForeverIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {showShareOption && (
-                            <Tooltip title="Share recipe" placement="top">
-                              <IconButton
-                                color="success"
-                                onClick={() =>
-                                  modalShareRecipe_onOpen(drink)
-                                }
-                              >
-                                <ShareIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {showAddEditRecipes && (
-                            <Tooltip
-                              title="Create a new recipe"
-                              placement="top"
-                            >
-                              <IconButton
-                                color="primary"
-                                onClick={() =>
-                                  modalAddEditRecipe_onOpen(drink._id)
-                                }
-                              >
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {showReviewsOption &&
-                          selectedRecipeToComment?._id !== drink._id ? (
-                            <Tooltip title="Add comment" placement="top">
-                              <IconButton
-                                color="primary"
-                                onClick={() => txtWriteReview_onOpen(drink._id)}
-                              >
-                                <MapsUgcIcon />
-                              </IconButton>
-                            </Tooltip>
-                          ) : null}
-                          {showReviewsOption &&
-                            showCommentsBox &&
-                            selectedRecipeToComment?._id === drink._id && (
-                              <Paper
-                                component="form"
-                                sx={{
-                                  p: "2px 4px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  width: "80%",
-                                }}
-                              >
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => txtWriteReview_onClose()}
-                                >
-                                  <MapsUgcIcon />
-                                </IconButton>
-                                <InputBase
-                                  sx={{ ml: 1, flex: 1 }}
-                                  placeholder={
-                                    "Review and grade " +
-                                    drink.userNickname +
-                                    "'s recipe"
-                                  }
-                                  onChange={(e) =>
-                                    setReviewValue(e.target.value)
-                                  }
-                                />
-                                <Rating
-                                  value={ratingValue}
-                                  onChange={(event, newValue) =>
-                                    setRatingValue(newValue)
-                                  }
-                                />
-                                <Divider
-                                  sx={{ height: 28, m: 0.5 }}
-                                  orientation="vertical"
-                                />
-                                <IconButton
-                                  type="button"
-                                  color="error"
-                                  onClick={() => txtWriteReview_onClose()}
-                                >
-                                  <CancelIcon />
-                                </IconButton>
-                                <IconButton
-                                  type="button"
-                                  color="success"
-                                  onClick={() => btnWriteReview_onCkick()}
-                                >
-                                  <CheckCircleIcon />
-                                </IconButton>
-                              </Paper>
-                            )}
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

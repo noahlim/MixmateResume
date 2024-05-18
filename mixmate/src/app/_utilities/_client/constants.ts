@@ -26,11 +26,12 @@ const APPLICATION_PAGE =
   myRecipes: '/myrecipes',
   social: '/social',
   sharedPublic: '/sharedpublic',
-  resetPassword: '/resetpassword'
+  resetPassword: '/resetpassword',
 }
 
 const API_ROUTES = {
   user: '/user',
+  userIngredients: '/user/ingredient',
   password: '/user/password',
   login: '/api/auth/login',
   tokenVerify: '/verifytoken',
@@ -41,9 +42,18 @@ const API_ROUTES = {
   drinkbyid: '/drinkbyid',  
   mongoLogin: '/auth/loginmongo',
   recipeReviews: '/social/recipereviews',
-  recipeShare: '/social/recipeshare',
+  recipeShare: '/social/recipeshare',  
   sharedRecipeById: '/social/recipeshare/recipeid',
   image: '/image',
+  sharedRecipesCount: '/social/recipeshare/recipecount',
+  sharedRecipesFilter: '/social/filtered',
+  drinksByFilter: '/drinks/filter',
+  favouritesByFilter : '/user/favourite/filtered',
+  favouriteCount : '/user/favourite/count',
+  favouriteFilteredCount : '/user/favourite/filteredcount',
+  walmartItems: '/shoppinglist/walmart',
+  lcboItems: '/shoppinglist/lcbo',
+  availableRecipes: '/user/availablerecipes',
 }
 
 const API_DRINK_ROUTES = {

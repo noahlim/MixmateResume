@@ -21,8 +21,13 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
         return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
     }
     let result = new Result(true);
-    const { user } = await getSession();
     try {
+    const { user } = await getSession();
+
+      if(body.userId !== user.sub){
+        return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+      }
+
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
       //user.sub is  unique id of each user
@@ -46,7 +51,7 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       }
       await dbRtns.addOne(db, userFavouriteCollection, favouriteRecipe);
 
-      result.setTrue(`The recipe has been added to your favourite!`);
+      result.setTrue(`The recipe has been added to your favourite.`);
 
     } catch (error) {
       return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
@@ -66,15 +71,19 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
   try {
 
     const { user } = await getSession();
+    const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
 
     let db = await dbRtns.getDBInstance();
-
-    let response = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {});
-
+    
+    let recipes = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+    const updatedRecipes = recipes.map((recipe) => {
+      delete recipe.sub;
+      return recipe;
+  })
     //response is the object deleted
     const result = new Result(true);
-    result.data = response;
-    result.message = response.length > 0 ? `${response.length} recipes found!` : "No reciped found."
+    result.data = updatedRecipes;
+    result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
     console.log(err);
@@ -89,6 +98,8 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
   }
 
   const drinkId = new ObjectId(req.nextUrl.searchParams.get('_id'));
+  const userId = new ObjectId(req.nextUrl.searchParams.get('userId'));
+
 
   if (!drinkId) {
     return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
@@ -97,6 +108,13 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
 
 
   try {
+    const {user} = await getSession();
+
+    if(userId !== user.sub){
+      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+    }
+
+
     let db = await dbRtns.getDBInstance();
 
     let response = await dbRtns.findOne(db, userFavouriteCollection, { _id: drinkId });

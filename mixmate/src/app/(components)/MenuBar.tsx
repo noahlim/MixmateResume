@@ -35,71 +35,52 @@ import {
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
 import { useRouter } from "next/navigation";
-import { AlertColor } from "@mui/material/Alert";
 import { userInfoActions } from "lib/redux/userInfoSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { notFound } from "next/navigation";
 
 import Link from "next/link";
-const USER_SESSION = "userSession";
+import { Avatar, Backdrop, CircularProgress } from "@mui/material";
+import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
+import Image from 'next/image'
 
-function MenuBar() {
+function MenuBar(props) {
   // Toast Message
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>("info");
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
 
+  const loadingPage = useSelector((state: any) => state.pageState.isLoading);
+  const toastMessage: ToastMessage = useSelector(
+    (state: any) => state.pageState.toastMessage
+  );
   const router = useRouter();
   const dispatch = useDispatch();
-  const userSession = useUser();
-  useEffect(() => {
-    if (userSession.error) {
-      notFound();
-    }
+  const { user, isLoading, error } = useUser();
 
-    if (userSession.user) {
-      if (!userInfo) {
-        loginHandleMongo(userSession.user);
-        showToastMessage(
-          "Log In",
-          `Welcome to Mixmate, ${userSession.user.nickname}!`
-        );
+  useEffect(() => {
+    if (!userInfo) {
+      dispatch(userInfoActions.setUserInfo(user));
+
+      if (error) {
+        notFound();
+      } else if (user) {
+        loginHandleMongo(user);
       }
-      dispatch(userInfoActions.setUserInfo(userSession.user));
     }
-  }, [userSession.user]);
+  }, [userInfo, user, dispatch]);
 
   const loginHandleMongo = async (userInfoData) => {
-    try {
-      console.log(userInfoData);
-      makeRequest(
-        API_ROUTES.mongoLogin,
-        REQ_METHODS.post,
-        userInfoData,
-        (serverResponse) => {
-          if (!serverResponse.isOk)
-            showToastMessage(
-              "Log In",
-              serverResponse.message,
-              SEVERITY.Warning
-            );
-        }
-      );
-    } catch (err) {
-      showToastMessage("Error", err.message, SEVERITY.warning);
-    }
-  };
-  const showToastMessage = (
-    title: string,
-    message: string,
-    severity: AlertColor = SEVERITY.Info
-  ) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
+    makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
+      (err) => {
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          message: err.message,
+          severity: SEVERITY.Error,
+          title: "Error",
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }
+    );
   };
 
   // Validate if there's user session
@@ -107,8 +88,8 @@ function MenuBar() {
   let menuIcon = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (!userSession.isLoading) {
-    if (isSet(userSession.user)) {
+  if (!isLoading) {
+    if (isSet(user)) {
       // Set menu icon
       menuIcon = (
         <>
@@ -221,9 +202,8 @@ function MenuBar() {
             </Button>
           </a>
           <a href={API_ROUTES.userJson}>
-            <img
-              className="w-10 h-10 ml-5 rounded-full object-cover"
-              src={userSession.user.picture}
+            <Avatar
+              src={user.picture}
             />
           </a>
         </>
@@ -242,35 +222,52 @@ function MenuBar() {
     }
   }
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Snackbar
-        open={openToastMessage}
-        autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
-      >
-        <Alert severity={toast_severity}>
-          <AlertTitle>{toast_title}</AlertTitle>
-          {toast_message}
-        </Alert>
-      </Snackbar>
+    <>
+      <Box sx={{ flexGrow: 1 }}>
+        <Snackbar
+          open={toastMessage.open}
+          autoHideDuration={3000}
+          onClose={() => {
+            dispatch(pageStateActions.setToastMessageClose());
+          }}
+        >
+          <Alert severity={toastMessage.severity}>
+            <AlertTitle>{toastMessage.title}</AlertTitle>
+            {toastMessage.message}
+          </Alert>
+        </Snackbar>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 9999 }}
+          open={loadingPage}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+        <AppBar position="static">
+          <Toolbar>
+            {menuIcon}
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <Link href={APPLICATION_PAGE.home}>
+                <Image
+                  src="/mixmatelogomini.png"
+                  alt="MixMate Logo"
+                  decoding="async"
+                  width={686}
+                  height={364}
+                  style={{
+                    width:"100px",
+                  }}
+                />
+              </Link>
+            </Typography>
+            {loginControls}
+          </Toolbar>
+        </AppBar>
 
-      {/* Top Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          {menuIcon}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link href={APPLICATION_PAGE.home}>MixMate</Link>
-          </Typography>
-          {loginControls}
-        </Toolbar>
-      </AppBar>
-
-      {/* Main menu */}
-      {userMenu}
-    </Box>
+        {/* Main menu */}
+        {userMenu}
+      </Box>
+    </>
   );
 }
 
 export default MenuBar;
-
-export { USER_SESSION };

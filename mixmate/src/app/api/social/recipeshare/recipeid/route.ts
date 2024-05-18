@@ -17,11 +17,12 @@ export const GET = withApiAuthRequired(async function getCustomRecipeById(req: N
         //http://localhost:3000/api/social/recipeshare/recipeid
         //and the drinkId variable value will be '123123'
         const recipeId = req.nextUrl.searchParams.get('recipeid');
-        console.log(recipeId);
+       
+    
         let db = await dbRtns.getDBInstance();
         let recipeInfo = await dbRtns.findOne(db, sharedRecipeCollection, { _id: new ObjectId(recipeId) });
         if (isSet(recipeInfo)) {
-            result.setTrue();
+            result.setTrue(`Recipe ${recipeInfo.strDrink} by ${recipeInfo.strAuthor} found`);
             result.data = recipeInfo;
         }
         else
