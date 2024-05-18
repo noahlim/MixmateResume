@@ -1,7 +1,7 @@
 import { AlertColor } from '@mui/material/Alert';
 
-const END_POINT = process.env.NEXT_PUBLIC_END_POINT;
-const MIXMATE_DOMAIN = process.env.NEXT_PUBLIC_MIXMATE_DOMAIN;
+const END_POINT = "https://mixmate-one.vercel.app/api";
+const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
