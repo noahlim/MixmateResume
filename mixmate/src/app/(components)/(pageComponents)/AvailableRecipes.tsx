@@ -46,6 +46,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import Chip from "@mui/material/Chip";
 import { Pagination } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import Image from "next/image";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -142,11 +143,13 @@ const AvailableRecipes = (props) => {
     dispatch(pageStateActions.setPageLoadingState(false));
   };
   let loadAllAvailableRecipes = (pageIndex = 1) => {
-    const criteria = props.isSingleIngredient  ? {
-      userId: user.sub,
-      singleIngredient: props.isSingleIngredient,
-      ingredient: props.ingredient.strIngredient1,
-    } : {userId: user.sub};
+    const criteria = props.isSingleIngredient
+      ? {
+          userId: user.sub,
+          singleIngredient: props.isSingleIngredient,
+          ingredient: props.ingredient.strIngredient1,
+        }
+      : { userId: user.sub };
     makeRequest(
       API_ROUTES.availableRecipes,
       REQ_METHODS.get,
@@ -286,10 +289,17 @@ const AvailableRecipes = (props) => {
                 <Box>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
-                      <img
-                        style={{ width: "100%", borderRadius: "7%" }}
-                        src={drink.strDrinkThumb}
-                      ></img>
+                      <Image
+                        src={
+                          drink.strDrinkThumb
+                            ? drink.strDrinkThumb
+                            : "not-found-icon.png"
+                        }
+                        alt="Drink"
+                        width={700}
+                        height={700}
+                        style={{ borderRadius: "7%" }}
+                      />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
                       <div className="text-tangerine text-55px margin-left-35px">
@@ -450,7 +460,7 @@ const AvailableRecipes = (props) => {
         >
           {userIngredients.length === 0
             ? "No Available Recipes"
-            : userIngredients.length === 1 
+            : userIngredients.length === 1
             ? `Available Recipes with ${capitalizeWords(
                 userIngredients[0].strIngredient1
               )}`
@@ -499,54 +509,54 @@ const AvailableRecipes = (props) => {
                       >
                         <Typography variant="h6">Recipes</Typography>
                         <FormControl sx={{ m: 1, width: "100%" }}>
-                          {!props.isSingleIngredient && (<>
-                          <InputLabel id="demo-multiple-chip-label">
-                            Filter by Ingredients
-                          </InputLabel>
-                          <Select
-                            labelId="demo-multiple-chip-label"
-                            id="demo-multiple-chip"
-                            multiple
-                            value={ingredientName}
-                            onChange={handleIngredientsFilterChange}
-                            input={
-                              <OutlinedInput
-                                id="select-multiple-chip"
-                                label="Filter by Ingredients"
-                              />
-                            }
-                            renderValue={(selected) => (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 0.5,
-                                }}
-                              >
-                                {selected.map((value) => (
-                                  <Chip
-                                    key={value}
-                                    label={value}
+                          {!props.isSingleIngredient && (
+                            <>
+                              <InputLabel id="demo-multiple-chip-label">
+                                Filter by Ingredients
+                              </InputLabel>
+                              <Select
+                                labelId="demo-multiple-chip-label"
+                                id="demo-multiple-chip"
+                                multiple
+                                value={ingredientName}
+                                onChange={handleIngredientsFilterChange}
+                                input={
+                                  <OutlinedInput
+                                    id="select-multiple-chip"
+                                    label="Filter by Ingredients"
                                   />
-                                ))}
-                              </Box>
-                            )}
-                            MenuProps={MenuProps}
-                          >
-                            {userIngredients.map((ing) => (
-                              <MenuItem
-                                key={ing.strIngredient1}
-                                value={ing.strIngredient1}
-                                style={getStyles(
-                                  ing.strIngredient1,
-                                  ingredientName,
-                                  theme
+                                }
+                                renderValue={(selected) => (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexWrap: "wrap",
+                                      gap: 0.5,
+                                    }}
+                                  >
+                                    {selected.map((value) => (
+                                      <Chip key={value} label={value} />
+                                    ))}
+                                  </Box>
                                 )}
+                                MenuProps={MenuProps}
                               >
-                                {ing.strIngredient1}
-                              </MenuItem>
-                            ))}
-                          </Select></>)}
+                                {userIngredients.map((ing) => (
+                                  <MenuItem
+                                    key={ing.strIngredient1}
+                                    value={ing.strIngredient1}
+                                    style={getStyles(
+                                      ing.strIngredient1,
+                                      ingredientName,
+                                      theme
+                                    )}
+                                  >
+                                    {ing.strIngredient1}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </>
+                          )}
                         </FormControl>
                       </Box>
                     </CardContent>

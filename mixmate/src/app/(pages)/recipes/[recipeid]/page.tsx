@@ -1,32 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Rating from "@mui/material/Rating";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import InfoIcon from "@mui/icons-material/Info";
-import MapsUgcIcon from "@mui/icons-material/MapsUgc";
 import {
   API_ROUTES,
   APPLICATION_PAGE,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
-
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import Tooltip from "@mui/material/Tooltip";
-import ShareIcon from "@mui/icons-material/Share";
 import {
   capitalizeWords,
-  isNotSet,
-  isSet,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent, Button, Backdrop, CircularProgress } from "@mui/material";
+import { Typography, Button, Backdrop, CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import Input from "@mui/material/Input";
@@ -35,12 +22,9 @@ import ClassIcon from "@mui/icons-material/Class";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import clipboard from "clipboard-copy";
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-import Divider from "@mui/material/Divider";
+
 import { notFound, useRouter } from "next/navigation";
-import RecipeRow from "@/app/(components)/RecipeRow";
+import Image from "next/image";
 const RecipeById = ({ params }) => {
   const recipeId = params.recipeid;
   const router = useRouter();
@@ -95,12 +79,11 @@ const RecipeById = ({ params }) => {
     fetchRecipeDetails();
   }, []);
   if (!recipe) {
-    return <Backdrop
-      sx={{ color: "#fff", zIndex: (theme) => 9999 }}
-      open={!recipe}
-    >
-      <CircularProgress color="inherit" />
-    </Backdrop>;
+    return (
+      <Backdrop sx={{ color: "#fff", zIndex: (theme) => 9999 }} open={!recipe}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
   }
   return (
     <TableRow sx={{ "& > *": { borderTop: 0 } }}>
@@ -108,10 +91,17 @@ const RecipeById = ({ params }) => {
         <Box sx={{ margin: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-              <img
-                style={{ width: "90%", borderRadius: "7%" }}
-                src={recipe.strDrinkThumb}
-              ></img>
+              <Image
+                style={{ borderRadius: "7%" }}
+                src={
+                  recipe.strDrinkThumb
+                    ? recipe.strDrinkThumb
+                    : "not-found-icon.png"
+                }
+                alt="Drink"
+                height={700}
+                width={700}
+              />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={8}>
               <div className="text-tangerine text-55px margin-left-35px">

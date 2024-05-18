@@ -24,11 +24,10 @@ import { useSelector } from "react-redux";
 import { AlertColor } from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import Image from 'next/image'
 function Profile() {
   // Validate session
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
-  const router = useRouter();
-  const {user, error, isLoading} = useUser()
 
   // Toast Message
   const [openToastMessage, setOpenToastMessage] = useState(false);
@@ -46,22 +45,6 @@ function Profile() {
     setOpenToastMessage(true);
   };
   // Variables
-  const [loadingPage, setLoadingPage] = useState(true);
-  //const [userInfo, setUserInfo] = useState(null);
-  // useEffect(
-  //   () =>
-  //     // doPost(
-  //     //   API.Profile.getUserInfo,
-  //     //   { nickname: userNickname },
-  //     //   (response) => {
-  //     //     if (response.isOk) {
-  //     //       setUserInfo(response.data);
-  //           setLoadingPage(false)
-  //     //     } else alert("Error getting user info");
-  //     //   }
-  //     ),
-  //   []
-  // );
 
   useEffect(() => {
   }, []);
@@ -206,14 +189,16 @@ function Profile() {
             overflow: "hidden",
           }}
         >
-          <img
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-            src={"boy.png"}
-          ></img>
+          <Image
+          src="boy.png"
+          alt="Profile Picture"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+          fill
+          />
         </Avatar>
         <Typography variant="h4">{userInfo?.nickname}</Typography>
         <Typography
