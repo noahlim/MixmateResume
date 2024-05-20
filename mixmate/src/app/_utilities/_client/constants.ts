@@ -1,7 +1,9 @@
 import { AlertColor } from '@mui/material/Alert';
 
-const END_POINT = "https://mixmate-one.vercel.app/api";
-const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
+// const END_POINT = "https://mixmate-one.vercel.app/api";
+// const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
+const END_POINT = "http://localhost:3000/api";
+const MIXMATE_DOMAIN = 'http://localhost:3000/';
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
@@ -22,9 +24,10 @@ const APPLICATION_PAGE =
   profile: '/profile',
   recipes: '/recipes',
   myMixMate: '/mymixmate',
-  favourites: '/favourites',
-  myRecipes: '/myrecipes',
-  social: '/social',
+  favourites: '/mymixmate/favourites',
+  myRecipes: '/mymixmate/myrecipes',
+  social: '/mymixmate/socialrecipes',
+  myIngredients: '/mymixmate/myingredients',
   sharedPublic: '/sharedpublic',
   resetPassword: '/resetpassword',
 }

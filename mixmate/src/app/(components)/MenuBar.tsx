@@ -21,10 +21,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import { LiaCocktailSolid } from "react-icons/lia";
 import HomeIcon from "@mui/icons-material/Home";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import StorageIcon from "@mui/icons-material/Storage";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -85,27 +84,24 @@ function MenuBar(props) {
 
   // Validate if there's user session
   let loginControls = null;
-  let menuIcon = null;
+  let menuIcon = (
+    <>
+      <IconButton
+        size="large"
+        edge="start"
+        color="inherit"
+        aria-label="menu"
+        sx={{ mr: 2 }}
+        onClick={() => setOpenUserMenu(true)}
+      >
+        <MenuIcon />
+      </IconButton>
+    </>
+  );;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
   if (!isLoading) {
     if (isSet(user)) {
-      // Set menu icon
-      menuIcon = (
-        <>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => setOpenUserMenu(true)}
-          >
-            <MenuIcon />
-          </IconButton>
-        </>
-      );
-
       // Set user's menu
       userMenu = (
         <Drawer
@@ -124,15 +120,15 @@ function MenuBar(props) {
                   </ListItemIcon>
                   <ListItemText primary="Home" />
                 </ListItemButton>
-              </ListItem>
+              </ListItem>              
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.profile)}
+                  onClick={() => router.push(APPLICATION_PAGE.recipes)}
                 >
                   <ListItemIcon>
-                    <AccountBoxIcon />
+                    <LiaCocktailSolid />
                   </ListItemIcon>
-                  <ListItemText primary="Profile" />
+                  <ListItemText primary="Recipes" />
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>
@@ -144,30 +140,10 @@ function MenuBar(props) {
                   </ListItemIcon>
                   <ListItemText primary="My MixMate" />
                 </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.recipes)}
-                >
-                  <ListItemIcon>
-                    <SummarizeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Recipes" />
-                </ListItemButton>
-              </ListItem>
+              </ListItem>             
             </List>
             <Divider />
             <List>
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.mongo)}
-                >
-                  <ListItemIcon>
-                    <StorageIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Mongo"} />
-                </ListItemButton>
-              </ListItem>
               <ListItem disablePadding>
                 <a href={API_ROUTES.logout}>
                   <ListItemButton
@@ -178,7 +154,7 @@ function MenuBar(props) {
                     <ListItemIcon>
                       <LogoutIcon />
                     </ListItemIcon>
-                    <ListItemText primary={"Logout"} />
+                    <ListItemText primary={"Log Out"} />
                   </ListItemButton>
                 </a>
               </ListItem>
