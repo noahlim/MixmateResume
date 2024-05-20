@@ -133,7 +133,7 @@ function MenuBar(props) {
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.myMixMate)}
+                  onClick={() => router.push(APPLICATION_PAGE.favourites)}
                 >
                   <ListItemIcon>
                     <FavoriteIcon />

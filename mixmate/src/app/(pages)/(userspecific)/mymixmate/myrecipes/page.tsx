@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from "react";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";

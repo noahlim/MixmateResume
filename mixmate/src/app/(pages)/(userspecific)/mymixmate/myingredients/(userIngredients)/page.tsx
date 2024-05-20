@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
@@ -5,7 +6,6 @@ import Paper from "@mui/material/Paper";
 import {
   Typography,
   CardContent,
-  AlertColor,
   Box,
   Pagination,
 } from "@mui/material";
@@ -15,16 +15,13 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
-import { userInfoActions } from "../../../../lib/redux/userInfoSlice";
+import { userInfoActions } from "@/lib/redux/userInfoSlice";
 import MyIngredientRow from "./MyIngredientRow";
 import LiquorIcon from "@mui/icons-material/Liquor";
-import AvailableRecipes from "../AvailableRecipes";
+import AvailableRecipes from "./AvailableRecipes";
 import IngredientRow from "./IngredientRow";
 import {
   API_DRINK_ROUTES,
