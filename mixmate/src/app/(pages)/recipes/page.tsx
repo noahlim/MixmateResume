@@ -21,10 +21,8 @@ const RecipeLazyLoaded = dynamic(
   }
 );
 
-// Define the Recipe page component
 function RecipePage() {
   return <RecipeLazyLoaded />;
 }
 
-// Wrap the component with withPageAuthRequired HOC
 export default withPageAuthRequired(RecipePage);

@@ -5,8 +5,9 @@ import SocialRecipes from "@/app/(components)/(pageComponents)/SocialRecipes";
 import MyIngredients from "@/app/(components)/(pageComponents)/(userIngredients)/MyIngredients";
 import { usePathname } from "next/navigation";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 
-export default function Home() {
+const MyMixmate = () => {
   const pathname = usePathname();
 
   return (
@@ -18,3 +19,5 @@ export default function Home() {
     </>
   );
 }
+
+export default withPageAuthRequired(MyMixmate);

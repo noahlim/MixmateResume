@@ -16,7 +16,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
@@ -211,4 +211,4 @@ function CustomRecipes() {
   );
 }
 
-export default CustomRecipes;
+export default withPageAuthRequired(CustomRecipes);

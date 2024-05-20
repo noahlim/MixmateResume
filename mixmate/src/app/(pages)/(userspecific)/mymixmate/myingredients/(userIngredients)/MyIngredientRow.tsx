@@ -17,7 +17,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Typography from "@mui/material/Typography";
 import ClearIcon from "@mui/icons-material/Clear";
-import AvailableRecipes from "../AvailableRecipes";
+import AvailableRecipes from "./AvailableRecipes";
 import { useDispatch, useSelector } from "react-redux";
 import { capitalizeWords, isNotSet } from "@/app/_utilities/_client/utilities";
 import { userInfoActions } from "lib/redux/userInfoSlice";

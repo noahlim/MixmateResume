@@ -18,7 +18,7 @@ import TableRow from "@mui/material/TableRow";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
-import { userInfoActions } from "@/lib/redux/userInfoSlice";
+import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
 import MyIngredientRow from "./MyIngredientRow";
 import LiquorIcon from "@mui/icons-material/Liquor";
 import AvailableRecipes from "./AvailableRecipes";
@@ -39,7 +39,8 @@ import { recipeActions } from "lib/redux/recipeSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
-function MyIngredients() {
+import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+const MyIngredients =()=> {
   // Validate session
 
   const dispatch = useDispatch();
@@ -330,4 +331,4 @@ function MyIngredients() {
   );
 }
 
-export default MyIngredients;
+export default withPageAuthRequired(MyIngredients);

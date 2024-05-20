@@ -18,6 +18,7 @@ import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component"
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 
 function CustomRecipes() {
   const dispatch = useDispatch();
@@ -171,4 +172,4 @@ function CustomRecipes() {
   );
 }
 
-export default CustomRecipes;
+export default withPageAuthRequired(CustomRecipes);

@@ -10,7 +10,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddIcon from "@mui/icons-material/Add";
 import { useSelector, useDispatch } from "react-redux";
-import { userInfoActions } from "../../../../lib/redux/userInfoSlice";
+import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
 import {
   isNotSet,
   capitalizeWords,

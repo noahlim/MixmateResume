@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import Tabs from "@mui/material/Tabs";
@@ -13,20 +13,26 @@ import Transition from "./transition";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const [selectedTab, setSelectedTab] = useState(() => {
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  useEffect(() => {
     switch (pathname) {
       case APPLICATION_PAGE.favourites:
-        return 0;
+        setSelectedTab(0);
+        break;
       case APPLICATION_PAGE.myRecipes:
-        return 1;
+        setSelectedTab(1);
+        break;
       case APPLICATION_PAGE.social:
-        return 2;
+        setSelectedTab(2);
+        break;
       case APPLICATION_PAGE.myIngredients:
-        return 3;
+        setSelectedTab(3);
+        break;
       default:
-        return 0;
+        setSelectedTab(0);
     }
-  });
+  }, [pathname]);
 
   const handleTabChange = (event, newValue) => {
     const routes = {
@@ -36,7 +42,6 @@ const MyMixMate = ({ children }) => {
       3: APPLICATION_PAGE.myIngredients,
     };
     router.push(routes[newValue]);
-    setSelectedTab(newValue);
   };
 
   return (
