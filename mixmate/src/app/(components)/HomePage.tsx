@@ -326,7 +326,7 @@ function HomePage() {
                           }}
                         >
                           Create, share and savour your cocktail stories at
-                          Mixmate.
+                          MixMate.
                         </Typography>
                       </Box>
                     </Grid>

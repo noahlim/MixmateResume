@@ -43,7 +43,7 @@ const BlogSection = () => {
       {
         image: "/profilepics/profile3.png",
         title: "3",
-        review: "Mixmate has taken cocktail loving to a whole new level!",
+        review: "MixMate has taken cocktail loving to a whole new level!",
         author: "Jane Doe",
 
       },{
@@ -61,7 +61,7 @@ const BlogSection = () => {
       {
         image: "/profilepics/profile6.png",
         title: "6",
-        review: "Before Mixmate, I never knew I could make cocktails this good!",
+        review: "Before MixMate, I never knew I could make cocktails this good!",
         author: "Andrew Johnson",
 
       },
