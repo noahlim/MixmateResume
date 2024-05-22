@@ -1,51 +1,63 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import PersonIcon from "@mui/icons-material/Person";
-
-import { isSet, makeRequest } from "@/app/_utilities/_client/utilities";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import IconButton from "@mui/material/IconButton";
+import React, { useState, useEffect } from "react";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  Container,
+  Avatar,
+  Button,
+  Tooltip,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  Snackbar,
+  Alert,
+  AlertTitle,
+  Backdrop,
+  CircularProgress,
+  useTheme,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import { LiaCocktailSolid } from "react-icons/lia";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
-import SummarizeIcon from "@mui/icons-material/Summarize";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import Image from "next/image";
+import { useRouter, notFound } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastMessage } from "interface/toastMessage";
+import { userInfoActions } from "@lib/redux/userInfoSlice";
+import { pageStateActions } from "@lib/redux/pageStateSlice";
+import { isSet, makeRequest } from "@/app/_utilities/_client/utilities";
 import {
   SEVERITY,
   APPLICATION_PAGE,
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
-import { useRouter } from "next/navigation";
-import { userInfoActions } from "lib/redux/userInfoSlice";
+import { LiaCocktailSolid } from "react-icons/lia";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { notFound } from "next/navigation";
-
 import Link from "next/link";
-import { Avatar, Backdrop, CircularProgress } from "@mui/material";
-import { pageStateActions } from "lib/redux/pageStateSlice";
-import { ToastMessage } from "interface/toastMessage";
-import Image from 'next/image'
+import NavLink from "@/app/(components)/NavLink";
+import { IoMdCloseCircle } from "react-icons/io";
+const pages = [
+  { route: APPLICATION_PAGE.about, page: "About" },
+  { route: APPLICATION_PAGE.recipes, page: "Recipes" },
+  { route: APPLICATION_PAGE.myMixMate, page: "My MixMate" },
+];
+const settings = ["Profile", "Logout"];
 
-function MenuBar(props) {
-  // Toast Message
+function MenuBar() {
+  const theme = useTheme();
+
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
 
   const loadingPage = useSelector((state: any) => state.pageState.isLoading);
@@ -55,19 +67,6 @@ function MenuBar(props) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user, isLoading, error } = useUser();
-
-  useEffect(() => {
-    if (!userInfo) {
-      dispatch(userInfoActions.setUserInfo(user));
-
-      if (error) {
-        notFound();
-      } else if (user) {
-        loginHandleMongo(user);
-      }
-    }
-  }, [userInfo, user, dispatch]);
-
   const loginHandleMongo = async (userInfoData) => {
     makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
       (err) => {
@@ -81,23 +80,19 @@ function MenuBar(props) {
       }
     );
   };
+  useEffect(() => {
+    if (!userInfo) {
+      dispatch(userInfoActions.setUserInfo(user));
 
-  // Validate if there's user session
+      if (error) {
+        notFound();
+      } else if (user) {
+        loginHandleMongo(user);
+      }
+    }
+  }, [userInfo, user, dispatch]);
+
   let loginControls = null;
-  let menuIcon = (
-    <>
-      <IconButton
-        size="large"
-        edge="start"
-        color="inherit"
-        aria-label="menu"
-        sx={{ mr: 2 }}
-        onClick={() => setOpenUserMenu(true)}
-      >
-        <MenuIcon />
-      </IconButton>
-    </>
-  );;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
   if (!isLoading) {
@@ -111,22 +106,37 @@ function MenuBar(props) {
         >
           <Box sx={{ width: 250 }} role="presentation">
             <List>
+              <ListItem
+                disablePadding
+                sx={{ display: "flex", justifyContent: "end" }}
+              >
+                <ListItemButton onClick={() => setOpenUserMenu(false)}>
+                  <ListItemIcon>
+                    <IoMdCloseCircle fontSize={25} style={{marginBottom:"4px"}}/>
+                  </ListItemIcon>
+                </ListItemButton>
+              </ListItem>
+              <Divider />
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => router.push(APPLICATION_PAGE.home)}
                 >
                   <ListItemIcon>
-                    <HomeIcon />
+                    <HomeIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText primary="Home" />
                 </ListItemButton>
-              </ListItem>              
+              </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => router.push(APPLICATION_PAGE.recipes)}
                 >
                   <ListItemIcon>
-                    <LiaCocktailSolid />
+                    <LiaCocktailSolid
+                      fontSize={25}
+                      fontWeight="bold"
+                      style={{ color: theme.palette.primary.main }}
+                    />
                   </ListItemIcon>
                   <ListItemText primary="Recipes" />
                 </ListItemButton>
@@ -136,11 +146,11 @@ function MenuBar(props) {
                   onClick={() => router.push(APPLICATION_PAGE.favourites)}
                 >
                   <ListItemIcon>
-                    <FavoriteIcon />
+                    <FavoriteIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText primary="My MixMate" />
                 </ListItemButton>
-              </ListItem>             
+              </ListItem>
             </List>
             <Divider />
             <List>
@@ -165,7 +175,7 @@ function MenuBar(props) {
 
       // Set buttons for logout
       loginControls = (
-        <>
+        <Box display="flex">
           <a href={API_ROUTES.logout}>
             <Button
               color="inherit"
@@ -178,11 +188,9 @@ function MenuBar(props) {
             </Button>
           </a>
           <a href={API_ROUTES.userJson}>
-            <Avatar
-              src={user.picture}
-            />
+            <Avatar src={user.picture} />
           </a>
-        </>
+        </Box>
       );
     } else {
       // No user session yet
@@ -197,31 +205,32 @@ function MenuBar(props) {
       );
     }
   }
+
   return (
-    <>
-      <Box sx={{ flexGrow: 1 }}>
-        <Snackbar
-          open={toastMessage.open}
-          autoHideDuration={3000}
-          onClose={() => {
-            dispatch(pageStateActions.setToastMessageClose());
-          }}
-        >
-          <Alert severity={toastMessage.severity}>
-            <AlertTitle>{toastMessage.title}</AlertTitle>
-            {toastMessage.message}
-          </Alert>
-        </Snackbar>
-        <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 9999 }}
-          open={loadingPage}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-        <AppBar position="static">
-          <Toolbar>
-            {menuIcon}
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1 }}>
+      <Snackbar
+        open={toastMessage.open}
+        autoHideDuration={3000}
+        onClose={() => {
+          dispatch(pageStateActions.setToastMessageClose());
+        }}
+      >
+        <Alert severity={toastMessage.severity}>
+          <AlertTitle>{toastMessage.title}</AlertTitle>
+          {toastMessage.message}
+        </Alert>
+      </Snackbar>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 9999 }}
+        open={loadingPage}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <AppBar position="static">
+        <Container maxWidth={false}>
+          <Toolbar disableGutters sx={{ display: "flex" }}>
+            {/*lOGO for md breakpoint*/}
+            <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <Link href={APPLICATION_PAGE.home}>
                 <Image
                   src="/mixmatelogomini.png"
@@ -229,21 +238,56 @@ function MenuBar(props) {
                   decoding="async"
                   width={686}
                   height={364}
-                  style={{
-                    width:"100px",
-                  }}
+                  style={{ width: "100px" }}
                 />
               </Link>
-            </Typography>
-            {loginControls}
+            </Box>
+            {/*menu button in xs breakpoint*/}
+            <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={() => setOpenUserMenu(true)}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              {userMenu}
+            </Box>
+            {/*logo in xs breakpoint*/}
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              <Image
+                src="/mixmatelogomini.png"
+                alt="MixMate Logo"
+                decoding="async"
+                width={686}
+                height={364}
+                style={{ width: "100px" }}
+              />
+            </Box>
+            {/*navigation menu in md breakpoint*/}
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+              {pages.map((page) => (
+                <NavLink
+                  key={page.page}
+                  onClick={() => {
+                    router.push(page.route);
+                  }}
+                  isDropdown={page.route === APPLICATION_PAGE.myMixMate}
+                  route={page.route}
+                >
+                  {page.page}
+                </NavLink>
+              ))}
+            </Box>
+            {/*user menu in all breakpoints*/}
+            <Box sx={{ flexGrow: 0, marginLeft: "auto" }}>{loginControls}</Box>
           </Toolbar>
-        </AppBar>
-
-        {/* Main menu */}
-        {userMenu}
-      </Box>
-    </>
+        </Container>
+      </AppBar>
+    </Box>
   );
 }
-
 export default MenuBar;

@@ -5,7 +5,6 @@ import MenuBar from "./(components)/MenuBar";
 import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
-import { EdgeStoreProvider } from "lib/edgestore";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
 
 function RootPage({ children }) {
@@ -39,11 +38,9 @@ function RootPage({ children }) {
     return (
       <ReduxProvider>
         <ThemeProvider theme={theme}>
-          <EdgeStoreProvider>
             <MenuBar />
 
             <HomePage />
-          </EdgeStoreProvider>
         </ThemeProvider>
       </ReduxProvider>
     );
@@ -53,13 +50,11 @@ function RootPage({ children }) {
   return (
     <ReduxProvider>
       <ThemeProvider theme={theme}>
-        <EdgeStoreProvider>
           <Box>
             <MenuBar />
 
             {children}
           </Box>
-        </EdgeStoreProvider>
       </ThemeProvider>
     </ReduxProvider>
   );

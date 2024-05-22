@@ -81,8 +81,8 @@ function HomePage() {
                   color: "black",
                   fontFamily: "Dela Gothic one",
                   fontSize: "15px",
-                  marginBottom: isSmallMobileScreen ? "0px" : "20px",
-                  marginRight: isTabletScreen || isLargeScreen ? "50px" : "0px",
+                  marginBottom: { xs: "0px", sm: "20px" },
+                  marginRight: { md: "50px", xs: "0px" },
                   transition:
                     "color .3s ease-in-out, box-shadow .3s ease-in-out",
                   boxShadow: "inset 0 0 0 0 #54b3d6",
@@ -94,7 +94,7 @@ function HomePage() {
                 }}
                 onClick={() => router.push(APPLICATION_PAGE.recipes)}
               >
-                Check Out The Recipes
+                Check The Recipes
               </Box>
             </Grid>
             <Grid item>
@@ -108,9 +108,8 @@ function HomePage() {
                   color: "black",
                   fontFamily: "Dela Gothic one",
                   fontSize: "15px",
-                  marginBottom: isSmallMobileScreen ? "0px" : "20px",
-                  marginLeft: isTabletScreen || isLargeScreen ? "50px" : "0px",
-
+                  marginBottom: { sm: "20px", xs: "0px" },
+                  marginLeft: { md: "50px", xs: "0px" },
                   transition:
                     "color .3s ease-in-out, box-shadow .3s ease-in-out",
                   boxShadow: "inset 0 0 0 0 #54b3d6",
@@ -151,7 +150,9 @@ function HomePage() {
                 flexDirection={isSmallMobileScreen ? "row" : "column"}
                 justifyContent="flex-start"
                 alignItems="left"
-                sx={{ padding: 3 }}
+                sx={{ padding: 3,
+                  flexDirection: { xs: "row", sm: "column" },
+                 }}
               >
                 <FloatingBoxWrapper
                   $isSmallMobileScreen={isSmallMobileScreen}
@@ -175,9 +176,9 @@ function HomePage() {
               sx={{
                 position: "absolute",
                 right: 30,
-                top: isTabletScreen || isLargeScreen ? 250 : 130,
-                width: isTabletScreen || isLargeScreen ? "35%" : "50%",
-                height: isTabletScreen || isLargeScreen ? "35%" : "50%",
+                top: {md: 250, xs:130},
+                width: {md: "35%", xs:"50%"},
+                height: {md: "35%", xs:"50%"},
                 zIndex: 0,
               }}
             >
@@ -192,11 +193,7 @@ function HomePage() {
             <Grid item xs={12} md={6}>
               <Grid
                 container
-                justifyContent={
-                  isMediumMobileScreen || isSmallMobileScreen
-                    ? "center"
-                    : "flex-end"
-                }
+                sx={{justifyContent: {xs: "center", md: "flex-end"}}}
               >
                 <Image
                   alt="Orange on a plate"
@@ -227,7 +224,7 @@ function HomePage() {
                     <Grid
                       item
                       xs={12}
-                      sx={{ textAlign: isLargeScreen ? "left" : "center" }}
+                      sx={{ textAlign: { lg: "left", xs: "center"}}}
                     >
                       <HoverTypography
                         $isSmallMobileScreen={isSmallMobileScreen}
@@ -253,12 +250,9 @@ function HomePage() {
                           variant="h6"
                           position="relative"
                           className="noto_sans"
-                          style={{
+                          sx={{
                             zIndex: 10,
-                            paddingRight:
-                              isSmallMobileScreen || isMediumMobileScreen
-                                ? null
-                                : "30%",
+                            paddingRight: { md: "30%", xs: null },
                           }}
                         >
                           From the classic ambrosial segments to the adventurous
@@ -292,8 +286,7 @@ function HomePage() {
                       container
                       xs={12}
                       sx={{
-                        textAlign:
-                          isLargeScreen || isTabletScreen ? "right" : "center",
+                        textAlign: { xs: "center", md: "right" },
                       }}
                       justifyContent="flex-end"
                       alignContent="center"
@@ -327,12 +320,9 @@ function HomePage() {
                           variant="h6"
                           className="noto_sans"
                           position="relative"
-                          style={{
+                          sx={{
                             zIndex: 10,
-                            paddingLeft:
-                              isSmallMobileScreen || isMediumMobileScreen
-                                ? null
-                                : "30%",
+                            paddingLeft: { xs: null, md: "30%" },
                           }}
                         >
                           Create, share and savour your cocktail stories at
@@ -347,11 +337,12 @@ function HomePage() {
             <Grid item xs={12} md={5} order={{ xs: 1, md: 2 }}>
               <Grid
                 container
-                justifyContent={
-                  isMediumMobileScreen || isSmallMobileScreen
-                    ? "center"
-                    : "flex-start"
-                }
+                sx={{
+                  justifyContent: {
+                    xs: "center",
+                    md: "flex-start",
+                  },
+                }}
               >
                 <Image
                   alt="leaf"
@@ -383,7 +374,7 @@ function HomePage() {
                   position="absolute"
                   bottom="5px"
                   left="100px"
-                  width={isTabletScreen || isLargeScreen ? "40%" : "70%"}
+                  sx={{ width: { xs: "70%", md: "40%" } }}
                 >
                   <Image
                     width={514}
@@ -532,7 +523,9 @@ function HomePage() {
               style={{ padding: "30px 0px" }}
             >
               <Grid xs={1} item>
-                <a href="https://github.com/harryGIbong"><FaGithub fontSize={40}/></a>
+                <a href="https://github.com/harryGIbong">
+                  <FaGithub fontSize={40} />
+                </a>
               </Grid>
               <Grid xs={1} item>
                 <FaFacebook fontSize={40} />

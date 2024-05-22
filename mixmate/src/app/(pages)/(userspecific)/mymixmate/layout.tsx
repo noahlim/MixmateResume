@@ -9,7 +9,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import Link from "next/link";
 import Transition from "./transition";
-
+import {LiaCocktailSolid} from "react-icons/lia";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -54,7 +54,7 @@ const MyMixMate = ({ children }) => {
               <Tab icon={<FavoriteIcon />} label="Favorites" />
             </Link>
             <Link href={APPLICATION_PAGE.myRecipes}>
-              <Tab icon={<WineBarIcon />} label="My Recipes" />
+              <Tab icon={<LiaCocktailSolid />} label="My Recipes" />
             </Link>
             <Link href={APPLICATION_PAGE.social}>
               <Tab icon={<FavoriteIcon />} label="Social Recipes" />

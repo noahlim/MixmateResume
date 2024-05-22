@@ -20,6 +20,7 @@ const APPLICATION_PAGE =
 {
   root: '/',
   home: '/',
+  about: '/about',
   mongo: '/mongo',
   profile: '/profile',
   recipes: '/recipes',
