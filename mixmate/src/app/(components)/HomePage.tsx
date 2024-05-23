@@ -45,7 +45,7 @@ function HomePage() {
           alignItems="center"
           position="relative"
           style={{
-            backgroundImage: "url(/background3.jpg)",
+            backgroundImage: "url(/welcomepage/background3.jpg)",
             overflowX: "hidden",
           }}
         >
@@ -200,7 +200,7 @@ function HomePage() {
                   width={513}
                   height={486}
                   decoding="async"
-                  src="/orange_on_plate.png"
+                  src="/welcomepage/orange_on_plate.png"
                   style={{
                     width: isTabletScreen
                       ? "80%"
@@ -349,7 +349,7 @@ function HomePage() {
                   width={548}
                   height={455}
                   decoding="async"
-                  src="/leaf.png"
+                  src="/welcomepage/leaf.png"
                   style={{
                     width: isTabletScreen || isLargeScreen ? "80%" : "90%",
                     height: "100%",
@@ -380,7 +380,7 @@ function HomePage() {
                     width={514}
                     height={483}
                     decoding="async"
-                    src="/orange.png"
+                    src="/welcomepage/orange.png"
                     alt="Orange"
                     style={{
                       opacity: 0.3,

@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-
-.roboto {
-  font-family: var(--font-roboto);
+.quick_sand{
+  font-family: 'Quicksand', sans-serif;
 }
 
 .noto_sans {

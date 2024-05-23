@@ -12,10 +12,10 @@ function RootPage({ children }) {
   const theme = createTheme({
     palette: {
       primary: {
-        main: "#489FB5",
+        main: "#ACCEFF",
       },
       secondary: {
-        main: "#F3E3FF",
+        main: "#FFFFFF",
       },
     },
     typography: {

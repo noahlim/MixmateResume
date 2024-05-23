@@ -1,10 +1,9 @@
 import { Inter, Roboto, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
-import { API_DRINK_ROUTES, API_ROUTES } from "./_utilities/_client/constants";
+import { API_ROUTES } from "./_utilities/_client/constants";
 import RootPage from "./page";
 const inter = Inter({ subsets: ["latin"] });
-
 
 export const metadata = {
   title: "MixMate",
@@ -18,7 +17,7 @@ export default function RootLayout({ children }) {
         loginUrl={API_ROUTES.login}
         profileUrl={API_ROUTES.userJson}
       >
-        <body className={inter.className} style={{backgroundColor: "#DFFFFE"}}>
+        <body className={inter.className}>
           <RootPage>{children}</RootPage>
         </body>
       </UserProvider>

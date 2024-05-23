@@ -112,7 +112,10 @@ function MenuBar() {
               >
                 <ListItemButton onClick={() => setOpenUserMenu(false)}>
                   <ListItemIcon>
-                    <IoMdCloseCircle fontSize={25} style={{marginBottom:"4px"}}/>
+                    <IoMdCloseCircle
+                      fontSize={25}
+                      style={{ marginBottom: "4px" }}
+                    />
                   </ListItemIcon>
                 </ListItemButton>
               </ListItem>
@@ -188,7 +191,10 @@ function MenuBar() {
             </Button>
           </a>
           <a href={API_ROUTES.userJson}>
-            <Avatar src={user.picture} />
+            <Avatar
+              src={user.picture}
+              sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
+            />
           </a>
         </Box>
       );
@@ -226,7 +232,11 @@ function MenuBar() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <AppBar position="static">
+      <AppBar
+        position="sticky"
+        color="secondary"
+        sx={{ borderBottom: "2px", borderColor: "black", top: "20px" }}
+      >
         <Container maxWidth={false}>
           <Toolbar disableGutters sx={{ display: "flex" }}>
             {/*lOGO for md breakpoint*/}
