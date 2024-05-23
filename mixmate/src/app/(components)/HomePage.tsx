@@ -4,8 +4,6 @@ import {
   Button,
   Divider,
   Grid,
-  Paper,
-  Stack,
   Typography,
 } from "@mui/material";
 import "@fontsource/dela-gothic-one";
@@ -380,7 +378,7 @@ function HomePage() {
                     width={514}
                     height={483}
                     decoding="async"
-                    src="/welcomepage/orange.png"
+                    src="/orange.png"
                     alt="Orange"
                     style={{
                       opacity: 0.3,

@@ -4,12 +4,12 @@ import MenuBarDropdown from "./MenuBarDropdown"; // Import the dropdown componen
 import dynamic from "next/dynamic";
 import { Box } from "@mui/material";
 interface StyledNavLinkProps {
-  isOpen: boolean;
+  isopen: boolean;
 }
 
 // Dynamically import the Link component to prevent server-side rendering
 const Link = dynamic(() => import("next/link"), { ssr: false });
-const StyledNavLink = styled.a<StyledNavLinkProps>`
+const StyledNavLink = styled.div`
   position: relative;
   text-transform: uppercase;
   margin: 20px 0;
@@ -49,44 +49,40 @@ const StyledNavLink = styled.a<StyledNavLinkProps>`
     z-index: -1;
   }
 
-  ${({ isOpen }) =>
-    isOpen &&
-    `
-    &:hover {
-      color: #fff;
+  &:hover {
+    color: #fff;
 
-      &::before {
-        transform: scaleY(1);
-        opacity: 1;
-      }
-
-      &::after {
-        transform: scaleY(1);
-        opacity: 1;
-      }
+    &::before {
+      transform: scaleY(1);
+      opacity: 1;
     }
-  `}
+
+    &::after {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
 `;
+
 const NavLink = ({ children, isDropdown, onClick, route }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isopen, setisopen] = useState(false);
 
   const handleMouseEnter = () => {
-    setIsOpen(true);
+    setisopen(true);
   };
 
   const handleMouseLeave = () => {
-    setIsOpen(false);
+    setisopen(false);
   };
 
   return (
     <Box
-      sx={{ position: "relative" }}
+      sx={{ position: "relative", margin:"0px 20px" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <Link href={route} passHref>
         <StyledNavLink
-          isOpen={isOpen}
           onClick={(e) => {
             e.preventDefault();
             onClick();
@@ -95,7 +91,7 @@ const NavLink = ({ children, isDropdown, onClick, route }) => {
           {children}
         </StyledNavLink>
       </Link>
-      {isDropdown && isOpen ? <MenuBarDropdown /> : null}
+      {isDropdown && isopen ? <MenuBarDropdown /> : null}
     </Box>
   );
 };

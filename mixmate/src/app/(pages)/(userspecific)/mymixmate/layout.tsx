@@ -8,7 +8,6 @@ import Box from "@mui/material/Box";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import Link from "next/link";
-import Transition from "./transition";
 import {LiaCocktailSolid} from "react-icons/lia";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
@@ -63,8 +62,7 @@ const MyMixMate = ({ children }) => {
               <Tab icon={<WineBarIcon />} label="My Ingredients" />
             </Link>
           </Tabs>
-        </Box>
-        <Transition>{children}</Transition>
+        </Box>{children}
       </Box>
     </>
   );

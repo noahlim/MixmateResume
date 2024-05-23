@@ -46,14 +46,13 @@ import {
 import { LiaCocktailSolid } from "react-icons/lia";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
-import NavLink from "@/app/(components)/NavLink";
+import NavLink from "@/app/(components)/menubar/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 const pages = [
   { route: APPLICATION_PAGE.about, page: "About" },
   { route: APPLICATION_PAGE.recipes, page: "Recipes" },
   { route: APPLICATION_PAGE.myMixMate, page: "My MixMate" },
 ];
-const settings = ["Profile", "Logout"];
 
 function MenuBar() {
   const theme = useTheme();

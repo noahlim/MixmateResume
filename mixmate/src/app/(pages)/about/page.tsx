@@ -1,6 +1,4 @@
-// page.tsx
 import { Box, Grid, Typography } from "@mui/material";
-import Image from "next/image";
 import AboutPage from "./AboutPage"; // Import the client component
 
 export const metadata = {

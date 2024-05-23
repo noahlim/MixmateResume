@@ -1,11 +1,13 @@
 "use client";
-import { Box, Grid, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { Space_Grotesk } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import MarqueeComponent from "@/app/(components)/MarqueeAnimation";
+import MarqueeComponent from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import "../../../app/globals.css";
+import { FaGithub } from "react-icons/fa6";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function AboutPage() {
@@ -27,7 +29,6 @@ function AboutPage() {
       sx={{
         display: "flex",
         justifyContent: "center",
-        backgroundImage: "url(/about/about-background.jpg)",
       }}
     >
       <Box width="100%">
@@ -248,36 +249,216 @@ function AboutPage() {
             </Grid>
           </Grid>
         </Grid>
-        <Typography>
-          But MixMate is more than just a recipe repository; it's a vibrant
-          community where cocktail enthusiasts from around the world can
-          connect, share their creations, and engage in lively discussions about
-          their favorite drinks. Users can rate and review recipes, leaving
-          feedback and suggestions that contribute to the continuous improvement
-          and evolution of the platform. This collaborative approach ensures
-          that MixMate remains a dynamic and ever-growing resource, constantly
-          adapting to the changing tastes and trends of the cocktail world.
-        </Typography>
-        <Typography variant="h2">More Than Just a Cocktail App </Typography>
-        <Image
-          width={465}
-          height={700}
-          decoding="async"
-          src="/about/bluecocktail.png"
-          alt="Blue colored cocktail in a glass"
-        />
-        <Typography>
-          MixMate is not just another cocktail app; it's a platform that
-          celebrates the art of mixology, fosters creativity, and brings
-          together a community of passionate individuals who share a love for
-          well-crafted cocktails. With its extensive recipe database, advanced
-          filtering capabilities, and user-generated content, MixMate offers a
-          truly immersive and personalized experience for cocktail enthusiasts
-          of all levels. Join us on this flavorful journey and let MixMate be
-          your trusted companion in discovering, creating, and sharing the
-          perfect cocktail for any occasion, whether it's a casual gathering
-          with friends or a sophisticated soiree.
-        </Typography>
+        <Grid container justifyContent="center">
+          <MarqueeComponent />
+          <Grid
+            item
+            xs={10}
+            md={6}
+            sx={{ marginTop: "20px" }}
+            textAlign="center"
+          >
+            <Typography
+              variant="h4"
+              className={spaceGrotesk.className}
+              sx={{ marginTop: { md: "50px" } }}
+            >
+              The Development Journey: A Labor of Love
+            </Typography>
+          </Grid>
+          <Grid item xs={10} md={7} sx={{ margin: "20px 0px" }}>
+            <Typography className={spaceGrotesk.className}>
+              The development of MixMate was a labor of love, combining
+              cutting-edge technologies with a deep understanding of the
+              cocktail culture. Our team of skilled developers, designers, and
+              mixologists collaborated tirelessly to create a seamless and
+              intuitive user experience that would truly resonate with cocktail
+              enthusiasts.
+            </Typography>
+            <br />
+            <Typography className={spaceGrotesk.className}>
+              Leveraging modern web development frameworks and libraries, such
+              as Next.js and Material-UI, we crafted a responsive and visually
+              stunning interface that seamlessly adapts to various devices,
+              ensuring a consistent and engaging experience for users across
+              multiple platforms. The backend infrastructure, built on robust
+              and scalable technologies like Node.js and MongoDB, allows for
+              efficient data management and seamless integration with external
+              APIs, ensuring a smooth and reliable flow of information.
+            </Typography>
+            <br />
+            <Typography className={spaceGrotesk.className}>
+              Throughout the development process, we prioritized user feedback
+              and rigorously tested each feature to ensure a smooth and
+              enjoyable experience. Our commitment to quality and attention to
+              detail is reflected in every aspect of MixMate, from its intuitive
+              navigation to its visually appealing design.
+            </Typography>
+          </Grid>
+          <Grid container item xs={12} sx={{ padding: "60px 0px" }}>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Image
+                width={970}
+                height={500}
+                decoding="async"
+                src="/about/cheers2.png"
+                alt="Multicolored cocktails in a row"
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Image
+                width={987}
+                height={588}
+                decoding="async"
+                src="/about/cheers1.png"
+                alt="Multicolored cocktails in a row"
+              />
+            </Grid>
+          </Grid>{" "}
+          <Box bgcolor="white">
+            <Grid
+              container
+              justifyContent="center"
+              style={{ padding: "30px 0px" }}
+            >
+              <Grid
+                item
+                container
+                md={2}
+                xs={10}
+                style={{ padding: "30px 0px" }}
+              >
+                <Grid xs={12} item>
+                  <Typography
+                    variant="h6"
+                    style={{
+                      paddingBottom: "10px",
+                      color: "#205095",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Company
+                  </Typography>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">About</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Team</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Careers</a>
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                container
+                md={2}
+                xs={10}
+                style={{ padding: "30px 0px" }}
+              >
+                <Grid xs={12} item>
+                  <Typography
+                    variant="h6"
+                    style={{
+                      paddingBottom: "10px",
+                      color: "#205095",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Support
+                  </Typography>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">FAQs</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Privacy Policy</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Terms of Service</a>
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                container
+                md={2}
+                xs={10}
+                style={{ padding: "30px 0px" }}
+                spacing={1}
+              >
+                <Grid xs={12} item>
+                  <Typography
+                    variant="h6"
+                    style={{
+                      paddingBottom: "10px",
+                      color: "#205095",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Contact
+                  </Typography>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Contact Us</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Locations</a>
+                </Grid>
+                <Grid xs={12} item>
+                  <a href="#">Customer Support</a>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid container justifyContent="center">
+              <Grid item xs={9} md={6}>
+                <Divider />
+              </Grid>
+            </Grid>
+            <Grid
+              container
+              justifyContent="center"
+              style={{ paddingBottom: "30px" }}
+            >
+              <Grid
+                item
+                container
+                justifyContent="space-around"
+                md={4}
+                xs={10}
+                style={{ padding: "30px 0px" }}
+              >
+                <Grid xs={1} item>
+                  <a href="https://github.com/harryGIbong">
+                    <FaGithub fontSize={40} />
+                  </a>
+                </Grid>
+                <Grid xs={1} item>
+                  <FaFacebook fontSize={40} />
+                </Grid>
+                <Grid xs={1} item>
+                  <FaInstagram fontSize={40} />
+                </Grid>
+                <Grid xs={1} item>
+                  <FaYoutube fontSize={40} />
+                </Grid>
+              </Grid>
+              <Grid item xs={12} textAlign="center">
+                MixMate By Hongseok Kim
+              </Grid>
+            </Grid>
+          </Box>
+        </Grid>
       </Box>
     </Box>
   );
