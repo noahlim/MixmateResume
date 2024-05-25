@@ -5,10 +5,10 @@ import { Check } from "@mui/icons-material";
 import { Comfortaa } from "next/font/google";
 
 const comfortaa = Comfortaa({ subsets: ["latin"] });
-const MarqueeScroll = () => {
+const MarqueeScroll = ({direction}) => {
   return (
     <Box sx={{ backgroundColor: "black" }} width="100%">
-      <Marquee gradient={false} speed={70}>
+      <Marquee gradient={false} speed={70} direction={direction}>
         <Typography className={comfortaa.className} sx={{ padding: "5px 50px", color:"white" }}>
           <Check sx={{color:"white"}}/> Organize recipes, impress guests.
         </Typography>

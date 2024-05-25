@@ -25,6 +25,10 @@ import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import MarqueeScroll from "../MarqueeAnimation";
+import { Space_Grotesk } from "next/font/google";
+import MyMixMateHeader from "../MyMixMateHeader";
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
+
 function DefaultRecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
@@ -39,7 +43,7 @@ function DefaultRecipesComponent() {
   const dispatch = useDispatch();
 
   //pagination
-  const itemsPerPage = 11; // Adjust as needed
+  const itemsPerPage = 10;
   const [page, setPage] = useState(1);
 
   const handleChange = (event, value) => {
@@ -88,12 +92,12 @@ function DefaultRecipesComponent() {
           return recipe.strAlcoholic === filter.criteria;
         } else if (filter.filter === "Glass") {
           return recipe.strGlass === filter.criteria;
-        } else if (filter.filter === "Ingredient") { 
+        } else if (filter.filter === "Ingredient") {
           return recipe.ingredients.some(
-            (ing) => ing.ingredient.toLowerCase() === filter.criteria.toLowerCase()
+            (ing) =>
+              ing.ingredient.toLowerCase() === filter.criteria.toLowerCase()
           );
-        }
-        else {
+        } else {
           return recipe.strDrink
             .toLowerCase()
             .includes(filter.criteria.toLowerCase());
@@ -144,17 +148,25 @@ function DefaultRecipesComponent() {
       });
   };
 
+  const onFilterClear = () => {
+    setRecipesFiltered(allRecipes);
+  };
   return (
     <>
+      <MyMixMateHeader title="Favorites">
+        The Favorites page is your personal collection where you can store and
+        access your most beloved recipes with ease, ensuring that your culinary
+        treasures are always within reach whenever the craving strikes.
+      </MyMixMateHeader>    
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} md={3}>
           <FilterRecipes_Component
             recipeAllRecipes={allRecipes}
             loadFilteredRecipes={loadFilteredRecipes}
             setRecipesFiltered={setRecipesFiltered}
-            page="Recipes"
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
+            onFilterClear={onFilterClear}
           />
         </Grid>
         <Grid item xs={12} md={9}>
@@ -211,15 +223,15 @@ function DefaultRecipesComponent() {
         alignItems="center"
         margin={4}
       >
-          <Pagination
-            shape="rounded"
-            variant="outlined"
-            count={Math.ceil(recipesFiltered?.length / itemsPerPage)}
-            page={page}
-            onChange={handleChange}
-          />
+        <Pagination
+          shape="rounded"
+          variant="outlined"
+          count={Math.ceil(recipesFiltered?.length / itemsPerPage)}
+          page={page}
+          onChange={handleChange}
+        />
       </Box>
-      <MarqueeScroll/>
+      <MarqueeScroll direction="left" />
     </>
   );
 }

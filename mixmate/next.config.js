@@ -15,8 +15,42 @@ const nextConfig = {
         port: "",
         pathname: "/*",
       },
+      {
+        protocol: "https",
+        hostname: "s.gravatar.com",
+        port: "",
+        pathname: "/*",
+      },
+      {
+        protocol: "https",
+        hostname: "aem.lcbo.com",
+        port: "",
+        pathname: "/*",
+      },
+      {
+        protocol: "https",
+        hostname: "i0.wp.com",
+        port: "",
+        pathname: "/*",
+      },
     ],
-    domains: ["www.thecocktaildb.com", "mixmatebucket.s3.us-east-2.amazonaws.com"],
+    domains: [
+      "www.thecocktaildb.com",
+      "mixmatebucket.s3.us-east-2.amazonaws.com",
+      "s.gravatar.com",
+      "aem.lcbo.com",
+      "i0.wp.com"
+    ],
+  },
+  async rewrites() {
+    {
+      return [
+        {
+          source: "/mymixmate",
+          destination: "/mymixmate/favourites",
+        },
+      ];
+    }
   },
 };
 

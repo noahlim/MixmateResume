@@ -22,9 +22,9 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
     }
     let result = new Result(true);
     try {
-    const { user } = await getSession();
+      const { user } = await getSession();
 
-      if(body.userId !== user.sub){
+      if (body.userId !== user.sub) {
         return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
       }
 
@@ -74,16 +74,21 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
     const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
 
     let db = await dbRtns.getDBInstance();
-    
-    let recipes = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+
+    let recipes = await dbRtns.findAllWithPagination(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+    let allRecipes = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {});
+
     const updatedRecipes = recipes.map((recipe) => {
       delete recipe.sub;
       return recipe;
-  })
+    })
+    console.log(allRecipes.length);
+    const data = { recipes: updatedRecipes, allRecipes: allRecipes, length: allRecipes.length };
+
     //response is the object deleted
     const result = new Result(true);
-    result.data = updatedRecipes;
-    result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No reciped found."
+    result.data = data;
+    result.message = allRecipes.length > 0 ? `${allRecipes.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
     console.log(err);
@@ -108,9 +113,9 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
 
 
   try {
-    const {user} = await getSession();
+    const { user } = await getSession();
 
-    if(userId !== user.sub){
+    if (userId !== user.sub) {
       return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
     }
 
@@ -126,7 +131,7 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
     if (user.sub !== response.sub) {
       return NextResponse.json({ error: "The user is not authorized to delete this recipe." }, { status: 401 });
     }
-    
+
     //response is the object deleted
     response = await dbRtns.deleteOne(db, userFavouriteCollection, { _id: drinkId });
     if (response) {
@@ -135,7 +140,7 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
       return NextResponse.json(result, { status: 200 });
     }
   } catch (err) {
-    return NextResponse.json({error:err}, { status: 400 });
+    return NextResponse.json({ error: err }, { status: 400 });
 
   }
 

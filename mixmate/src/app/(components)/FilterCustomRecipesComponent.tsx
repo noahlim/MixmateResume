@@ -11,6 +11,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
+import { FaLemon } from "react-icons/fa";
 import {
   capitalizeWords,
   isSet,
@@ -306,28 +307,20 @@ function FilterRecipes_Component({
           <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="ingredient-select-label">Ingredient</InputLabel>
-              <Select
-                labelId="ingredient-select-label"
-                label="Ingredient"
-                value={filterCriteria.criteria}
+              <Input
+                id="input-with-icon-adornment"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <FaLemon />
+                  </InputAdornment>
+                }
                 onChange={(e) =>
                   filterCriteriaSetter({
                     filter: filterCriteria.filter,
                     criteria: e.target.value,
                   })
                 }
-              >
-                {allIngredients?.map((ingre) => {
-                  return (
-                    <MenuItem
-                      key={ingre.strIngredient1}
-                      value={ingre.strIngredient1}
-                    >
-                      {capitalizeWords(ingre.strIngredient1)}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
+              />
             </FormControl>
           </div>
         )}

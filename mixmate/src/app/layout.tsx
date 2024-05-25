@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
           profileUrl={API_ROUTES.userJson}
         >
           <body
-            style={{ backgroundImage: "/recipebackground.png" }}
+            style={{ backgroundColor: "#E6FFFF" }}
           >
             <ErrorBoundary customDialog={<ErrorPage />}>
               <RootPage>{children}</RootPage>

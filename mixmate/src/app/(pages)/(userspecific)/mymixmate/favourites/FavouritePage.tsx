@@ -7,14 +7,14 @@ import {
 } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
-import Recipe_Component from "../Recipe_Component";
-import FilterRecipes_Component from "../FilterRecipes_Component";
+import Recipe_Component from "@/app/(components)/Recipe_Component";
+import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import MarqueeScroll from "../MarqueeAnimation";
+import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 import { Space_Grotesk, Vazirmatn } from "next/font/google";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
                 }
                 case API_DRINK_ROUTES.allRecipes: {
                     let db = await dbRtns.getDBInstance();
-                    let allRecipes = await dbRtns.findAll(db, recipeCollection, {}, {}, 0, 0);
+                    let allRecipes = await dbRtns.findAll(db, recipeCollection, {}, {});
 
                     const sortedRecipes = allRecipes.sort((a, b) => {
                         const drinkA = a.strDrink.toUpperCase();

@@ -19,7 +19,11 @@ import Typography from "@mui/material/Typography";
 import ClearIcon from "@mui/icons-material/Clear";
 import AvailableRecipes from "../AvailableRecipes";
 import { useDispatch, useSelector } from "react-redux";
-import { capitalizeWords, isNotSet } from "@/app/_utilities/_client/utilities";
+import {
+  capitalizeWords,
+  displayErrorSnackMessage,
+  isNotSet,
+} from "@/app/_utilities/_client/utilities";
 import { userInfoActions } from "lib/redux/userInfoSlice";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import WineBarIcon from "@mui/icons-material/WineBar";
@@ -33,6 +37,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
 function MyIngredientRow(props) {
   const { user, error, isLoading } = useUser();
 
@@ -41,7 +46,7 @@ function MyIngredientRow(props) {
     (state: any) => state.userInfo.userIngredients
   );
   // Variables
-  const { ingredient, showToastMessage } = props;
+  const { ingredient } = props;
   const [rowOpen, setRowOpen] = useState(false);
   const [ingredientInfo, setIngredientInfo] = useState(null);
   const [modalDeleteIngredientOpen, setModalDeleteIngredientOpen] =
@@ -75,13 +80,18 @@ function MyIngredientRow(props) {
           setIsDataFetched(true);
           dispatch(pageStateActions.setPageLoadingState(false));
         }
-      ).catch((error) => {
-        showToastMessage("Error", error.message, SEVERITY.Warning);
-      });
+      )
+        .catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     }
     setShoppingListDialogOpen(true);
   };
   const deleteIngredientFromList = async (ingredient) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     props.dispatch(pageStateActions.setPageLoadingState(true));
     let tempIngredients = [...userIngredients];
     tempIngredients = tempIngredients.filter(
@@ -96,18 +106,23 @@ function MyIngredientRow(props) {
       REQ_METHODS.delete,
       { userId: user.sub, ingredient: ingredient.strIngredient1 },
       (response) => {
-        showToastMessage(
-          "Ingredients",
-          response.message,
-          SEVERITY.Success
-        );
-        props.loadIngredients();        
+        const toastMessageObject: ToastMessage = {
+          severity: SEVERITY.Success,
+          message: response.message,
+          title: "Ingredients",
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        props.loadIngredients();
       }
-    ).catch((error) => {
-      showToastMessage("Ingredients", error.message, SEVERITY.Error);
-    });
-    dispatch(pageStateActions.setPageLoadingState(false));
-    setModalDeleteIngredientOpen(false);
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+        setModalDeleteIngredientOpen(false);
+      });
   };
 
   // Functions
@@ -229,7 +244,6 @@ function MyIngredientRow(props) {
         open={modalViewRecipesOpen}
         setOpen={setModalViewRecipesOpen}
         ingredient={ingredient}
-        showToastMessage={showToastMessage}
         setLoadingPage={props.setLoadingPage}
       />
       <TableRow>

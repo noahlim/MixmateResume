@@ -1,17 +1,16 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   displayErrorSnackMessage,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import { Pagination, Box } from "@mui/material";
+import { Pagination, Box, Typography } from "@mui/material";
 import {
   APPLICATION_PAGE,
   SEVERITY,
   API_ROUTES,
   REQ_METHODS,
-  API_DRINK_ROUTES,
 } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
 import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
@@ -20,6 +19,7 @@ import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
 function CustomRecipes() {
   const dispatch = useDispatch();
@@ -40,6 +40,10 @@ function CustomRecipes() {
     (state: any) => state.recipe.alcoholicTypes
   );
 
+  const clearFilter = () => {
+    setFilter({ filter: "", criteria: "" });
+    loadSocialRecipes();
+  };
   let onPageIndexChange = (e) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     loadSocialRecipes(parseInt(e.target.innerText));
@@ -102,11 +106,13 @@ function CustomRecipes() {
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 10));
       }
-    ).catch((error) => {
-      displayErrorSnackMessage(error, dispatch);
-    }).finally(() => {
-      dispatch(pageStateActions.setPageLoadingState(false));
-    });
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
 
   // Loading recipe options
@@ -131,6 +137,12 @@ function CustomRecipes() {
 
   return (
     <>
+      <MyMixMateHeader title="Community Recipes">
+        Embark on a culinary voyage of discovery through our vibrant community,
+        where creative minds converge to share their inspired recipes, fostering
+        a dynamic exchange of gastronomic artistry that transcends boundaries
+        and ignites a passion for culinary innovation.
+      </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipes_Component
@@ -139,6 +151,7 @@ function CustomRecipes() {
             setRecipesFiltered={setRecipesFiltered}
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
+            onFilterClear={clearFilter}
           />
         </Grid>
         <Grid item xs={12} sm={9}>
@@ -169,7 +182,7 @@ function CustomRecipes() {
           onChange={onPageIndexChange}
         />
       </Box>
-      <MarqueeScroll/>
+      <MarqueeScroll direction="left" />
     </>
   );
 }

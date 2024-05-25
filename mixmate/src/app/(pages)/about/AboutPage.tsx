@@ -3,11 +3,8 @@ import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { Space_Grotesk } from "next/font/google";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import MarqueeComponent from "@/app/(components)/MarqueeAnimation";
 import "../../../app/globals.css";
-import { FaGithub } from "react-icons/fa6";
-import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function AboutPage() {
@@ -98,7 +95,7 @@ function AboutPage() {
           </Grid>
         </Grid>
         <Grid container>
-          <MarqueeComponent />
+          <MarqueeComponent direction="left" />
         </Grid>
         <Grid container>
           <Grid container item xs={12}>
@@ -242,7 +239,7 @@ function AboutPage() {
           </Grid>
         </Grid>
         <Grid container justifyContent="center" sx={{backgroundColor:"white"}}>
-          <MarqueeComponent />
+          <MarqueeComponent direction="left" />
           <Grid
             item
             xs={10}

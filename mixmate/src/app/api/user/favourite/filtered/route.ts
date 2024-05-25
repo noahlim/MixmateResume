@@ -42,13 +42,18 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                         sub: user.sub
                     };
 
-                    let recipesByIngredients = await dbRtns.findAll(db, userFavouriteCollection, query, {}, 5, index);
+                    let recipesByIngredients = await dbRtns.findAllWithPagination(db, userFavouriteCollection, query, {}, 5, index);
+                    let length = await dbRtns.count(db, userFavouriteCollection, query);
+                    const data = {
+                        recipes: recipesByIngredients,
+                        length: length
+                    }
+                    result.data = data;
 
-                    result.data = recipesByIngredients;
                     if (recipesByIngredients.length === 0) {
                         result.message = "No recipes found!";
                     } else {
-                        result.message = `${recipesByIngredients.length} recipes found!`
+                        result.message = `${length} recipes found!`
                     }
                     return NextResponse.json(result, { status: 200 });
                 }
@@ -58,15 +63,20 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                         strDrink: { $regex: regexQuery },
                         sub: user.sub
                     };
-                   
-                    let recipesByName = await dbRtns.findAll(db, userFavouriteCollection, query, {}, index, 5);
-                  
+
+                    let recipesByName = await dbRtns.findAllWithPagination(db, userFavouriteCollection, query, {}, index, 5);
+                    let length = await dbRtns.count(db, userFavouriteCollection, query);
                     result.data = recipesByName;
                     if (recipesByName.length === 0) {
                         result.message = "No recipes found!";
                     } else {
-                        result.message = `${recipesByName.length} recipes found!`
+                        result.message = `${length} recipes found!`
                     }
+                    const data = {
+                        recipes: recipesByName,
+                        length: length
+                    }
+                    result.data = data;
                     return NextResponse.json(result, { status: 200 });
                 }
                 case "Glass": {
@@ -74,7 +84,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                     break;
                 }
                 case "Alcoholic Type": {
-                    criteria = { strAlcoholic: filterCriteria, sub: user.sub };                   
+                    criteria = { strAlcoholic: filterCriteria, sub: user.sub };
                     break;
                 }
                 case "Category": {
@@ -85,13 +95,18 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                 }
 
             }
-            const recipesFiltered = await dbRtns.findAll(db, userFavouriteCollection, criteria, {}, index, 5);
-            if (recipesFiltered.length === 0) {
+            const recipesFiltered = await dbRtns.findAllWithPagination(db, userFavouriteCollection, criteria, {}, index, 5);
+            const length = await dbRtns.count(db, userFavouriteCollection, criteria);    
+            if (length === 0) {
                 result.message = "No recipes found!";
             } else {
-                result.message = `${recipesFiltered.length} recipes found!`
+                result.message = `${length} recipes found!`
             }
-            result.data = recipesFiltered;
+            const data = {
+                recipes: recipesFiltered,
+                length: length
+            }
+            result.data = data;
             return NextResponse.json(result, { status: 200 });
         }
         else

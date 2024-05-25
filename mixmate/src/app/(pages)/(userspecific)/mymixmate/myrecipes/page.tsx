@@ -24,6 +24,7 @@ import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component"
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 import { ToastMessage } from "interface/toastMessage";
+import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
 function CustomRecipes() {
   const { user, error, isLoading } = useUser();
@@ -41,6 +42,7 @@ function CustomRecipes() {
   // Variables
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
+  const [allMyRecipes, setAllMyRecipes] = useState([]);
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
@@ -56,8 +58,7 @@ function CustomRecipes() {
       { userid: user?.sub, index: pageIndex },
       (response) => {
         setRecipesFiltered(response.data.recipes);
-        setPageIndexCount(Math.ceil(response.data.count / 10));
-
+        setAllMyRecipes(response.data.recipes);
         setPageIndexCount(Math.ceil(response.data.length / 10));
       }
     )
@@ -106,7 +107,12 @@ function CustomRecipes() {
       }
     );
   };
-  // Loading recipe options
+
+  const clearFilter = () => {
+    setFilter({ filter: "", criteria: "" });
+    setRecipesFiltered(allMyRecipes);
+    setPageIndexCount(Math.ceil(allMyRecipes.length / 10));
+  };
 
   useEffect(() => {
     loadMyRecipes();
@@ -126,7 +132,6 @@ function CustomRecipes() {
 
   return (
     <>
-
       {/* Add new recipe modal */}
       <AddEditRecipe_Component
         openModal={openAddEditRecipeModal}
@@ -136,6 +141,12 @@ function CustomRecipes() {
       />
 
       {/* Page body */}
+      <MyMixMateHeader title="My Recipes">
+        Explore your very own culinary canvas, a sanctuary where your inspired
+        creations take center stage, allowing you to meticulously refine and
+        perfect each recipe before unveiling your masterpieces to the world,
+        leaving an indelible mark on the palates of fellow epicureans
+      </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <Paper elevation={3} style={{ margin: 15 }}>
@@ -160,6 +171,7 @@ function CustomRecipes() {
             setRecipesFiltered={setRecipesFiltered}
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
+            onFilterClear={clearFilter}
           />
         </Grid>
         <Grid item xs={12} sm={9}>
@@ -190,7 +202,7 @@ function CustomRecipes() {
           onChange={onPageIndexChange}
         />
       </Box>
-      <MarqueeScroll />
+      <MarqueeScroll direction="left" />
     </>
   );
 }
