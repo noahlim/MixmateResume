@@ -30,6 +30,7 @@ import {
   isSet,
   capitalizeWords,
   makeRequest,
+  displayErrorSnackMessage,
 } from "@/app/_utilities/_client/utilities";
 import {
   API_ROUTES,
@@ -47,6 +48,7 @@ import Chip from "@mui/material/Chip";
 import { Pagination } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import Image from "next/image";
+import { ToastMessage } from "interface/toastMessage";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -168,7 +170,7 @@ const AvailableRecipes = (props) => {
         setFilteredByIngredientsRecipes(filteredRecipesByIndex);
       },
       (error) => {
-        props.showToastMessage("Error", error.message, SEVERITY.Warning);
+        displayErrorSnackMessage(error, dispatch);
       }
     );
   };
@@ -243,17 +245,27 @@ const AvailableRecipes = (props) => {
     const [rowOpen, setRowOpen] = useState(false);
     const [drinkInfo, setDrinkInfo] = useState(null);
     const handleAddToFavourites = (recipe) => {
+      dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.post,
         { userId: user.sub, recipe },
         (response) => {
-          props.showToastMessage("Recipe", response.message, SEVERITY.Success);
-        },
-        (error) => {
-          alert(error.message);
+          const toastMessageObject: ToastMessage = {
+            message: response.message,
+            severity: SEVERITY.Success,
+            title: "Recipe",
+            open: true,
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
         }
-      );
+      )
+        .catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     };
     // Functions
     let loadDrinkInfo = () => {
@@ -293,7 +305,7 @@ const AvailableRecipes = (props) => {
                         src={
                           drink.strDrinkThumb
                             ? drink.strDrinkThumb
-                            : "not-found-icon.png"
+                            : "/not-found-icon.png"
                         }
                         alt="Drink"
                         width={700}
@@ -398,11 +410,10 @@ const AvailableRecipes = (props) => {
               );
             }
             setDrinkInfo(drinkDetails);
-          },
-          (error) => {
-            props.showToastMessage("Error", error.message, SEVERITY.Warning);
           }
-        );
+        ).catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        });
       }
 
       // Done

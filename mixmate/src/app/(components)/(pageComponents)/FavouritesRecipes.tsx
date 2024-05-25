@@ -1,19 +1,20 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
+import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import {
-  API_ROUTES,
-  REQ_METHODS,
-} from "@/app/_utilities/_client/constants";
-import { displayErrorSnackMessage, makeRequest } from "@/app/_utilities/_client/utilities";
+  displayErrorSnackMessage,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "../Recipe_Component";
 import FilterRecipes_Component from "../FilterRecipes_Component";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Pagination } from "@mui/material";
+import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import MarqueeScroll from "../MarqueeAnimation";
 function Favourites() {
   // Toast Message
   const { user, error, isLoading } = useUser();
@@ -41,12 +42,14 @@ function Favourites() {
         setRecipesFiltered(response.data);
         setAllFavouriteRecipes(response.data);
         // Done
-        dispatch(pageStateActions.setPageLoadingState(false));
       }
-    ).catch((error) => {
-      displayErrorSnackMessage(error, dispatch);
-      dispatch(pageStateActions.setPageLoadingState(false));
-    });
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
   let onPageIndexChange = (e) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -72,8 +75,8 @@ function Favourites() {
           title: "Recipes found",
           severity: SEVERITY.success,
           message: response.message,
-        };        
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));        
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
         dispatch(pageStateActions.setPageLoadingState(false));
       }
     ).catch((error) => {
@@ -92,7 +95,7 @@ function Favourites() {
       (response) => {
         setPageIndexCount(Math.ceil(response.data / 5));
       }
-    ).catch((error) => {      
+    ).catch((error) => {
       displayErrorSnackMessage(error, dispatch);
       dispatch(pageStateActions.setPageLoadingState(false));
     });
@@ -122,6 +125,9 @@ function Favourites() {
   }, []);
   return (
     <>
+      <Box sx={{ display: "flex" }} justifyContent="center">
+        <Typography>hi</Typography>
+      </Box>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipes_Component
@@ -158,6 +164,7 @@ function Favourites() {
           onChange={onPageIndexChange}
         />
       </Box>
+      <MarqueeScroll />
     </>
   );
 }

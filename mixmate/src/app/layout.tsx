@@ -3,8 +3,8 @@ import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { API_ROUTES } from "./_utilities/_client/constants";
 import RootPage from "./page";
-
-const inter = Inter({ subsets: ["latin"] });
+import { ErrorBoundary, HighlightInit } from "@highlight-run/next/client";
+import ErrorPage from "./(components)/ErrorPage";
 
 export const metadata = {
   title: "MixMate",
@@ -12,17 +12,32 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-
   return (
-    <html lang="en">
-      <UserProvider
-        loginUrl={API_ROUTES.login}
-        profileUrl={API_ROUTES.userJson}
-      >
-        <body className={inter.className}>
-          <RootPage>{children}</RootPage>
-        </body>
-      </UserProvider>
-    </html>
+    <>
+      <HighlightInit
+        projectId={"jdk0r07e"}
+        serviceName="my-nextjs-frontend"
+        tracingOrigins
+        networkRecording={{
+          enabled: true,
+          recordHeadersAndBody: true,
+          urlBlocklist: [],
+        }}
+      />
+      <html lang="en">
+        <UserProvider
+          loginUrl={API_ROUTES.login}
+          profileUrl={API_ROUTES.userJson}
+        >
+          <body
+            style={{ backgroundImage: "/recipebackground.png" }}
+          >
+            <ErrorBoundary customDialog={<ErrorPage />}>
+              <RootPage>{children}</RootPage>
+            </ErrorBoundary>
+          </body>
+        </UserProvider>
+      </html>
+    </>
   );
 }

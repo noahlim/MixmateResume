@@ -16,6 +16,7 @@ import HoverTypography from "./(shapeComponents)/HoverTypography";
 import BlogSection from "./(shapeComponents)/BlogSection";
 import { FaGithub, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import MarqueeScroll from "./MarqueeAnimation";
 
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
@@ -119,6 +120,32 @@ function HomePage() {
                 onClick={() => router.push(APPLICATION_PAGE.myMixMate)}
               >
                 Get Your Own Mixes
+              </Box>
+            </Grid>
+            <Grid item>
+              <Box
+                component={Button}
+                sx={{
+                  width: "250px",
+                  zIndex: 1,
+                  borderRadius: "50vh",
+                  backgroundColor: "white",
+                  color: "black",
+                  fontFamily: "Dela Gothic one",
+                  fontSize: "15px",
+                  marginBottom: { sm: "20px", xs: "0px" },
+                  marginLeft: { md: "50px", xs: "0px" },
+                  transition:
+                    "color .3s ease-in-out, box-shadow .3s ease-in-out",
+                  boxShadow: "inset 0 0 0 0 #54b3d6",
+                  ":hover": {
+                    boxShadow: "inset 250px 0 0 0 #54b3d6",
+                    color: "white",
+                  },
+                }}
+                onClick={() => { throw new Error("error test"); }}
+              >
+                Error test
               </Box>
             </Grid>
           </Grid>
@@ -378,7 +405,7 @@ function HomePage() {
                     width={514}
                     height={483}
                     decoding="async"
-                    src="/orange.png"
+                    src="/welcomepage/orange.png"
                     alt="Orange"
                     style={{
                       opacity: 0.3,
@@ -417,128 +444,10 @@ function HomePage() {
             </Grid>
           </Grid>
         </Grid>
+        <MarqueeScroll/>
+
         <Box bgcolor="white">
           <BlogSection />
-          <Divider />
-          <Grid
-            container
-            justifyContent="center"
-            style={{ padding: "30px 0px" }}
-          >
-            <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
-              <Grid xs={12} item>
-                <Typography
-                  variant="h6"
-                  style={{
-                    paddingBottom: "10px",
-                    color: "#205095",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Company
-                </Typography>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">About</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Team</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Careers</a>
-              </Grid>
-            </Grid>
-            <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
-              <Grid xs={12} item>
-                <Typography
-                  variant="h6"
-                  style={{
-                    paddingBottom: "10px",
-                    color: "#205095",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Support
-                </Typography>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">FAQs</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Privacy Policy</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Terms of Service</a>
-              </Grid>
-            </Grid>
-            <Grid
-              item
-              container
-              md={2}
-              xs={10}
-              style={{ padding: "30px 0px" }}
-              spacing={1}
-            >
-              <Grid xs={12} item>
-                <Typography
-                  variant="h6"
-                  style={{
-                    paddingBottom: "10px",
-                    color: "#205095",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Contact
-                </Typography>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Contact Us</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Locations</a>
-              </Grid>
-              <Grid xs={12} item>
-                <a href="#">Customer Support</a>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid container justifyContent="center">
-            <Grid item xs={9} md={6}>
-              <Divider />
-            </Grid>
-          </Grid>
-          <Grid
-            container
-            justifyContent="center"
-            style={{ paddingBottom: "30px" }}
-          >
-            <Grid
-              item
-              container
-              justifyContent="space-around"
-              md={4}
-              xs={10}
-              style={{ padding: "30px 0px" }}
-            >
-              <Grid xs={1} item>
-                <a href="https://github.com/harryGIbong">
-                  <FaGithub fontSize={40} />
-                </a>
-              </Grid>
-              <Grid xs={1} item>
-                <FaFacebook fontSize={40} />
-              </Grid>
-              <Grid xs={1} item>
-                <FaInstagram fontSize={40} />
-              </Grid>
-              <Grid xs={1} item>
-                <FaYoutube fontSize={40} />
-              </Grid>
-            </Grid>
-            <Grid item xs={12} textAlign="center">
-              MixMate By Hongseok Kim
-            </Grid>
-          </Grid>
         </Box>
       </Grid>
     </>

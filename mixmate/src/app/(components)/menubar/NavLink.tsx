@@ -3,9 +3,11 @@ import styled from "styled-components";
 import MenuBarDropdown from "./MenuBarDropdown"; // Import the dropdown component
 import dynamic from "next/dynamic";
 import { Box } from "@mui/material";
+import { Cabin } from "next/font/google";
 interface StyledNavLinkProps {
   isopen: boolean;
 }
+const cabin = Cabin({ subsets: ["latin"] });
 
 // Dynamically import the Link component to prevent server-side rendering
 const Link = dynamic(() => import("next/link"), { ssr: false });
@@ -87,6 +89,7 @@ const NavLink = ({ children, isDropdown, onClick, route }) => {
             e.preventDefault();
             onClick();
           }}
+          className={cabin.className}
         >
           {children}
         </StyledNavLink>

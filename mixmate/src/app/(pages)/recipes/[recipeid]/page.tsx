@@ -96,7 +96,7 @@ const RecipeById = ({ params }) => {
                 src={
                   recipe.strDrinkThumb
                     ? recipe.strDrinkThumb
-                    : "not-found-icon.png"
+                    : "/not-found-icon.png"
                 }
                 alt="Drink"
                 height={700}

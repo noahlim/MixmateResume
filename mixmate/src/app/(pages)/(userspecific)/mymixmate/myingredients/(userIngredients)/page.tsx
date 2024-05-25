@@ -40,6 +40,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 const MyIngredients =()=> {
   // Validate session
 
@@ -327,6 +328,7 @@ const MyIngredients =()=> {
           onChange={onPageIndexChange}
         />
       </Box>
+      <MarqueeScroll/>
     </>
   );
 }

@@ -9,33 +9,43 @@ import { LiaCocktailSolid } from "react-icons/lia";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FaEarthAmericas } from "react-icons/fa6";
+import Link from "next/link";
+import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 export default function MenuBarDropdown() {
   return (
-    <Paper sx={{ width: 200, zIndex: 10, position:"absolute" }}>
+    <Paper sx={{ width: 200, zIndex: 10, position: "absolute" }}>
       <MenuList style={{ zIndex: 10 }}>
         <MenuItem>
           <ListItemIcon>
             <FavoriteIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Favourites</ListItemText>
+          <Link href={APPLICATION_PAGE.favourites}>
+            <ListItemText>Favourites</ListItemText>
+          </Link>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <LiaCocktailSolid fontSize="small" />
+            <LiaCocktailSolid fontSize={20} />
           </ListItemIcon>
-          <ListItemText>My Recipes</ListItemText>
+          <Link href={APPLICATION_PAGE.myRecipes}>
+            <ListItemText>My Recipes</ListItemText>
+          </Link>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
-            <FaEarthAmericas fontSize="small" />
+            <FaEarthAmericas fontSize={16} />
           </ListItemIcon>
-          <ListItemText>Social Recipes</ListItemText>
+          <Link href={APPLICATION_PAGE.social}>
+            <ListItemText>Social Recipes</ListItemText>
+          </Link>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <WineBarIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>My Ingredients</ListItemText>
+          <Link href={APPLICATION_PAGE.myIngredients}>
+            <ListItemText>My Ingredients</ListItemText>
+          </Link>
         </MenuItem>
       </MenuList>
     </Paper>

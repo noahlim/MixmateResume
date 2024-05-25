@@ -6,6 +6,7 @@ import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
+import Footer from "./(components)/Footer";
 
 function RootPage({ children }) {
   // Check if the current route is the home page
@@ -41,6 +42,8 @@ function RootPage({ children }) {
             <MenuBar />
 
             <HomePage />
+          <Footer />
+
         </ThemeProvider>
       </ReduxProvider>
     );
@@ -50,11 +53,12 @@ function RootPage({ children }) {
   return (
     <ReduxProvider>
       <ThemeProvider theme={theme}>
-          <Box>
+          <Box sx={{backgroundColor:"#E6FFFF"}}>
             <MenuBar />
 
             {children}
           </Box>
+          <Footer />
       </ThemeProvider>
     </ReduxProvider>
   );

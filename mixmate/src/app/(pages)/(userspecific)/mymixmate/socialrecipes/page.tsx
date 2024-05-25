@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 
 function CustomRecipes() {
   const dispatch = useDispatch();
@@ -168,6 +169,7 @@ function CustomRecipes() {
           onChange={onPageIndexChange}
         />
       </Box>
+      <MarqueeScroll/>
     </>
   );
 }

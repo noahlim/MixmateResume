@@ -4,24 +4,16 @@ import { useMediaQuery } from "@mui/material";
 import { Space_Grotesk } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import MarqueeComponent from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
+import MarqueeComponent from "@/app/(components)/MarqueeAnimation";
 import "../../../app/globals.css";
 import { FaGithub } from "react-icons/fa6";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function AboutPage() {
-  const isSmallMobileScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("xs", "sm")
-  );
-  const isMediumMobileScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("sm", "md")
-  );
+
   const isTabletScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("md,lg")
-  );
-  const isLargeScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.up("lg")
+    theme.breakpoints.up("md")
   );
 
   return (
@@ -70,7 +62,7 @@ function AboutPage() {
                   sx={{ padding: "20px 0px" }}
                 >
                   <Typography
-                    fontSize={isTabletScreen || isLargeScreen ? "18px" : "16px"}
+                    fontSize={isTabletScreen ? "18px" : "16px"}
                     color="black"
                     className={spaceGrotesk.className}
                   >
@@ -156,7 +148,7 @@ function AboutPage() {
                   sx={{ padding: "20px 0px" }}
                 >
                   <Typography
-                    fontSize={isTabletScreen || isLargeScreen ? "18px" : "16px"}
+                    fontSize={isTabletScreen ? "18px" : "16px"}
                     color="black"
                     className={spaceGrotesk.className}
                   >
@@ -214,7 +206,7 @@ function AboutPage() {
                   sx={{ padding: "20px 0px" }}
                 >
                   <Typography
-                    fontSize={isTabletScreen || isLargeScreen ? "18px" : "16px"}
+                    fontSize={isTabletScreen ? "18px" : "16px"}
                     color="black"
                     className={spaceGrotesk.className}
                   >
@@ -249,7 +241,7 @@ function AboutPage() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid container justifyContent="center">
+        <Grid container justifyContent="center" sx={{backgroundColor:"white"}}>
           <MarqueeComponent />
           <Grid
             item
@@ -324,140 +316,7 @@ function AboutPage() {
                 alt="Multicolored cocktails in a row"
               />
             </Grid>
-          </Grid>{" "}
-          <Box bgcolor="white">
-            <Grid
-              container
-              justifyContent="center"
-              style={{ padding: "30px 0px" }}
-            >
-              <Grid
-                item
-                container
-                md={2}
-                xs={10}
-                style={{ padding: "30px 0px" }}
-              >
-                <Grid xs={12} item>
-                  <Typography
-                    variant="h6"
-                    style={{
-                      paddingBottom: "10px",
-                      color: "#205095",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Company
-                  </Typography>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">About</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Team</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Careers</a>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                container
-                md={2}
-                xs={10}
-                style={{ padding: "30px 0px" }}
-              >
-                <Grid xs={12} item>
-                  <Typography
-                    variant="h6"
-                    style={{
-                      paddingBottom: "10px",
-                      color: "#205095",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Support
-                  </Typography>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">FAQs</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Privacy Policy</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Terms of Service</a>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                container
-                md={2}
-                xs={10}
-                style={{ padding: "30px 0px" }}
-                spacing={1}
-              >
-                <Grid xs={12} item>
-                  <Typography
-                    variant="h6"
-                    style={{
-                      paddingBottom: "10px",
-                      color: "#205095",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Contact
-                  </Typography>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Contact Us</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Locations</a>
-                </Grid>
-                <Grid xs={12} item>
-                  <a href="#">Customer Support</a>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid container justifyContent="center">
-              <Grid item xs={9} md={6}>
-                <Divider />
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              justifyContent="center"
-              style={{ paddingBottom: "30px" }}
-            >
-              <Grid
-                item
-                container
-                justifyContent="space-around"
-                md={4}
-                xs={10}
-                style={{ padding: "30px 0px" }}
-              >
-                <Grid xs={1} item>
-                  <a href="https://github.com/harryGIbong">
-                    <FaGithub fontSize={40} />
-                  </a>
-                </Grid>
-                <Grid xs={1} item>
-                  <FaFacebook fontSize={40} />
-                </Grid>
-                <Grid xs={1} item>
-                  <FaInstagram fontSize={40} />
-                </Grid>
-                <Grid xs={1} item>
-                  <FaYoutube fontSize={40} />
-                </Grid>
-              </Grid>
-              <Grid item xs={12} textAlign="center">
-                MixMate By Hongseok Kim
-              </Grid>
-            </Grid>
-          </Box>
+          </Grid>
         </Grid>
       </Box>
     </Box>

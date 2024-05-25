@@ -24,6 +24,7 @@ import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import FilterRecipes_Component from "../FilterRecipes_Component";
+import MarqueeScroll from "../MarqueeAnimation";
 function DefaultRecipesComponent() {
   // Validate session
   const { user, error, isLoading } = useUser();
@@ -146,7 +147,7 @@ function DefaultRecipesComponent() {
   return (
     <>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} md={3}>
           <FilterRecipes_Component
             recipeAllRecipes={allRecipes}
             loadFilteredRecipes={loadFilteredRecipes}
@@ -156,8 +157,8 @@ function DefaultRecipesComponent() {
             filterCriteria={filter}
           />
         </Grid>
-        <Grid item xs={12} sm={9}>
-          <div style={{ paddingLeft: 25, paddingRight: 55 }}>
+        <Grid item xs={12} md={9}>
+          <div style={{ paddingLeft: 25, paddingRight: 25 }}>
             <Table aria-label="collapsible table">
               <TableHead>
                 <TableRow>
@@ -218,6 +219,7 @@ function DefaultRecipesComponent() {
             onChange={handleChange}
           />
       </Box>
+      <MarqueeScroll/>
     </>
   );
 }

@@ -24,6 +24,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import Tooltip from "@mui/material/Tooltip";
 import ShareIcon from "@mui/icons-material/Share";
 import {
+  displayErrorSnackMessage,
   isNotSet,
   isSet,
   makeRequest,
@@ -62,10 +63,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
+import { ToastMessage } from "interface/toastMessage";
 function Recipe_Component(props) {
   // Inherited variables
-  const { applicationPage, title, recipes, showToastMessage, reloadRecipes } =
-    props;
+  const { applicationPage, title, recipes, reloadRecipes } = props;
   const dispatch = useDispatch();
 
   const isEditablePage =
@@ -92,6 +93,7 @@ function Recipe_Component(props) {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     setSelectedRecipeIdAddEdit(selectedRecipeId);
     setOpenAddEditRecipemodal(true);
   };
@@ -101,67 +103,83 @@ function Recipe_Component(props) {
   };
 
   let btnRemoveReview_onClick = (reviewid) => {
-    // Validate session
-    if (!user) return;
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.recipeReviews,
       REQ_METHODS.delete,
       { _id: reviewid },
       (response) => {
-        showToastMessage("Reviews", response.message, SEVERITY.Success);
+        const toastMessageObject: ToastMessage = {
+          title: "Reviews",
+          message: response.message,
+          severity: SEVERITY.Success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
         reloadRecipes();
-      },
-      (err) => {
-        showToastMessage(
-          "Error",
-          "Error deleting selected review",
-          SEVERITY.Error
-        );
       }
-    );
+    )
+      .catch((err) => {
+        displayErrorSnackMessage(err, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
   let btnRemoveRecipe_onClick = () => {
-    // Validate session
-    if (!user) return;
+    if (title === "My Favourite Recipes") {
+      dispatch(pageStateActions.setPageLoadingState(true));
 
-    if (title === "My Favourite Recipes")
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.delete,
         { userId: user.sub, _id: infoRecipeToDelete._id },
         (response) => {
-          showToastMessage("Favorites", response.message, SEVERITY.Success);
+          const toastMessageObject: ToastMessage = {
+            title: "Favorites",
+            message: response.message,
+            severity: SEVERITY.Success,
+            open: true,
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
           setInfoRecipeToDelete(null);
           setModalDeleteRecipeOpen(false);
           reloadRecipes();
-        },
-        (err) => {
-          showToastMessage(
-            "Error",
-            "Error deleting recipe from favourites",
-            SEVERITY.Error
-          );
         }
-      );
-    else if (title === "My MixMate Recipes") {
+      )
+        .catch((err) => {
+          displayErrorSnackMessage(err, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
+    } else if (title === "My MixMate Recipes") {
+      dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
         API_ROUTES.recipeShare,
         REQ_METHODS.delete,
         { _id: infoRecipeToDelete._id },
         (response) => {
-          showToastMessage("Favorites", response.message, SEVERITY.Success);
+          const toastMessageObject: ToastMessage = {
+            title: "Recipes",
+            message: response.message,
+            severity: SEVERITY.Success,
+            open: true,
+          };
+
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
           setInfoRecipeToDelete(null);
           setModalDeleteRecipeOpen(false);
           reloadRecipes();
-        },
-        (err) => {
-          showToastMessage(
-            "Error",
-            "Error deleting recipe from favourites",
-            SEVERITY.Error
-          );
         }
-      );
+      )
+        .catch((err) => {
+          displayErrorSnackMessage(err, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     }
   };
 
@@ -248,7 +266,9 @@ function Recipe_Component(props) {
                   {/**Delete review button */}
 
                   <Avatar
-                    src={review.userPictureUrl}
+                    src={`https://images.weserv.nl/?url=${encodeURIComponent(
+                      review.userPictureUrl
+                    )}`}
                     alt={review.userNickname}
                     sx={{ width: 40, height: 40, marginRight: 2 }}
                   />
@@ -303,17 +323,17 @@ function Recipe_Component(props) {
               <Box>
                 <Grid container spacing={4}>
                   <Grid item xs={12} sm={12} md={6} lg={4}>
-                      <Image
-                        src={
-                          drink.strDrinkThumb
-                            ? drink.strDrinkThumb
-                            : "not-found-icon.png"
-                        }
-                        alt="Drink"
-                        height={700}
-                        width={700} 
-                        style={{ borderRadius: "7%" }}
-                      />
+                    <Image
+                      src={
+                        drink.strDrinkThumb
+                          ? drink.strDrinkThumb
+                          : "/not-found-icon.png"
+                      }
+                      alt="Drink"
+                      height={700}
+                      width={700}
+                      style={{ borderRadius: "7%" }}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={12} md={6} lg={8}>
                     <Typography>
@@ -403,7 +423,7 @@ function Recipe_Component(props) {
                     )}
                     {applicationPage === APPLICATION_PAGE.myRecipes && (
                       <>
-                        <Tooltip title="Share recipe" placement="top">
+                        <Tooltip title="Share Recipe" placement="top">
                           <IconButton
                             color="success"
                             onClick={() => modalShareRecipe_onOpen(drink)}
@@ -411,7 +431,7 @@ function Recipe_Component(props) {
                             <ShareIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Create a new recipe" placement="top">
+                        <Tooltip title="Edit the Recipe" placement="top">
                           <IconButton
                             color="primary"
                             onClick={() => modalAddEditRecipe_onOpen(drink._id)}
@@ -517,8 +537,15 @@ function Recipe_Component(props) {
     const shareUrl = `${MIXMATE_DOMAIN}${APPLICATION_PAGE.recipes}/${selectedRecipeToShare._id}`;
     clipboard(shareUrl);
     setSharingUrl(shareUrl);
-    showToastMessage("Social", "Link copied to clipboard!", SEVERITY.Success);
+    const toastMessageObject: ToastMessage = {
+      title: "Social",
+      message: "Link copied to clipboard!",
+      severity: SEVERITY.Success,
+      open: true,
+    };
+    dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
+
   let btnShareInSocial_onclick = () => {
     const newRecipeObject = JSON.parse(JSON.stringify(selectedRecipeToShare));
     newRecipeObject.visibility = "public";
@@ -527,21 +554,25 @@ function Recipe_Component(props) {
       REQ_METHODS.put,
       { recipe: newRecipeObject },
       (response) => {
-        if (response.isOk) {
-          setModalShareRecipeOpen(false);
-          showToastMessage(
-            "Recipe Shared on the Social",
-            "Your drink has been shared on the Social!",
-            SEVERITY.Success
-          );
+        setModalShareRecipeOpen(false);
+        const toastMessageObject: ToastMessage = {
+          title: "Social",
+          message: "Recipe shared on the Social!",
+          severity: SEVERITY.Success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
 
-          // Reload recipes list
-          reloadRecipes();
-        } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
-
-        dispatch(pageStateActions.setPageLoadingState(false));
+        // Reload recipes list
+        reloadRecipes();
       }
-    );
+    )
+      .catch((err) => {
+        displayErrorSnackMessage(err, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
 
   // Write reviews
@@ -562,14 +593,18 @@ function Recipe_Component(props) {
   let btnWriteReview_onCkick = () => {
     // Validations
     if (isNotSet(reviewValue)) {
-      showToastMessage(
-        "Reviews",
-        "Please fill in the comment field.",
-        SEVERITY.Warning
-      );
+      const toastMessageObject: ToastMessage = {
+        title: "Reviews",
+        message: "Please fill in the comment field.",
+        severity: SEVERITY.Warning,
+        open: true,
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+
       return;
     }
 
+    dispatch(pageStateActions.setPageLoadingState(true));
     let newReview = {
       userId: user.sub,
       userNickname: user.nickname,
@@ -583,25 +618,24 @@ function Recipe_Component(props) {
       REQ_METHODS.post,
       { newReview },
       (response) => {
-        if (response.isOk) {
-          setSelectedRecipeToComment(null);
-          setRatingValue(1);
-          setShowCommentsBox(false);
-
-          // Reload recipes list
-          reloadRecipes();
-        } else showToastMessage("New Recipe", response.message, SEVERITY.Error);
-
-        dispatch(pageStateActions.setPageLoadingState(false));
+        setSelectedRecipeToComment(null);
+        setRatingValue(1);
+        setShowCommentsBox(false);
+        reloadRecipes();
       }
-    );
+    )
+      .catch((err) => {
+        displayErrorSnackMessage(err, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
   return (
     <>
       <AddEditRecipe_Component
         openModal={openAddEditRecipeModal}
         closeModal={modalAddEditRecipe_onClose}
-        showToastMessage={showToastMessage}
         reloadPage={reloadRecipes}
         recipeId={selectedRecipeIdAddEdit}
       />

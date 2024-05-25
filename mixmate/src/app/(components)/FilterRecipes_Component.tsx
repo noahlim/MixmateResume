@@ -11,7 +11,11 @@ import ClearIcon from "@mui/icons-material/Clear";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
-import { capitalizeWords, isSet, makeRequest } from "@/app/_utilities/_client/utilities";
+import {
+  capitalizeWords,
+  isSet,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
@@ -211,10 +215,10 @@ function FilterRecipes_Component(props) {
 
         <div style={{ padding: 25 }}>
           <FormControl variant="standard" fullWidth>
-            <InputLabel id="filter-select-label">Filter by</InputLabel>
+            <InputLabel id="filter-select-label">Filter By</InputLabel>
             <Select
               labelId="filter-select-label"
-              label="Filter by"
+              label="Filter By"
               value={filterCriteria.filter}
               onChange={(e) =>
                 filterCriteriaSetter({
@@ -224,11 +228,11 @@ function FilterRecipes_Component(props) {
               }
             >
               {[
+                "Recipe Name",
                 "Alcoholic Type",
                 "Category",
                 "Glass",
                 "Ingredient",
-                "Recipe Name",
               ].map((f) => {
                 return (
                   <MenuItem key={f} value={f}>

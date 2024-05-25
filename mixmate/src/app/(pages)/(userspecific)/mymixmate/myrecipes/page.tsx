@@ -1,13 +1,14 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
-import { makeRequest } from "@/app/_utilities/_client/utilities";
+import {
+  displayErrorSnackMessage,
+  makeRequest,
+} from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { CardContent, AlertColor, Pagination, Box } from "@mui/material";
+import { CardContent, Pagination, Box } from "@mui/material";
 import Button from "@mui/material/Button";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
+
 import {
   APPLICATION_PAGE,
   SEVERITY,
@@ -21,30 +22,17 @@ import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component"
 import { useDispatch, useSelector } from "react-redux";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import { ToastMessage } from "interface/toastMessage";
 
 function CustomRecipes() {
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
-  const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
   const [pageIndex, setpageIndex] = useState(1);
 
-  // Toast Message
-  const [openToastMessage, setOpenToastMessage] = useState(false);
-  const [toast_severity, setToast_severity] = useState<AlertColor>(
-    SEVERITY.Info
-  );
-
-  const [toast_title, setToast_title] = useState("");
-  const [toast_message, setToast_message] = useState("");
-  const showToastMessage = (title, message, severity = SEVERITY.Info) => {
-    setToast_severity(severity);
-    setToast_title(title);
-    setToast_message(message);
-    setOpenToastMessage(true);
-  };
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
@@ -72,11 +60,13 @@ function CustomRecipes() {
 
         setPageIndexCount(Math.ceil(response.data.length / 10));
       }
-    ).catch((error)=>{
-      showToastMessage("Error", error.message, SEVERITY.success);
-    }).finally(() => {
-      dispatch(pageStateActions.setPageLoadingState(false));
-    });
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
 
   let loadFilteredMyRecipes = () => {
@@ -87,13 +77,21 @@ function CustomRecipes() {
       (response) => {
         setRecipesFiltered(response.data);
         loadFilteredRecipesCount(filter.filter, filter.criteria);
-        showToastMessage("Recipes found", response.message, SEVERITY.success);
+        const toastMessageObject: ToastMessage = {
+          title: "Recipes found",
+          message: response.message,
+          severity: SEVERITY.success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
       }
-    ).catch((error)=>{
-      showToastMessage("Error", error.message, SEVERITY.success);
-    }).finally(() => {
-      dispatch(pageStateActions.setPageLoadingState(false));
-    });;
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
   let loadFilteredRecipesCount = (filter: string, criteria: string) => {
     makeRequest(
@@ -109,7 +107,7 @@ function CustomRecipes() {
     );
   };
   // Loading recipe options
- 
+
   useEffect(() => {
     loadMyRecipes();
   }, []);
@@ -128,24 +126,11 @@ function CustomRecipes() {
 
   return (
     <>
-      {/* Toast message */}
-      <Snackbar
-        open={openToastMessage}
-        autoHideDuration={5000}
-        onClose={() => setOpenToastMessage(false)}
-      >
-        <Alert severity={toast_severity}>
-          <AlertTitle>{toast_title}</AlertTitle>
-          {toast_message}
-        </Alert>
-      </Snackbar>
- 
 
       {/* Add new recipe modal */}
       <AddEditRecipe_Component
         openModal={openAddEditRecipeModal}
         closeModal={modalAddEditRecipe_onClose}
-        showToastMessage={showToastMessage}
         reloadPage={loadMyRecipes}
         recipeId={selectedRecipeIdAddEdit}
       />
@@ -182,7 +167,6 @@ function CustomRecipes() {
             applicationPage={APPLICATION_PAGE.myRecipes}
             title="My MixMate Recipes"
             recipes={recipesFiltered}
-            showToastMessage={showToastMessage}
             reloadRecipes={loadMyRecipes}
             recipeCategories={categories}
             recipeAlcoholicTypes={alcoholicTypes}
@@ -196,7 +180,6 @@ function CustomRecipes() {
         alignItems="center"
         mt={4} // Margin top of 4 (adjust as needed)
       >
-        {" "}
         <Pagination
           shape="rounded"
           variant="outlined"
@@ -207,6 +190,7 @@ function CustomRecipes() {
           onChange={onPageIndexChange}
         />
       </Box>
+      <MarqueeScroll />
     </>
   );
 }

@@ -49,11 +49,11 @@ import Link from "next/link";
 import NavLink from "@/app/(components)/menubar/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 const pages = [
+  { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },
   { route: APPLICATION_PAGE.recipes, page: "Recipes" },
   { route: APPLICATION_PAGE.myMixMate, page: "My MixMate" },
 ];
-
 function MenuBar() {
   const theme = useTheme();
 
@@ -191,7 +191,7 @@ function MenuBar() {
           </a>
           <a href={API_ROUTES.userJson}>
             <Avatar
-              src={user.picture}
+              src={`https://images.weserv.nl/?url=${encodeURIComponent(user.picture)}`}
               sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
             />
           </a>
