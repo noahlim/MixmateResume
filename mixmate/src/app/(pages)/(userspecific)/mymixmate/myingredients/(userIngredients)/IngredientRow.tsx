@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+
 import AddIcon from "@mui/icons-material/Add";
 import { useSelector, useDispatch } from "react-redux";
 import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
@@ -17,13 +15,16 @@ import {
   displayErrorSnackMessage,
 } from "@/app/_utilities/_client/utilities";
 import { SEVERITY } from "@/app/_utilities/_client/constants";
-import { Typography } from "@mui/material";
+import { Card, Paper, Typography } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import { Sarabun } from "next/font/google";
 import Image from "next/image";
+
+const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const IngredientRow = (props) => {
   const { user, error, isLoading } = useUser();
 
@@ -85,75 +86,60 @@ const IngredientRow = (props) => {
   // Functions
   let loadIngredientInfo = () => {
     if (isNotSet(ingredientInfo)) {
-      // Load drink info
-      ingredientDetails = (
-        <Box sx={{ margin: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-              <Image
-                style={{ borderRadius: "7%" }}
-                src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-                  ingredient
-                )}.png`} 
-                alt={ingredient}
-                height={700}
-                width={700}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={8}>
-              <div className="text-tangerine text-55px margin-left-35px">
-                {ingredient}
-              </div>
-            </Grid>
-          </Grid>
-          <Grid
-            xs
-            display="flow"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ padding: 4 }}
-          >
-            <Button
-              onClick={() => addIngredientToList(ingredient)}
-              color="primary"
-              variant="outlined"
-              startIcon={<AddIcon />}
-              style={{ margin: 20 }}
-            >
-              Add To My List
-            </Button>
-          </Grid>
-        </Box>
-      );
+      // Load ingredient info
     }
     setIngredientInfo(ingredientDetails);
     // Done
     setRowOpen(!rowOpen);
   };
 
+  useEffect(() => {
+    loadIngredientInfo();
+  }, []);
   return (
     <>
-      <TableRow>
-        <TableCell sx={{ width: "15%" }}>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => loadIngredientInfo()}
-          >
-            {rowOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell component="th" scope="row" sx={{ width: "85%" }}>
-          <Typography style={{ fontSize: "1.2em" }} color="black">
-            {capitalizeWords(ingredient)}
-          </Typography>
-        </TableCell>
-      </TableRow>
       <TableRow sx={{ "& > *": { borderTop: 0 } }}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
-          <Collapse in={rowOpen} timeout="auto" unmountOnExit>
-            {ingredientInfo}
-          </Collapse>
+            <Card elevation={2} sx={{ margin: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6} lg={4}>
+                    <Image
+                      style={{ borderRadius: "7%" }}
+                      src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
+                        ingredient
+                      )}.png`}
+                      alt={ingredient}
+                      height={400}
+                      width={400}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={8}>
+                  <Typography
+                    className={sarabun.className}
+                    sx={{ fontSize: "2em", margin: "10px" }}
+                  >
+                    {capitalizeWords(ingredient)}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                xs={12}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ padding: 4 }}
+              >
+                <Button
+                  onClick={() => addIngredientToList(ingredient)}
+                  color="primary"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  style={{ margin: 20 }}
+                >
+                  Add To My List
+                </Button>
+              </Grid>
+            </Card>
         </TableCell>
       </TableRow>
     </>

@@ -68,7 +68,7 @@ const findAllWithPagination = async (
   page: number = 1,
   limit: number = 10 // Default to 10 documents per page
 ): Promise<any[]> => {
-  const skip = limit > 0 ? (page - 1) * limit : 0;
+  const skip = (page - 1) * limit;
   return db
     .collection(coll)
     .find(criteria)

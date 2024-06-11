@@ -47,41 +47,95 @@ const MyIngredients = () => {
 
   const { user, error, isLoading } = useUser();
 
+  const [pageIndex, setPageIndex] = useState(1);
   const [allIngredients, setAllIngredients] = useState([]);
   const [filteredIngredients, setFilteredIngredients] = useState([]);
+  const [displayedIngredients, setDisplayedIngredients] = useState([]);
   const [searchboxValue, setSearchboxValue] = useState("");
   const [availableRecipesModalOpen, setAvailableRecipesModalOpen] =
     useState(false);
   const [pageIndexCount, setPageIndexCount] = useState(1);
 
+  const updateDisplayedIngredients = (index) => {
+    const start = (index - 1) * 10;
+    const end = index * 10;
+    const ingredients = searchboxValue.length > 0 ? filteredIngredients : allIngredients;
+    console.log(ingredients);
+    setDisplayedIngredients(ingredients.slice(start, end));
+  };
+  
+  const handlePageChange = (newPageIndex) => {
+    setPageIndex(newPageIndex);
+    updateDisplayedIngredients(newPageIndex);
+    //loadNextIngredients(newPageIndex);
+  };
+  
   let onPageIndexChange = (e) => {
-    dispatch(pageStateActions.setPageLoadingState(true));
-    loadNextIngredients(parseInt(e.target.innerText));
+    const buttonLabel = e.currentTarget.getAttribute("aria-label");
+  
+    if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
+      handlePageChange(pageIndex + 1);
+    } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
+      handlePageChange(pageIndex - 1);
+    } else if (e.target.innerText) {
+      const index = parseInt(e.target.innerText);
+      handlePageChange(index);
+    } else {
+      alert("Invalid page index");
+    }
   };
 
-  let loadNextIngredients = (pageIndex = 1) => {
-    setFilteredIngredients(
-      allIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
+  // let loadNextIngredients = (pageIndex = 1) => {
+  //   //no search filter applied
+  //   if (searchboxValue.length < 0)
+  //     setDisplayedIngredients(
+  //       allIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
+  //     );
+  //   //search filter applied
+  //   else
+  //     setDisplayedIngredients(
+  //       filteredIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
+  //     );
+
+  //   dispatch(pageStateActions.setPageLoadingState(false));
+  // };
+
+  const handleSearchboxChange = async (e) => {
+    await setSearchboxValue(e.target.value);
+    const searchText = e.target.value.toLowerCase();
+
+    if (searchText.length === 0) {
+      setPageIndexCount(Math.ceil(allIngredients.length / 10));
+      setDisplayedIngredients(allIngredients.slice(0, 10));
+      setFilteredIngredients(allIngredients);
+      setPageIndex(1);
+      return;
+    }
+    const matchedIngredients = allIngredients.filter((ingredient) =>
+      ingredient.toLowerCase().includes(searchText)
     );
-    dispatch(pageStateActions.setPageLoadingState(false));
+    setPageIndexCount(Math.ceil(matchedIngredients.length / 10));
+    setFilteredIngredients(matchedIngredients);
+    setDisplayedIngredients(matchedIngredients.slice(0, 10));
   };
 
   let loadUserIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(false));
-    if (isNotSet(userIngredients)) {
+    if (userIngredients.length < 1) {
       makeRequest(
         API_ROUTES.userIngredients,
         REQ_METHODS.get,
         { userId: user.sub },
         (response) => {
+          console.log(response);
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)
           );
 
           const toastMessageObject: ToastMessage = {
             open: true,
-            message: response.data.length
-              ? response.data.length + " ingredient(s) found."
+            message: response.data.ingredients.length > 0
+              ? response.data.ingredients.length + " ingredient(s) found."
               : "No ingredient(s) found.",
             severity: SEVERITY.Success,
             title: "Ingredients",
@@ -93,7 +147,6 @@ const MyIngredients = () => {
           displayErrorSnackMessage(error, dispatch);
         })
         .finally(() => {
-          loadUserIngredients();
           dispatch(pageStateActions.setPageLoadingState(false));
         });
     }
@@ -112,14 +165,13 @@ const MyIngredients = () => {
           }
           return item;
         });
-        console.log(response.data);
         setPageIndexCount(Math.ceil(response.data.drinks.length / 10));
 
         const sortedIngredients = updatedIngredients
           .map((x) => x.strIngredient1)
           .sort();
         setAllIngredients(sortedIngredients);
-        setFilteredIngredients(sortedIngredients.slice(0, 10));
+        setDisplayedIngredients(sortedIngredients.slice(0, 10));
         dispatch(recipeActions.setIngredients(updatedIngredients));
       }
     )
@@ -135,17 +187,6 @@ const MyIngredients = () => {
   useEffect(() => {
     loadIngredients();
   }, []);
-
-  const handleSearchboxChange = async (e) => {
-    await setSearchboxValue(e.target.value);
-    const searchText = e.target.value.toLowerCase();
-
-    const matchedIngredients = allIngredients.filter((ingredient) =>
-      ingredient.strIngredient1.toLowerCase().includes(searchText)
-    );
-
-    setFilteredIngredients(matchedIngredients);
-  };
 
   return (
     <>
@@ -163,7 +204,7 @@ const MyIngredients = () => {
         with your unique tastes and preferences.
       </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
-        <Grid item xs={12} sm={5}>
+        <Grid item xs={12} sm={6}>
           {/*User Ingredients*/}
           <div style={{ paddingLeft: 25, paddingRight: 25, marginBottom: 50 }}>
             <Table aria-label="collapsible table">
@@ -203,7 +244,7 @@ const MyIngredients = () => {
                   </TableRow>
                 ) : (
                   <>
-                    {userIngredients.map((ing) => {
+                    {userIngredients.map((ing, index) => {
                       let isAlcoholic_ = false;
                       if (
                         ingredientsByAlcoholic.Alcoholic.includes(
@@ -214,7 +255,7 @@ const MyIngredients = () => {
                       return (
                         <MyIngredientRow
                           ingredient={ing}
-                          key={ing}
+                          key={index}
                           isAlcoholic={isAlcoholic_}
                           loadIngredients={loadIngredients}
                         />
@@ -225,7 +266,9 @@ const MyIngredients = () => {
                         <IconButton
                           aria-label="expand row"
                           size="small"
-                          onClick={() => setAvailableRecipesModalOpen(true)}
+                          onClick={() => {
+                            dispatch(pageStateActions.setPageLoadingState(true));
+                            setAvailableRecipesModalOpen(true)}}
                           sx={{
                             fontSize: "1.1em",
                           }}
@@ -259,7 +302,7 @@ const MyIngredients = () => {
           </div>
         </Grid>
 
-        <Grid item xs={12} sm={7}>
+        <Grid item xs={12} sm={6}>
           <Paper elevation={3} style={{ margin: 15 }}>
             <CardContent
               style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
@@ -299,7 +342,7 @@ const MyIngredients = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredIngredients
+                {displayedIngredients
                   .sort((a, b) => {
                     const ingredientA = a.toUpperCase();
                     const ingredientB = b.toUpperCase();
@@ -307,8 +350,8 @@ const MyIngredients = () => {
                     if (ingredientA > ingredientB) return 1;
                     return 0;
                   })
-                  .map((ing) => (
-                    <IngredientRow key={ing} ingredient={ing} />
+                  .map((ing, index) => (
+                    <IngredientRow key={index} ingredient={ing} />
                   ))}
               </TableBody>
             </Table>
@@ -322,13 +365,12 @@ const MyIngredients = () => {
         mt={4} // Margin top of 4 (adjust as needed)
       >
         <Pagination
-          shape="rounded"
-          variant="outlined"
           count={pageIndexCount}
-          defaultPage={1}
+          defaultPage={6}
           siblingCount={0}
           boundaryCount={2}
           onChange={onPageIndexChange}
+          page={pageIndex}
         />
       </Box>
       <MarqueeScroll direction="left" />

@@ -85,8 +85,6 @@ const AvailableRecipes = (props) => {
   }
 
   function findRecipesWithAllIngredients(recipes, selectedFilterIngredients) {
-    console.log(selectedFilterIngredients);
-
     // Filter recipes that contain all selected ingredients
     const filteredRecipes = recipes.filter((recipe) => {
       const recipeIngredients = recipe.ingredients.map((ingredient) =>
@@ -107,7 +105,6 @@ const AvailableRecipes = (props) => {
       if (drinkA > drinkB) return 1;
       return 0;
     });
-    console.log(filteredRecipes);
     return filteredRecipes;
   }
 
@@ -169,9 +166,13 @@ const AvailableRecipes = (props) => {
         );
         setFilteredByIngredientsRecipes(filteredRecipesByIndex);
       }
-    ).catch((error) => {
-      displayErrorSnackMessage(error, dispatch);
-    });
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
   };
 
   const handleIngredientsFilterChange = (event) => {
@@ -205,31 +206,13 @@ const AvailableRecipes = (props) => {
   // };
 
   useEffect(() => {
-    loadUserIngredients();
-
     if (props.open) {
       loadAllAvailableRecipes();
     }
   }, [userIngredients, props.open]);
 
-  const loadUserIngredients = () => {
-    if (userIngredients.length === 0)
-      makeRequest(
-        API_ROUTES.userIngredients,
-        REQ_METHODS.get,
-        { userId: user.sub },
-        (response) => {
-          dispatch(
-            userInfoActions.setUserIngredients(response.data.ingredients)
-          );
-        }
-      );
-  };
-
-  function MatchIngredient(ingredient) {
-    const userIngredients = useSelector(
-      (state: any) => state.userInfo.userIngredients
-    );
+  function isIngredientInList(ingredient) {
+   
     for (let word of userIngredients) {
       if (word.strIngredient1.toLowerCase() == ingredient.toLowerCase()) {
         return true;
@@ -243,7 +226,7 @@ const AvailableRecipes = (props) => {
     const { drink } = props;
     const [rowOpen, setRowOpen] = useState(false);
     const [drinkInfo, setDrinkInfo] = useState(null);
-    
+
     const handleAddToFavourites = (recipe) => {
       dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
@@ -251,19 +234,21 @@ const AvailableRecipes = (props) => {
         REQ_METHODS.post,
         { userId: user.sub, recipe },
         (response) => {
-          const toastMessageObject : ToastMessage ={
+          const toastMessageObject: ToastMessage = {
             message: response.message,
             severity: SEVERITY.Success,
             title: "Recipe",
             open: true,
-          }
+          };
           dispatch(pageStateActions.setToastMessage(toastMessageObject));
         }
-      ).catch((error) => {
-        displayErrorSnackMessage(error, dispatch);
-      }).finally(() => {
-        dispatch(pageStateActions.setPageLoadingState(false));
-      });
+      )
+        .catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     };
     // Functions
     let loadDrinkInfo = () => {
@@ -288,10 +273,18 @@ const AvailableRecipes = (props) => {
                   ? ingredient.measure
                   : "N/A";
 
-                drinkIngredients.push(
-                  <Typography className="margin-left-35px included-ingredients">
+                let ingredientTypography = isIngredientInList(txtIngredient) ? (
+                  <Typography className="margin-left-35px included-ingredients" sx={{fontWeight:"bold", backgroundColor:"orange"}}>
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
+                ) : (
+                  <Typography className="margin-left-35px included-ingredients" >
+                    {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
+                  </Typography>
+                );
+
+                drinkIngredients.push(
+                  ingredientTypography
                 );
               });
 
@@ -410,7 +403,7 @@ const AvailableRecipes = (props) => {
             setDrinkInfo(drinkDetails);
           }
         ).catch((error) => {
-          displayErrorSnackMessage(error, dispatch);        
+          displayErrorSnackMessage(error, dispatch);
         });
       }
 

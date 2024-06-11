@@ -8,10 +8,13 @@ import Box from "@mui/material/Box";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import Link from "next/link";
-import {LiaCocktailSolid} from "react-icons/lia";
+import { LiaCocktailSolid } from "react-icons/lia";
+import { useDispatch } from "react-redux";
+import { pageStateActions } from "@lib/redux/pageStateSlice";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
@@ -34,6 +37,7 @@ const MyMixMate = ({ children }) => {
   }, [pathname]);
 
   const handleTabChange = (event, newValue) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     const routes = {
       0: APPLICATION_PAGE.favourites,
       1: APPLICATION_PAGE.myRecipes,
@@ -47,7 +51,7 @@ const MyMixMate = ({ children }) => {
     <>
       {/* SubMenu */}
       <Box sx={{ width: "100%" }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={selectedTab} onChange={handleTabChange}>
             <Link href={APPLICATION_PAGE.favourites}>
               <Tab icon={<FavoriteIcon />} label="Favorites" />
@@ -62,7 +66,8 @@ const MyMixMate = ({ children }) => {
               <Tab icon={<WineBarIcon />} label="My Ingredients" />
             </Link>
           </Tabs>
-        </Box>{children}
+        </Box> */}
+        {children}
       </Box>
     </>
   );

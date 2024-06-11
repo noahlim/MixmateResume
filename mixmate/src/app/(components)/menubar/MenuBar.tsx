@@ -31,7 +31,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Image from "next/image";
-import { useRouter, notFound } from "next/navigation";
+import { useRouter, notFound, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastMessage } from "interface/toastMessage";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
@@ -56,7 +56,7 @@ const pages = [
 ];
 function MenuBar() {
   const theme = useTheme();
-
+  const pathName = usePathname();
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
 
   const loadingPage = useSelector((state: any) => state.pageState.isLoading);
@@ -66,6 +66,12 @@ function MenuBar() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user, isLoading, error } = useUser();
+
+  const handlePageChange = (route: string) => {
+    if (pathName !== APPLICATION_PAGE.root && pathName !== APPLICATION_PAGE.about && pathName !== route)
+      dispatch(pageStateActions.setPageLoadingState(true));
+    router.push(route);
+  };
   const loginHandleMongo = async (userInfoData) => {
     makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
       (err) => {
@@ -121,7 +127,7 @@ function MenuBar() {
               <Divider />
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.home)}
+                  onClick={() => handlePageChange(APPLICATION_PAGE.home)}
                 >
                   <ListItemIcon>
                     <HomeIcon color="primary" />
@@ -131,7 +137,7 @@ function MenuBar() {
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.recipes)}
+                  onClick={() => handlePageChange(APPLICATION_PAGE.recipes)}
                 >
                   <ListItemIcon>
                     <LiaCocktailSolid
@@ -145,7 +151,7 @@ function MenuBar() {
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => router.push(APPLICATION_PAGE.favourites)}
+                  onClick={() => handlePageChange(APPLICATION_PAGE.favourites)}
                 >
                   <ListItemIcon>
                     <FavoriteIcon color="primary" />
@@ -191,7 +197,9 @@ function MenuBar() {
           </a>
           <a href={API_ROUTES.userJson}>
             <Avatar
-              src={`https://images.weserv.nl/?url=${encodeURIComponent(user.picture)}`}
+              src={`https://images.weserv.nl/?url=${encodeURIComponent(
+                user.picture
+              )}`}
               sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
             />
           </a>
@@ -282,7 +290,7 @@ function MenuBar() {
                 <NavLink
                   key={page.page}
                   onClick={() => {
-                    router.push(page.route);
+                    handlePageChange(page.route);
                   }}
                   isDropdown={page.route === APPLICATION_PAGE.myMixMate}
                   route={page.route}

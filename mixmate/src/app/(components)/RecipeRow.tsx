@@ -4,7 +4,7 @@ import { isSet } from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import TableCell from "@mui/material/TableCell";
@@ -51,15 +51,11 @@ function RecipeRow(props) {
     }
 
     drinkInfo = (
-      <Box
+      <Paper
         sx={{
           widhth: "90%",
           padding: 3,
-          backgroundImage: "url(/recipebackground.png)",
-          borderRadius: "10%",
-          borderWidth: 1,
-          borderStyle: "dotted",
-          borderColor: "#AB3900",
+
         }}
       >
         <Grid container spacing={1}>
@@ -85,8 +81,8 @@ function RecipeRow(props) {
           </Grid>
           <Grid item xs={12} md={6} lg={8}>
             <Typography
-              sx={{ fontSize: "30px", textShadow: "2px 2px 2px #F8F8F8"}}
-              className={lilitaOne.className}              
+              sx={{ fontSize: "30px", textShadow: "2px 2px 2px #F8F8F8" }}
+              className={lilitaOne.className}
             >
               {capitalizeWords(drink.strDrink)}
             </Typography>
@@ -163,9 +159,9 @@ function RecipeRow(props) {
             <Button
               onClick={() => props.btnAddToMyMixMate_onClick(drink)}
               color="primary"
-              variant="contained"              
+              variant="contained"
               startIcon={<FavoriteIcon />}
-              sx={{                
+              sx={{
                 backgroundColor: "#4BF4FF !important",
                 "&:hover": {
                   backgroundColor: "#00CBD8 !important",
@@ -179,7 +175,7 @@ function RecipeRow(props) {
             </Button>
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
     );
   } else {
     drinkInfo = (

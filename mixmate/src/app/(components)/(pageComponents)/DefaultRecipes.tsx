@@ -4,6 +4,7 @@ import {
   API_ROUTES,
   API_DRINK_ROUTES,
   REQ_METHODS,
+  APPLICATION_PAGE,
 } from "@/app/_utilities/_client/constants";
 import {
   displayErrorSnackMessage,
@@ -167,6 +168,7 @@ function DefaultRecipesComponent() {
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
             onFilterClear={onFilterClear}
+            applicationPage={APPLICATION_PAGE.recipes}
           />
         </Grid>
         <Grid item xs={12} md={9}>

@@ -11,11 +11,20 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FaEarthAmericas } from "react-icons/fa6";
 import Link from "next/link";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
+import { useDispatch } from "react-redux";
+import { pageStateActions } from "@lib/redux/pageStateSlice";
+import { usePathname } from "next/navigation";
 export default function MenuBarDropdown() {
+  const dispatch = useDispatch();
+  const pathName = usePathname();
+  const handlePageChange = (page: String) => {
+    if (pathName !== page)
+      dispatch(pageStateActions.setPageLoadingState(true));
+  };
   return (
     <Paper sx={{ width: 200, zIndex: 10, position: "absolute" }}>
       <MenuList style={{ zIndex: 10 }}>
-        <MenuItem>
+        <MenuItem onClick={() => handlePageChange(APPLICATION_PAGE.favourites)}>
           <ListItemIcon>
             <FavoriteIcon fontSize="small" />
           </ListItemIcon>
@@ -23,7 +32,7 @@ export default function MenuBarDropdown() {
             <ListItemText>Favourites</ListItemText>
           </Link>
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => handlePageChange(APPLICATION_PAGE.myRecipes)}>
           <ListItemIcon>
             <LiaCocktailSolid fontSize={20} />
           </ListItemIcon>
@@ -31,7 +40,7 @@ export default function MenuBarDropdown() {
             <ListItemText>My Recipes</ListItemText>
           </Link>
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => handlePageChange(APPLICATION_PAGE.social)}>
           <ListItemIcon>
             <FaEarthAmericas fontSize={16} />
           </ListItemIcon>
@@ -39,7 +48,9 @@ export default function MenuBarDropdown() {
             <ListItemText>Social Recipes</ListItemText>
           </Link>
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          onClick={() => handlePageChange(APPLICATION_PAGE.myIngredients)}
+        >
           <ListItemIcon>
             <WineBarIcon fontSize="small" />
           </ListItemIcon>

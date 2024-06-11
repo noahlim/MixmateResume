@@ -27,14 +27,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
-function FilterRecipes_Component({
+const FilterCustomRecipesComponent = ({
   recipeAllRecipes,
   setRecipesFiltered,
   filterCriteriaSetter,
   filterCriteria,
   loadFilteredRecipes,
-  onFilterClear
-}) {
+  onFilterClear,
+}) => {
   // Variables
 
   const dispatch = useDispatch();
@@ -405,6 +405,6 @@ function FilterRecipes_Component({
       </Paper>
     </>
   );
-}
+};
 
-export default FilterRecipes_Component;
+export default FilterCustomRecipesComponent;

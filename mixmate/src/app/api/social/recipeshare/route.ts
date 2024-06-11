@@ -14,19 +14,26 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
     let result = new Result();
     try {
         const userId = req.nextUrl.searchParams.get('userid');
-        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-        const { user } = await getSession();
 
+        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
+        console.log(req.nextUrl.searchParams.get('index'));
+        const isVisible =  req.nextUrl.searchParams.get('publicflag') === 'true';
+        const { user } = await getSession();
         if (userId) {
             if (!user || user.sub !== userId) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 10);
+            const criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
+
+            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, criteria, {}, pageNumber ? pageNumber : 0, 5);
+
+            let totalCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
+
+
             const updatedRecipes = await Promise.all(
                 recipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
-                    delete updatedRecipe.sub;
 
                     const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
@@ -35,36 +42,36 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                 })
             );
 
-            const data = {recipes: updatedRecipes, count: updatedRecipes.length};
-            result.setTrue("Recipes Fetched.");
+            const data = { recipes: updatedRecipes, length: totalCount };
             result.data = data;
-            result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No recipe found.";
+            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
             return NextResponse.json(result, { status: 200 });
         } else {
             if (!user) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 10);
+            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 5);
+            const totalCount = await dbRtns.count(db, sharedRecipeCollection, { visibility: "public" });
+
             const updatedRecipes = await Promise.all(
                 recipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
-                    delete updatedRecipe.sub;
 
-                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {}, 0, 0);                  
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
 
                     return updatedRecipe;
                 })
             );
 
-            if (updatedRecipes && updatedRecipes.length > 0) {
-                result.setTrue("Recipes Fetched.");
-                result.data = updatedRecipes;
-            } else result.setFalse("Recipes not found");
+            const data = { recipes: updatedRecipes, length: totalCount };
+            result.data = data;
+            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
             return NextResponse.json(result, { status: 200 });
         }
     } catch (err) {
+        console.log(err);
         return NextResponse.json({ error: 'Error fetching the recipes from the custom recipes collection.' }, { status: 400 });
     }
 });

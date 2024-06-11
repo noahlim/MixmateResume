@@ -8,6 +8,7 @@ import { Typography, CardContent } from "@mui/material";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
+import EditIcon from "@mui/icons-material/Edit";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
@@ -19,6 +20,7 @@ import {
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
+  APPLICATION_PAGE,
   REQ_METHODS,
   SEVERITY,
 } from "@/app/_utilities/_client/constants";
@@ -32,7 +34,9 @@ function FilterRecipes_Component({
   filterCriteriaSetter,
   filterCriteria,
   loadFilteredRecipes,
-  onFilterClear
+  onFilterClear,
+  applicationPage,
+  loadMyRecipes = null,
 }) {
   // Variables
 
@@ -63,6 +67,10 @@ function FilterRecipes_Component({
     }
     dispatch(pageStateActions.setPageLoadingState(false));
   };
+
+  let btnFindMyRecipes_onClick = () => {
+    
+  }
 
   let loadAlcoholicTypes = () => {
     if (alcoholicTypes.length === 0) {
@@ -409,6 +417,30 @@ function FilterRecipes_Component({
             Find
           </Button>
         </CardContent>
+
+        {applicationPage === APPLICATION_PAGE.social && (
+          <CardContent
+            style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
+          >
+            <Button
+              onClick={()=>loadMyRecipes()}
+              variant="outlined"
+              startIcon={<EditIcon />}
+              style={{ marginRight: 7 }}
+              sx={{
+                color: "#81E500",
+                backgroundColor: "#81E500",
+                "&:hover": {
+                  backgroundColor: "#F4FFE6",
+                  borderColor: "#81E500",
+                },
+                borderColor: "#81E500",
+              }}
+            >
+              Curate My Recipes
+            </Button>
+          </CardContent>
+        )}
       </Paper>
     </>
   );

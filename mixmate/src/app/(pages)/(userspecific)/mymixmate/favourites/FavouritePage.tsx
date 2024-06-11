@@ -12,10 +12,8 @@ import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component"
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import { ToastMessage } from "interface/toastMessage";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
-import { Space_Grotesk, Vazirmatn } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function Favourites() {
@@ -134,6 +132,7 @@ function Favourites() {
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
             onFilterClear={clearFilters}
+            applicationPage={APPLICATION_PAGE.favourites}
           />
         </Grid>
         <Grid item xs={12} sm={9}>

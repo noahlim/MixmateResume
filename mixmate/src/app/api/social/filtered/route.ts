@@ -15,6 +15,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
     const filterType = req.nextUrl.searchParams.get('filter');
     const filterCriteria = req.nextUrl.searchParams.get('criteria');
     const pageIndex = req.nextUrl.searchParams.get('index');
+    console.log(`Page index is ${pageIndex}`);
     let criteria;
     const result = new Result(true);
     //add extra validation to collection name for security
@@ -36,19 +37,32 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                 case "Ingredient": {
                     const query = {
                         ingredients: {
-                            $elemMatch: { ingredient: filterCriteria }
+                            $elemMatch: {
+                                ingredient: {
+                                    $regex: new RegExp(filterCriteria, 'i')
+                                }
+                            }
                         },
                         sub: user.sub
                     };
 
-                    let recipesByIngredients = await dbRtns.findAll(db, sharedRecipeCollection, query, {}, 5, index);
+                    let recipesByIngredients = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, query, {}, 5, index-1);
+                    //let recipesByIngredients = await dbRtns.findAll(db, sharedRecipeCollection, query, {});
 
-                    result.data = recipesByIngredients;
+                    const filteredCount = await dbRtns.count(db, sharedRecipeCollection, query);    
+                    console.log("Filtered count: ", filteredCount);
+                    const data = {
+                        recipes: recipesByIngredients,
+                        length: filteredCount   
+                    }
+                    result.data = data;
+
                     if (recipesByIngredients.length === 0) {
                         result.message = "No recipes found!";
                     } else {
-                        result.message = `${recipesByIngredients.length} recipes found!`
+                        result.message = `${filteredCount} recipes found!`;
                     }
+
                     return NextResponse.json(result, { status: 200 });
                 }
                 case "Recipe Name": {
@@ -57,14 +71,18 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                         strDrink: { $regex: regexQuery },
                         sub: user.sub
                     };
-                   
-                    let recipesByName = await dbRtns.findAll(db, sharedRecipeCollection, query, {}, index, 5);
-                  
-                    result.data = recipesByName;
-                    if (recipesByName.length === 0) {
+
+                    let recipesByName = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, query, {}, index, 5);
+                    let filteredCount = await dbRtns.count(db, sharedRecipeCollection, query);
+                    const data = {
+                        recipes: recipesByName,
+                        length: filteredCount
+                    }
+                    result.data = data;
+                    if (filteredCount === 0) {
                         result.message = "No recipes found!";
                     } else {
-                        result.message = `${recipesByName.length} recipes found!`
+                        result.message = `${filteredCount} recipes found!`
                     }
                     return NextResponse.json(result, { status: 200 });
                 }
@@ -73,7 +91,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                     break;
                 }
                 case "Alcoholic Type": {
-                    criteria = { strAlcoholic: filterCriteria, sub: user.sub };                   
+                    criteria = { strAlcoholic: filterCriteria, sub: user.sub };
                     break;
                 }
                 case "Category": {
@@ -84,14 +102,18 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                 }
 
             }
-            const recipesFiltered = await dbRtns.findAll(db, sharedRecipeCollection, criteria, {}, index, 5);
+            const recipesFiltered = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, criteria, {}, index, 5);
             const filteredCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
             if (recipesFiltered.length === 0) {
                 result.message = "No recipes found!";
             } else {
                 result.message = `${recipesFiltered.length} recipes found!`
             }
-            result.data = recipesFiltered;
+            const data = {
+                recipes: recipesFiltered,
+                length: filteredCount
+            }
+            result.data = data;
             return NextResponse.json(result, { status: 200 });
         }
         else

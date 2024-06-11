@@ -18,7 +18,7 @@ import {
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
+import FilterCustomRecipesComponent from "@/app/(components)/FilterCustomRecipesComponent";
 import { useDispatch, useSelector } from "react-redux";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import { pageStateActions } from "lib/redux/pageStateSlice";
@@ -26,40 +26,61 @@ import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 import { ToastMessage } from "interface/toastMessage";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
-function CustomRecipes() {
+function MyRecipes() {
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
   const categories = useSelector((state: any) => state.recipe.categories);
   const glasses = useSelector((state: any) => state.recipe.glasses);
-  const [pageIndex, setpageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState(1);
 
+  
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
-  }>({ filter: "", criteria: "" });
+    isFilterApplied: boolean;
+  }>({ filter: "", criteria: "", isFilterApplied: false });
 
   // Variables
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
-  const [allMyRecipes, setAllMyRecipes] = useState([]);
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
 
   let onPageIndexChange = (e) => {
+  
+    const buttonLabel = e.currentTarget.getAttribute("aria-label");  
     dispatch(pageStateActions.setPageLoadingState(true));
-    loadMyRecipes(parseInt(e.target.innerText));
+  
+    if (buttonLabel === "Go to next page" || pageIndex < pageIndexCount) {
+      setPageIndex(pageIndex + 1);
+      loadMyRecipes(pageIndex + 1);
+    } else if (buttonLabel === "Go to previous page" || pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+      loadMyRecipes(pageIndex - 1);
+    } else if (e.target.innerText) {
+      const index = parseInt(e.target.innerText);
+      setPageIndex(index);
+      if (!filter.isFilterApplied) {
+        loadMyRecipes(index);
+      } else {
+        loadFilteredMyRecipes(index);
+      }
+    } else {
+      alert("Invalid page index");
+    }
   };
   let loadMyRecipes = (pageIndex = 1) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.get,
-      { userid: user?.sub, index: pageIndex },
+      { userid: user?.sub, index: pageIndex, publicflag: false  },
       (response) => {
         setRecipesFiltered(response.data.recipes);
-        setAllMyRecipes(response.data.recipes);
-        setPageIndexCount(Math.ceil(response.data.length / 10));
+        setPageIndexCount(Math.ceil(response.data.length / 5));
       }
     )
       .catch((error) => {
@@ -70,14 +91,18 @@ function CustomRecipes() {
       });
   };
 
-  let loadFilteredMyRecipes = () => {
+  let loadFilteredMyRecipes = (pageIndex = 1) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
       REQ_METHODS.get,
       { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
       (response) => {
-        setRecipesFiltered(response.data);
-        loadFilteredRecipesCount(filter.filter, filter.criteria);
+        setRecipesFiltered(response.data.recipes);
+        setPageIndexCount(Math.ceil(response.data.length / 5));
+        setPageIndex(pageIndex);
+        setFilter({ ...filter, isFilterApplied: true });
         const toastMessageObject: ToastMessage = {
           title: "Recipes found",
           message: response.message,
@@ -94,24 +119,11 @@ function CustomRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
-  let loadFilteredRecipesCount = (filter: string, criteria: string) => {
-    makeRequest(
-      API_ROUTES.favouriteFilteredCount,
-      REQ_METHODS.get,
-      {
-        filter: filter,
-        criteria: criteria,
-      },
-      (response) => {
-        setPageIndexCount(Math.ceil(response.data / 10));
-      }
-    );
-  };
 
   const clearFilter = () => {
-    setFilter({ filter: "", criteria: "" });
-    setRecipesFiltered(allMyRecipes);
-    setPageIndexCount(Math.ceil(allMyRecipes.length / 10));
+    setFilter({ filter: "", criteria: "", isFilterApplied: false });
+    setPageIndex(1);
+    loadMyRecipes();
   };
 
   useEffect(() => {
@@ -165,7 +177,7 @@ function CustomRecipes() {
             </CardContent>
           </Paper>
 
-          <FilterRecipes_Component
+          <FilterCustomRecipesComponent
             recipeAllRecipes={recipeAllRecipes}
             loadFilteredRecipes={loadFilteredMyRecipes}
             setRecipesFiltered={setRecipesFiltered}
@@ -193,13 +205,11 @@ function CustomRecipes() {
         mt={4} // Margin top of 4 (adjust as needed)
       >
         <Pagination
-          shape="rounded"
-          variant="outlined"
           count={pageIndexCount}
-          defaultPage={6}
-          siblingCount={0}
-          boundaryCount={2}
+          defaultPage={1}
+          boundaryCount={10}
           onChange={onPageIndexChange}
+          page={pageIndex}
         />
       </Box>
       <MarqueeScroll direction="left" />
@@ -207,4 +217,4 @@ function CustomRecipes() {
   );
 }
 
-export default withPageAuthRequired(CustomRecipes);
+export default withPageAuthRequired(MyRecipes);
