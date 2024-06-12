@@ -37,6 +37,8 @@ import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
+import BlogSection from "@/app/(components)/(shapeComponents)/BlogSection";
+import IngredientCard from "./IngredientCard";
 const MyIngredients = () => {
   // Validate session
 
@@ -50,28 +52,34 @@ const MyIngredients = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [allIngredients, setAllIngredients] = useState([]);
   const [filteredIngredients, setFilteredIngredients] = useState([]);
-  const [displayedIngredients, setDisplayedIngredients] = useState([]);
+  // const [displayedIngredients, setDisplayedIngredients] = useState([]);
   const [searchboxValue, setSearchboxValue] = useState("");
   const [availableRecipesModalOpen, setAvailableRecipesModalOpen] =
     useState(false);
   const [pageIndexCount, setPageIndexCount] = useState(1);
+  const [displayedCardItems, setDisplayedCardItems] = useState(null);
 
   const updateDisplayedIngredients = (index) => {
-    const start = (index - 1) * 10;
-    const end = index * 10;
-    const ingredients = searchboxValue.length > 0 ? filteredIngredients : allIngredients; 
-    setDisplayedIngredients(ingredients.slice(start, end));
+    const start = (index - 1) * 9;
+    const end = index * 9;
+    const ingredients =
+      searchboxValue.length > 0 ? filteredIngredients : allIngredients;
+
+    const selectedIngredients = ingredients.slice(0, 9);
+    const selectedIngredientCards = (
+      <IngredientCard ingredients={selectedIngredients} />
+    );
+    setDisplayedCardItems(selectedIngredientCards);
   };
-  
+
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
     updateDisplayedIngredients(newPageIndex);
-    //loadNextIngredients(newPageIndex);
   };
-  
+
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-  
+
     if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
@@ -84,28 +92,17 @@ const MyIngredients = () => {
     }
   };
 
-  // let loadNextIngredients = (pageIndex = 1) => {
-  //   //no search filter applied
-  //   if (searchboxValue.length < 0)
-  //     setDisplayedIngredients(
-  //       allIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
-  //     );
-  //   //search filter applied
-  //   else
-  //     setDisplayedIngredients(
-  //       filteredIngredients.slice((pageIndex - 1) * 10, pageIndex * 10)
-  //     );
-
-  //   dispatch(pageStateActions.setPageLoadingState(false));
-  // };
-
   const handleSearchboxChange = async (e) => {
     await setSearchboxValue(e.target.value);
     const searchText = e.target.value.toLowerCase();
 
     if (searchText.length === 0) {
-      setPageIndexCount(Math.ceil(allIngredients.length / 10));
-      setDisplayedIngredients(allIngredients.slice(0, 10));
+      setPageIndexCount(Math.ceil(allIngredients.length / 9));
+      const selectedIngredients = allIngredients.slice(0, 9);
+      const selectedIngredientCards = (
+        <IngredientCard ingredients={selectedIngredients} />
+      );
+      setDisplayedCardItems(selectedIngredientCards);
       setFilteredIngredients(allIngredients);
       setPageIndex(1);
       return;
@@ -113,14 +110,18 @@ const MyIngredients = () => {
     const matchedIngredients = allIngredients.filter((ingredient) =>
       ingredient.toLowerCase().includes(searchText)
     );
-    setPageIndexCount(Math.ceil(matchedIngredients.length / 10));
+    setPageIndexCount(Math.ceil(matchedIngredients.length / 9));
     setFilteredIngredients(matchedIngredients);
-    setDisplayedIngredients(matchedIngredients.slice(0, 10));
+    const selectedIngredients = matchedIngredients.slice(0, 9);
+    const selectedIngredientCards = (
+      <IngredientCard ingredients={selectedIngredients} />
+    );
+    setDisplayedCardItems(selectedIngredientCards);
   };
 
   let loadUserIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(false));
-    if (userIngredients.length < 1) {
+    if (!userIngredients || userIngredients.length < 1) {
       makeRequest(
         API_ROUTES.userIngredients,
         REQ_METHODS.get,
@@ -133,9 +134,10 @@ const MyIngredients = () => {
 
           const toastMessageObject: ToastMessage = {
             open: true,
-            message: response.data.ingredients.length > 0
-              ? response.data.ingredients.length + " ingredient(s) found."
-              : "No ingredient(s) found.",
+            message:
+              response.data.ingredients.length > 0
+                ? response.data.ingredients.length + " ingredient(s) found."
+                : "No ingredient(s) found.",
             severity: SEVERITY.Success,
             title: "Ingredients",
           };
@@ -164,12 +166,27 @@ const MyIngredients = () => {
           }
           return item;
         });
-        setPageIndexCount(Math.ceil(response.data.drinks.length / 10));
+        setPageIndexCount(Math.ceil(response.data.length / 10));
 
-     
-        setAllIngredients(updatedIngredients);
-        setDisplayedIngredients(updatedIngredients.slice(0, 10));
-        dispatch(recipeActions.setIngredients(updatedIngredients));
+        const sortedIngredients = updatedIngredients.sort((a, b) => {
+          const ingredientA = a.strIngredient1.toUpperCase();
+          const ingredientB = b.strIngredient1.toUpperCase();
+          if (ingredientA < ingredientB) {
+            return -1;
+          }
+          if (ingredientA > ingredientB) {
+            return 1;
+          }
+          return 0;
+        });
+        setAllIngredients(sortedIngredients);
+        const displayedIngredients = sortedIngredients.slice(0, 9);
+        console.log(displayedIngredients);
+        const displayedIngredientCards = (
+          <IngredientCard ingredients={displayedIngredients} />
+        );
+        setDisplayedCardItems(displayedIngredientCards);
+        dispatch(recipeActions.setIngredients(sortedIngredients));
       }
     )
       .catch((error) => {
@@ -201,97 +218,7 @@ const MyIngredients = () => {
         with your unique tastes and preferences.
       </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
-        <Grid item xs={12} sm={6}>
-          {/*User Ingredients*/}
-          <div style={{ paddingLeft: 25, paddingRight: 25, marginBottom: 50 }}>
-            <Table aria-label="collapsible table">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" colSpan={2}>
-                    <CardContent
-                      style={{
-                        textAlign: "center",
-                        paddingTop: 25,
-                        paddingBottom: 0,
-                      }}
-                    >
-                      <Typography variant="h6">My Ingredients</Typography>
-                      <LiquorIcon />
-                    </CardContent>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {userIngredients === undefined ||
-                userIngredients.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={2}
-                      sx={{
-                        fontSize: "1.6em",
-                        fontFamily: '"Arial", sans-serif',
-                        textAlign: "center",
-                        padding: "20px",
-                        color: "skyblue",
-                      }}
-                    >
-                      Currently your list is empty! Please add your ingredients
-                      from the list.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <>
-                    {userIngredients.map((ing, index) => {
-                      return (
-                        <MyIngredientRow
-                          ingredient={ing}
-                          key={index}
-                          loadIngredients={loadIngredients}
-                        />
-                      );
-                    })}
-                    <TableRow>
-                      <TableCell sx={{ width: "15%" }}>
-                        <IconButton
-                          aria-label="expand row"
-                          size="small"
-                          onClick={() => {
-                            dispatch(pageStateActions.setPageLoadingState(true));
-                            setAvailableRecipesModalOpen(true)}}
-                          sx={{
-                            fontSize: "1.1em",
-                          }}
-                        >
-                          <WineBarIcon />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          fontSize: "1.1em",
-                          color: "skyblue",
-                          fontFamily: '"Arial", sans-serif',
-                          fontWeight: "bold",
-                        }}
-                      >
-                        View All Available Recipes with Current Ingredients
-                      </TableCell>
-                    </TableRow>
-                    <TableRow sx={{ "& > *": { borderTop: 0 } }}>
-                      <TableCell
-                        style={{ paddingBottom: 0, paddingTop: 0 }}
-                        colSpan={2}
-                      ></TableCell>
-                    </TableRow>
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </Grid>
-
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12}>
           <Paper elevation={3} style={{ margin: 15 }}>
             <CardContent
               style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
@@ -299,7 +226,7 @@ const MyIngredients = () => {
               <Typography variant="h6">Search Ingredients</Typography>
             </CardContent>
 
-            {/* Filters */}
+            {/* Searchbox */}
             <div style={{ padding: 25 }}>
               <FormControl variant="standard" fullWidth>
                 <TextField
@@ -314,36 +241,7 @@ const MyIngredients = () => {
             </div>
           </Paper>
           <div style={{ paddingLeft: 25, paddingRight: 55 }}>
-            <Table aria-label="collapsible table">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" colSpan={2}>
-                    <CardContent
-                      style={{
-                        textAlign: "center",
-                        paddingTop: 25,
-                        paddingBottom: 0,
-                      }}
-                    >
-                      <Typography variant="h6">Ingredients</Typography>
-                    </CardContent>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {displayedIngredients
-                  .sort((a, b) => {
-                    const ingredientA = a.strIngredient1.toUpperCase();
-                    const ingredientB = b.strIngredient1.toUpperCase();
-                    if (ingredientA < ingredientB) return -1;
-                    if (ingredientA > ingredientB) return 1;
-                    return 0;
-                  })
-                  .map((ing, index) => (
-                    <IngredientRow key={index} ingredient={ing} />
-                  ))}
-              </TableBody>
-            </Table>
+            {displayedCardItems}
           </div>
         </Grid>
       </Grid>

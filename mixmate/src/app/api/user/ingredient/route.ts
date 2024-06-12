@@ -63,6 +63,7 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
 
     let db = await dbRtns.getDBInstance();
 
+    //add userIngredientDocument which is a collection of ingredients for each user if not found
     let userIngredientDocument = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
     if (isNotSet(userIngredientDocument)) {
       const newUserIngredientDocument = {
@@ -134,7 +135,8 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
           return NextResponse.json(result, { status: 200 });
       }
   } catch (err) {
-      return NextResponse.json({ error: err }, { status: 400 });
+    console.log('here')
+      return NextResponse.json({ error: "err" }, { status: 400 });
 
   }
 })

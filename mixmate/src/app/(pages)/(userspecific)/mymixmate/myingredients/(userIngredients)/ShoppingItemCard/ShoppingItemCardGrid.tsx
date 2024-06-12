@@ -11,11 +11,11 @@ import WalmartShoppingItemCard from "./WalmartShoppingItemCard";
 import { Button, Typography } from "@mui/material";
 import { capitalizeWords } from "@/app/_utilities/_client/utilities";
 
-const ShoppingItemCardGridDialog = (props) => {
+const ShoppingItemCardGridDialog = ({ open, onClose, products, ing }) => {
   return (
     <Dialog
-      open={props.open}
-      onClose={props.onClose}
+      open={open}
+      onClose={onClose}
       sx={{
         "& .MuiDialog-paper": {
           width: "100%",
@@ -33,12 +33,12 @@ const ShoppingItemCardGridDialog = (props) => {
           color="primary"
           style={{ fontSize: "1.2em", fontWeight: "bold" }}
         >
-          Available Items of {capitalizeWords(props.ing)} on{" "}
-          {props.isAlcoholic_ ? "LCBO" : "Walmart"}
+          Available Items of {capitalizeWords(ing.strIngredient1)} on{" "}
+          {ing.strAlcoholic ? "LCBO" : "Walmart"}
         </Typography>
         <IconButton
           aria-label="close"
-          onClick={props.onClose}
+          onClick={onClose}
           sx={{
             position: "absolute",
             right: 8,
@@ -52,18 +52,18 @@ const ShoppingItemCardGridDialog = (props) => {
       <Button
         onClick={() => {
           window.open(
-            props.isAlcoholic_
+            ing.strAlcoholic
               ? `https://www.lcbo.com/en/catalogsearch/result/#q=${encodeURIComponent(
-                  props.ing
+                  ing.strIngredient1
                 )}&t=Products&sort=relevancy&layout=card`
               : `https://www.walmart.ca/en/search?q=${encodeURIComponent(
-                  props.ing
+                  ing.strIngredient1
                 )}`,
             "_blank"
           );
         }}
       >
-        View More Items on {props.isAlcoholic_ ? "LCBO" : "Walmart"} Website
+        View More Items on {ing.strAlcoholic ? "LCBO" : "Walmart"} Website
       </Button>
       <DialogContent
         sx={{
@@ -77,12 +77,12 @@ const ShoppingItemCardGridDialog = (props) => {
       >
         <div style={{ padding: "16px" }}>
           <Grid container spacing={2}>
-            {props.products
+            {products
               ?.filter((product) => product !== undefined && product !== null)
               .slice(0, 20)
               .map((product, index) => (
                 <Grid item xs={12} sm={6} key={index}>
-                  {props.isAlcoholic_ ? (
+                  {ing.strAlcoholic ? (
                     <LCBOShoppingItemCard product={product} />
                   ) : (
                     <WalmartShoppingItemCard product={product} />

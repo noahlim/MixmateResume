@@ -97,13 +97,13 @@ const FilterCustomRecipesComponent = ({
   };
 
   let loadIngredients = () => {
-    if (allIngredients.length === 0) {
+    if (!allIngredients || allIngredients.length === 0) {
       makeRequest(
         API_ROUTES.drinks,
         REQ_METHODS.get,
         { criteria: API_DRINK_ROUTES.ingredients },
         (response) => {
-          const updatedIngredients = response.data.drinks
+          const updatedIngredients = response.data
             .map((item) => {
               if (item.strIngredient1 === "AÃ±ejo rum") {
                 return { ...item, strIngredient1: "Añejo Rum" };

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { recipeCollection } from '@/app/_utilities/_server/database/config';
+import { recipeCollection, ingredientCollection } from '@/app/_utilities/_server/database/config';
 import { Result, fetchFromCocktailDbApi } from "@/app/_utilities/_server/util";
 import { API_DRINK_ROUTES } from "@/app/_utilities/_client/constants";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
@@ -51,8 +51,22 @@ export async function GET(req: NextRequest, res: NextResponse) {
                     break;
                 }
                 case API_DRINK_ROUTES.ingredients: {
-                    const response = await fetchFromCocktailDbApi("list.php?i=list");
-                    result = response;
+                    let db = await dbRtns.getDBInstance();
+                    let allIngredients = await dbRtns.findAll(db, ingredientCollection, {}, {});
+            
+                    const sortedIngredients = allIngredients.sort((a, b) => {
+                        const ingredientA = a.strIngredient1.toUpperCase();
+                        const ingredientB = b.strIngredient1.toUpperCase();
+                        if (ingredientA < ingredientB) {
+                            return -1;
+                        }
+                        if (ingredientA > ingredientB) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+
+                    result.data = sortedIngredients;
                     break;
                 }
                 case API_DRINK_ROUTES.filteredDrinks: {
@@ -91,10 +105,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
             return NextResponse.json({ error: " Criteria was not passed in" }, { status: 400 });
 
     } catch (err) {
-        return NextResponse.json({ error: err }, { status: 400 });
-    }
-    if (!result.isOk) {
-        return NextResponse.json({ error: result.message }, { status: 400 });
+        return NextResponse.json({ error: "lel" }, { status: 400 });
     }
     return NextResponse.json(result, { status: 200 });
 }

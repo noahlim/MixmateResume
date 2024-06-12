@@ -59,7 +59,12 @@ const MenuProps = {
     },
   },
 };
-const AvailableRecipes = (props) => {
+const AvailableRecipes = ({
+  isSingleIngredient,
+  open,
+  setOpen,
+  ingredient=null,
+}) => {
   const theme = useTheme();
   const { user, error, isLoading } = useUser();
 
@@ -83,6 +88,29 @@ const AvailableRecipes = (props) => {
           : theme.typography.fontWeightMedium,
     };
   }
+  const handleIngredientsFilterChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPage(1);
+    //selecting the ingredient(s) in the input component
+    //the selectedFilterIngredients are strings
+    const selectedFilterIngredients =
+      typeof value === "string" ? value.split(",") : value;
+    setIngredientName(typeof value === "string" ? value.split(",") : value);
+    const filteredRecipes = findRecipesWithAllIngredients(
+      filteredAllRecipes,
+      selectedFilterIngredients
+    );
+    setPageIndexCount(Math.ceil(filteredRecipes.length / 10));
+
+    // Calculate the start and end indices for the slice based on the current page index
+    const startIndex = 0;
+    const endIndex = 10;
+    const filteredRecipesByIndex = filteredRecipes.slice(startIndex, endIndex);
+
+    setFilteredByIngredientsRecipes(filteredRecipesByIndex);
+  };
 
   function findRecipesWithAllIngredients(recipes, selectedFilterIngredients) {
     // Filter recipes that contain all selected ingredients
@@ -109,12 +137,12 @@ const AvailableRecipes = (props) => {
   }
 
   const handleClose = () => {
-    props.setOpen(false);
+    setOpen(false);
     setIngredientName([]);
   };
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-    props.dispatch(pageStateActions.setPageLoadingState(true));
+    dispatch(pageStateActions.setPageLoadingState(true));
 
     if (buttonLabel === "Go to next page") {
       setPage(page + 1);
@@ -142,11 +170,11 @@ const AvailableRecipes = (props) => {
     dispatch(pageStateActions.setPageLoadingState(false));
   };
   let loadAllAvailableRecipes = (pageIndex = 1) => {
-    const criteria = props.isSingleIngredient
+    const criteria = isSingleIngredient
       ? {
           userId: user.sub,
-          singleIngredient: props.isSingleIngredient,
-          ingredient: props.ingredient.strIngredient1,
+          singleIngredient: isSingleIngredient,
+          ingredient: ingredient.strIngredient1,
         }
       : { userId: user.sub };
     makeRequest(
@@ -175,28 +203,7 @@ const AvailableRecipes = (props) => {
       });
   };
 
-  const handleIngredientsFilterChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setPage(1);
-    const selectedFilterIngredients =
-      typeof value === "string" ? value.split(",") : value;
-    setIngredientName(typeof value === "string" ? value.split(",") : value);
-    const filteredRecipes = findRecipesWithAllIngredients(
-      filteredAllRecipes,
-      selectedFilterIngredients
-    );
-    //setFilteredRecipes(filteredRecipes);
-    setPageIndexCount(Math.ceil(filteredRecipes.length / 10));
 
-    // Calculate the start and end indices for the slice based on the current page index
-    const startIndex = 0;
-    const endIndex = 10;
-    const filteredRecipesByIndex = filteredRecipes.slice(startIndex, endIndex);
-
-    setFilteredByIngredientsRecipes(filteredRecipesByIndex);
-  };
 
   // const handleDeleteIngredientFilter = (ingToDelete) => () => {
   //   console.log(ingToDelete);
@@ -206,13 +213,12 @@ const AvailableRecipes = (props) => {
   // };
 
   useEffect(() => {
-    if (props.open) {
+    if (open) {
       loadAllAvailableRecipes();
     }
-  }, [userIngredients, props.open]);
+  }, [userIngredients, open]);
 
   function isIngredientInList(ingredient) {
-   
     for (let word of userIngredients) {
       if (word.strIngredient1.toLowerCase() == ingredient.toLowerCase()) {
         return true;
@@ -274,18 +280,19 @@ const AvailableRecipes = (props) => {
                   : "N/A";
 
                 let ingredientTypography = isIngredientInList(txtIngredient) ? (
-                  <Typography className="margin-left-35px included-ingredients" sx={{fontWeight:"bold", backgroundColor:"orange"}}>
+                  <Typography
+                    className="margin-left-35px included-ingredients"
+                    sx={{ fontWeight: "bold", backgroundColor: "orange" }}
+                  >
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
                 ) : (
-                  <Typography className="margin-left-35px included-ingredients" >
+                  <Typography className="margin-left-35px included-ingredients">
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
                 );
 
-                drinkIngredients.push(
-                  ingredientTypography
-                );
+                drinkIngredients.push(ingredientTypography);
               });
 
               drinkDetails = (
@@ -439,7 +446,7 @@ const AvailableRecipes = (props) => {
   }
   return (
     <Dialog
-      open={props.open}
+      open={open}
       sx={{
         "& .MuiDialog-paper": {
           width: "100%",
@@ -511,7 +518,7 @@ const AvailableRecipes = (props) => {
                       >
                         <Typography variant="h6">Recipes</Typography>
                         <FormControl sx={{ m: 1, width: "100%" }}>
-                          {!props.isSingleIngredient && (
+                          {!isSingleIngredient && (
                             <>
                               <InputLabel id="demo-multiple-chip-label">
                                 Filter by Ingredients

@@ -38,7 +38,7 @@ import {
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
-function MyIngredientRow(props) {
+function MyIngredientRow({ ingredient, loadIngredients }) {
   const { user, error, isLoading } = useUser();
 
   const dispatch = useDispatch();
@@ -46,7 +46,6 @@ function MyIngredientRow(props) {
     (state: any) => state.userInfo.userIngredients
   );
   // Variables
-  const { ingredient } = props;
   const [rowOpen, setRowOpen] = useState(false);
   const [ingredientInfo, setIngredientInfo] = useState(null);
   const [modalDeleteIngredientOpen, setModalDeleteIngredientOpen] =
@@ -63,11 +62,11 @@ function MyIngredientRow(props) {
     setModalViewRecipesOpen(true);
   };
 
-  const fetchStockInfoFromWeb = async (ingredient) => {
+  const fetchStockInfoFromWeb = async () => {
     if (!isDataFetched) {
       dispatch(pageStateActions.setPageLoadingState(true));
 
-      const apiEndpoint = props.isAlcoholic
+      const apiEndpoint = ingredient.strAlcoholic
         ? API_ROUTES.lcboItems
         : API_ROUTES.walmartItems;
 
@@ -109,7 +108,7 @@ function MyIngredientRow(props) {
         };
         dispatch(pageStateActions.setToastMessage(toastMessageObject));
 
-        props.loadIngredients();
+        loadIngredients();
       }
     )
       .catch((error) => {
@@ -173,16 +172,16 @@ function MyIngredientRow(props) {
             </Button>
             <Button
               onClick={() => {
-                fetchStockInfoFromWeb(verifiedIngredient);
+                fetchStockInfoFromWeb();
               }}
               color="success"
               variant="outlined"
               startIcon={
-                props.isAlcoholic ? <WineBarIcon /> : <ShoppingCartIcon />
+                ingredient.strAlcoholic ? <WineBarIcon /> : <ShoppingCartIcon />
               }
               style={{ margin: 20 }}
             >
-              {props.isAlcoholic
+              {ingredient.strAlcoholic
                 ? "View Items on LCBO"
                 : "View Items on Walmart"}
             </Button>
@@ -232,15 +231,13 @@ function MyIngredientRow(props) {
         open={shoppingListDialogOpen}
         onClose={() => setShoppingListDialogOpen(false)}
         products={ingredientProducts}
-        ing={ingredient.strIngredient1}
-        isAlcoholic_={props.isAlcoholic}
+        ing={ingredient}
       />
       <AvailableRecipes
         isSingleIngredient={true}
         open={modalViewRecipesOpen}
         setOpen={setModalViewRecipesOpen}
         ingredient={ingredient}
-        setLoadingPage={props.setLoadingPage}
       />
       <TableRow>
         <TableCell sx={{ width: "15%" }}>

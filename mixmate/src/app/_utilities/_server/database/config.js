@@ -19,3 +19,4 @@ export const edge_access_key = process.env.EDGE_STORE_ACCESS_KEY;
 export const recipeReviewCollection = process.env.RECIPES_REVIEWS_COLLECTION;
 export const walmart_api_key = process.env.WALMART_API_KEY;
 export const walmart_api_host = process.env.WALMART_API_HOST;
+export const ingredientCollection = process.env.INGREDIENTCOLLECTION;

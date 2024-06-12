@@ -25,20 +25,19 @@ import { Sarabun } from "next/font/google";
 import Image from "next/image";
 
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
-const IngredientRow = (props) => {
+const IngredientRow = ({ingredient}) => {
   const { user, error, isLoading } = useUser();
 
   const dispatch = useDispatch();
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
-  const { ingredient } = props;
   const [rowOpen, setRowOpen] = useState(false);
   const [ingredientInfo, setIngredientInfo] = useState(null);
   let ingredientDetails = null;
   const addIngredientToList = async (ingredient) => {
     const matchedIngredients = userIngredients.find(
-      (ing) => ing.strIngredient1 === ingredient
+      (ing) => ing.strIngredient1 === ingredient.strIngredient1
     );
     dispatch(pageStateActions.setPageLoadingState(true));
     if (matchedIngredients !== undefined) {
@@ -53,10 +52,12 @@ const IngredientRow = (props) => {
     }
     const tempIngredients = [...userIngredients];
     tempIngredients.push({
-      strIngredient1: ingredient,
+      strIngredient1: ingredient.strIngredient1,
       strIngredientThumb: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-        ingredient
+        ingredient.strIngredient1
       )}.png`,
+
+      isAlcoholic: ingredient.isAlcoholic,
     });
     //adding the new item to the redux state
     dispatch(userInfoActions.setUserIngredients(tempIngredients));
@@ -100,46 +101,46 @@ const IngredientRow = (props) => {
     <>
       <TableRow sx={{ "& > *": { borderTop: 0 } }}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
-            <Card elevation={2} sx={{ margin: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6} lg={4}>
-                    <Image
-                      style={{ borderRadius: "7%" }}
-                      src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-                        ingredient
-                      )}.png`}
-                      alt={ingredient}
-                      height={400}
-                      width={400}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={8}>
-                  <Typography
-                    className={sarabun.className}
-                    sx={{ fontSize: "2em", margin: "10px" }}
-                  >
-                    {capitalizeWords(ingredient)}
-                  </Typography>
-                </Grid>
+          <Card elevation={2} sx={{ margin: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6} lg={4}>
+                <Image
+                  style={{ borderRadius: "7%" }}
+                  src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
+                    ingredient
+                  )}.png`}
+                  alt={ingredient}
+                  height={400}
+                  width={400}
+                />
               </Grid>
-              <Grid
-                xs={12}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                sx={{ padding: 4 }}
-              >
-                <Button
-                  onClick={() => addIngredientToList(ingredient)}
-                  color="primary"
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  style={{ margin: 20 }}
+              <Grid item xs={12} sm={12} md={6} lg={8}>
+                <Typography
+                  className={sarabun.className}
+                  sx={{ fontSize: "2em", margin: "10px" }}
                 >
-                  Add To My List
-                </Button>
+                  {capitalizeWords(ingredient)}
+                </Typography>
               </Grid>
-            </Card>
+            </Grid>
+            <Grid
+              xs={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              sx={{ padding: 4 }}
+            >
+              <Button
+                onClick={() => addIngredientToList(ingredient)}
+                color="primary"
+                variant="outlined"
+                startIcon={<AddIcon />}
+                style={{ margin: 20 }}
+              >
+                Add To My List
+              </Button>
+            </Grid>
+          </Card>
         </TableCell>
       </TableRow>
     </>
