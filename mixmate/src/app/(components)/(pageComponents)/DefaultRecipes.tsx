@@ -24,7 +24,7 @@ import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import FilterRecipes_Component from "../FilterRecipes_Component";
+import FilterRecipesComponent from "../FilterRecipesComponent";
 import MarqueeScroll from "../MarqueeAnimation";
 import { Space_Grotesk } from "next/font/google";
 import MyMixMateHeader from "../MyMixMateHeader";
@@ -161,7 +161,7 @@ function DefaultRecipesComponent() {
       </MyMixMateHeader>    
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} md={3}>
-          <FilterRecipes_Component
+          <FilterRecipesComponent
             recipeAllRecipes={allRecipes}
             loadFilteredRecipes={loadFilteredRecipes}
             setRecipesFiltered={setRecipesFiltered}

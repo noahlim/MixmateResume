@@ -8,7 +8,7 @@ import {
 import Grid from "@mui/material/Grid";
 import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
-import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
+import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
@@ -125,7 +125,7 @@ function Favourites() {
       <MarqueeScroll direction="right" />
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
-          <FilterRecipes_Component
+          <FilterRecipesComponent
             recipeAllRecipes={allFavouriteRecipes}
             loadFilteredRecipes={loadFilteredFavouriteRecipes}
             setRecipesFiltered={setRecipesFiltered}

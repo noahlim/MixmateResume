@@ -76,21 +76,20 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
       await dbRtns.addOne(db, userIngredientCollection, newUserIngredientDocument);
     } else {
       // Check if the ingredient already exists
-      if (userIngredientDocument.ingredients.some(ingredient => ingredient.strIngredient1.toLowerCase() === body.ingredient.toLowerCase())) {
-        return NextResponse.json({ error: 'Ingredient already exists.' }, { status: 400 });
+      
+      if (userIngredientDocument.ingredients.some(ingredient => ingredient.strIngredient1.toLowerCase() === body.ingredient.strIngredient1.toLowerCase())) {
+        return NextResponse.json({ error: `${body.ingredient.strIngredient1} already exists in your list.` }, { status: 400 });
       }
 
-      userIngredientDocument.ingredients.push({
-        strIngredient1: body.ingredient, strIngredientThumb: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-          body.ingredient
-        )}.png`
-      });
+      const ingredient = body.ingredient;
+      delete ingredient._id;
+      userIngredientDocument.ingredients.push(ingredient);
       await dbRtns.updateOne(db, userIngredientCollection, { sub: user.sub }, { ingredients: userIngredientDocument.ingredients, updated_at: new Date().toISOString() });
     }
     const result = new Result(true);
 
     result.data = userIngredientDocument.ingredients;
-    result.message = "Ingredient added successfully";
+    result.message = `${body.ingredient.strIngredient1} was added to your list successfully.`;
     //response is the object deleted
     return NextResponse.json(result, { status: 200 })
   } catch (err) {

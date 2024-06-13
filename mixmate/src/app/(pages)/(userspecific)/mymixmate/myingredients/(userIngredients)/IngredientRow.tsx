@@ -34,6 +34,7 @@ const IngredientRow = ({ingredient}) => {
   );
   const [rowOpen, setRowOpen] = useState(false);
   const [ingredientInfo, setIngredientInfo] = useState(null);
+
   let ingredientDetails = null;
   const addIngredientToList = async (ingredient) => {
     const matchedIngredients = userIngredients.find(
@@ -57,7 +58,7 @@ const IngredientRow = ({ingredient}) => {
         ingredient.strIngredient1
       )}.png`,
 
-      isAlcoholic: ingredient.isAlcoholic,
+      strAlcoholic: ingredient.strAlcoholic,
     });
     //adding the new item to the redux state
     dispatch(userInfoActions.setUserIngredients(tempIngredients));

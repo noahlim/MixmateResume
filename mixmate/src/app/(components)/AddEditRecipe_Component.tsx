@@ -129,7 +129,7 @@ function AddEditRecipe_Component(props) {
   let fileSelectImage_onChange = (file) => {
     setCurrentRecipeImage(file);
   };
-  let btnAddNewIngredient_onClick = () => {
+  let handleAddNewIngredientButtonClick = () => {
     // Validations
     let toastMessageObject : ToastMessage;
     if (isNotSet(newIngredient)) {
@@ -159,7 +159,7 @@ function AddEditRecipe_Component(props) {
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
     }
   };
-  let btnRemoveIngredient_onClick = (index) => {
+  let handleRemoveIngredientButtonClick = (index) => {
     let newIngredientsList = [];
     currentRecipeIngredients.forEach((x, i) =>
       i !== index ? newIngredientsList.push(x) : null
@@ -180,7 +180,7 @@ function AddEditRecipe_Component(props) {
     };
     dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
-  let btnAddNewOrEditRecipe_onClick = async () => {
+  let handleAddNewOrEditRecipeButtonClick = async () => {
     let toastMessageObject : ToastMessage;
 
     // Validate data
@@ -459,7 +459,7 @@ function AddEditRecipe_Component(props) {
                 </TableCell>
                 <TableCell>
                   <IconButton
-                    onClick={() => btnAddNewIngredient_onClick()}
+                    onClick={() => handleAddNewIngredientButtonClick()}
                     color="primary"
                   >
                     <AddIcon />
@@ -476,7 +476,7 @@ function AddEditRecipe_Component(props) {
                     </TableCell>
                     <TableCell>
                       <IconButton
-                        onClick={() => btnRemoveIngredient_onClick(index)}
+                        onClick={() => handleRemoveIngredientButtonClick(index)}
                         color="error"
                       >
                         <ClearIcon />
@@ -501,7 +501,7 @@ function AddEditRecipe_Component(props) {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => btnAddNewOrEditRecipe_onClick()}
+            onClick={() => handleAddNewOrEditRecipeButtonClick()}
             color="success"
             variant="outlined"
             startIcon={<BorderColorIcon />}

@@ -45,7 +45,7 @@ export default function MenuBarDropdown() {
             <FaEarthAmericas fontSize={16} />
           </ListItemIcon>
           <Link href={APPLICATION_PAGE.social}>
-            <ListItemText>Social Recipes</ListItemText>
+            <ListItemText>Community Recipes</ListItemText>
           </Link>
         </MenuItem>
         <MenuItem

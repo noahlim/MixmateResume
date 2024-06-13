@@ -51,22 +51,22 @@ const MyMixMate = ({ children }) => {
     <>
       {/* SubMenu */}
       <Box sx={{ width: "100%" }}>
-        {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={selectedTab} onChange={handleTabChange}>
+         <Box sx={{ borderBottom: 1, borderColor: "divider", backgroundColor:"#B8FFF9", borderTop:"divider" }}>
+          <Tabs value={selectedTab} onChange={handleTabChange} scrollButtons={true}>
             <Link href={APPLICATION_PAGE.favourites}>
               <Tab icon={<FavoriteIcon />} label="Favorites" />
             </Link>
             <Link href={APPLICATION_PAGE.myRecipes}>
-              <Tab icon={<LiaCocktailSolid />} label="My Recipes" />
+              <Tab icon={<LiaCocktailSolid />} label="My Recipes" sx={{color:"#151515"}}/>
             </Link>
             <Link href={APPLICATION_PAGE.social}>
-              <Tab icon={<FavoriteIcon />} label="Social Recipes" />
+              <Tab icon={<FavoriteIcon />} label="Community Recipes" />
             </Link>
             <Link href={APPLICATION_PAGE.myIngredients}>
               <Tab icon={<WineBarIcon />} label="My Ingredients" />
             </Link>
           </Tabs>
-        </Box> */}
+        </Box> 
         {children}
       </Box>
     </>

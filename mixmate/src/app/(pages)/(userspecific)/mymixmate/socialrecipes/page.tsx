@@ -13,7 +13,7 @@ import {
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
-import FilterRecipes_Component from "@/app/(components)/FilterRecipes_Component";
+import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
@@ -164,7 +164,7 @@ function CustomRecipes() {
       </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
-          <FilterRecipes_Component
+          <FilterRecipesComponent
             recipeAllRecipes={recipeAllRecipes}
             loadFilteredRecipes={loadFilteredSocialRecipes}
             setRecipesFiltered={setRecipesFiltered}
