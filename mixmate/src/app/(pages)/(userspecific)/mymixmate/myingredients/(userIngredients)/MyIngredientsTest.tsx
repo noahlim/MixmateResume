@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import FormControl from "@mui/material/FormControl";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import {
+  Grid,
+  Paper,
   Typography,
   CardContent,
   Box,
@@ -13,9 +13,10 @@ import {
   FormControlLabel,
   Checkbox,
   FormHelperText,
+  Button,
+  Switch,
+  TextField,
 } from "@mui/material";
-
-import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
 import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
 
@@ -39,6 +40,7 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 import IngredientCards from "./IngredientCards";
+import { set } from "@auth0/nextjs-auth0/dist/session";
 const MyIngredients = () => {
   // Validate session
 
@@ -57,27 +59,94 @@ const MyIngredients = () => {
   const [filteredIngredientsByAlcohol, setFilteredIngredientsByAlcohol] =
     useState([]);
 
-  // const [displayedIngredients, setDisplayedIngredients] = useState([]);
+  const [filteredDisplayedIngredients, setFilteredDisplayedIngredients] = useState([]);
   const [searchboxValue, setSearchboxValue] = useState("");
   const [availableRecipesModalOpen, setAvailableRecipesModalOpen] =
     useState(false);
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [displayedCardItems, setDisplayedCardItems] = useState(null);
+  const [alcoholicCheckBoxState, setAlcoholicCheckBoxState] = useState({
+    Alcoholic: false,
+    Non_Alcoholic: false,
+  });
+  const [
+    isUserIngredientListFilterApplied,
+    setIsUserIngredientListFilterApplied,
+  ] = useState(false);
 
-  const updateDisplayedIngredients = (index) => {
+  console.log(isUserIngredientListFilterApplied);
+  const handleAlcoholCheckboxChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, checked } = event.target;
+
+    let newState = { Alcoholic: false, Non_Alcoholic: false };
+
+    // const ingredients = isUserIngredientListFilterApplied
+    //   ? userIngredients
+    //   : allIngredients;
+    if (checked) {
+      newState =
+        name === "Alcoholic"
+          ? { Alcoholic: true, Non_Alcoholic: false }
+          : { Alcoholic: false, Non_Alcoholic: true };
+      let filteredIngredients = allIngredients.filter((ingredient) =>
+        name === "Alcoholic"
+          ? ingredient.strAlcoholic
+          : !ingredient.strAlcoholic
+      );
+      // if (isUserIngredientListFilterApplied) {
+      //   filteredIngredients = filteredIngredients.filter((ingredient) =>
+      //     userIngredients.some(
+      //       (userIngredient) =>
+      //         userIngredient.strIngredient1.toLowerCase() ===
+      //         ingredient.strIngredient1.toLowerCase()
+      //     )
+      //   );
+      // }
+      updateIngredientsState(filteredIngredients);
+      //setFilteredIngredientsByAlcohol(ingredients);
+    } else {
+      updateIngredientsState(allIngredients);
+    }
+    setIsUserIngredientListFilterApplied(!isUserIngredientListFilterApplied);
+    setPageIndex(1);
+    setAlcoholicCheckBoxState(newState);
+  };
+
+  const { Alcoholic, Non_Alcoholic } = alcoholicCheckBoxState;
+
+  const updateIngredientsState = (ingredients) => {
+    setPageIndexCount(Math.ceil(ingredients.length / 9));
+
+    const selectedIngredients = ingredients.slice(0, 9);
+    const selectedIngredientCards = (
+      <IngredientCards
+        ingredients={selectedIngredients}
+        reloadIngredients={loadIngredients}
+      />
+    );
+
+    setDisplayedCardItems(ingredients);
+  };
+
+  const updateDisplayedStateOnIndexChange = (index) => {
     const start = (index - 1) * 9;
     const end = index * 9;
 
-    const selectedIngredients = filteredIngredientsByName.slice(start, end);
+    const selectedIngredients = filteredIngredientsByAlcohol.slice(start, end);
     const selectedIngredientCards = (
-      <IngredientCards ingredients={selectedIngredients}  reloadIngredients={loadIngredients} />
+      <IngredientCards
+        ingredients={selectedIngredients}
+        reloadIngredients={loadIngredients}
+      />
     );
     setDisplayedCardItems(selectedIngredientCards);
   };
 
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
-    updateDisplayedIngredients(newPageIndex);
+    updateDisplayedStateOnIndexChange(newPageIndex);
   };
 
   let onPageIndexChange = (e) => {
@@ -101,12 +170,7 @@ const MyIngredients = () => {
 
     //when the search box is empty display all ingredients
     if (searchText.length === 0) {
-      setPageIndexCount(Math.ceil(filteredIngredientsByAlcohol.length / 9));
-      const selectedIngredients = filteredIngredientsByAlcohol.slice(0, 9);
-      const selectedIngredientCards = (
-        <IngredientCards ingredients={selectedIngredients}  reloadIngredients={loadIngredients} />
-      );
-      setDisplayedCardItems(selectedIngredientCards);
+      updateIngredientsState(filteredIngredientsByAlcohol);
       setPageIndex(1);
       return;
     }
@@ -116,15 +180,8 @@ const MyIngredients = () => {
       (ingredient) =>
         ingredient.strIngredient1.toLowerCase().includes(searchText)
     );
+    updateIngredientsState(matchedIngredients);
     setPageIndex(1);
-
-    setPageIndexCount(Math.ceil(matchedIngredients.length / 9));
-    setFilteredIngredientsByName(matchedIngredients);
-    const selectedIngredients = matchedIngredients.slice(0, 9);
-    const selectedIngredientCards = (
-      <IngredientCards ingredients={selectedIngredients}  reloadIngredients={loadIngredients} />
-    );
-    setDisplayedCardItems(selectedIngredientCards);
   };
 
   let loadUserIngredients = () => {
@@ -161,7 +218,7 @@ const MyIngredients = () => {
 
   let loadIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
-    //when the page has not been loaded before and the 
+    //when the page has not been loaded before and the
     //ingredients are not in the redux store
     if (!allIngredients || allIngredients.length === 0)
       makeRequest(
@@ -192,7 +249,10 @@ const MyIngredients = () => {
           setFilteredIngredientsByName(sortedIngredients);
           setFilteredIngredientsByAlcohol(sortedIngredients);
           const displayedIngredientCards = (
-            <IngredientCards ingredients={displayedIngredients}  reloadIngredients={loadIngredients} />
+            <IngredientCards
+              ingredients={displayedIngredients}
+              reloadIngredients={loadIngredients}
+            />
           );
           setDisplayedCardItems(displayedIngredientCards);
           dispatch(recipeActions.setIngredients(sortedIngredients));
@@ -212,63 +272,60 @@ const MyIngredients = () => {
       setFilteredIngredientsByName(allIngredients);
       setFilteredIngredientsByAlcohol(allIngredients);
       const displayedIngredientCards = (
-        <IngredientCards ingredients={displayedIngredients}  reloadIngredients={loadIngredients} />
+        <IngredientCards
+          ingredients={displayedIngredients}
+          reloadIngredients={loadIngredients}
+        />
       );
       setDisplayedCardItems(displayedIngredientCards);
       loadUserIngredients();
     }
   };
 
+  const filterIngredientsInUserList = () => {
+    const searchText = searchboxValue.toLowerCase();
+
+    //when the search box is empty display all ingredients
+    if (searchText.length === 0) {
+      let matchedIngredients;
+
+      //display ingredients in the user list only
+      //the isUserIngredientListFilterApplied is set to the opposite for now
+      //and will be toggled at the end of the function
+      if (!isUserIngredientListFilterApplied) {
+        matchedIngredients = filteredIngredientsByAlcohol.filter((ingredient) =>
+          userIngredients.some(
+            (userIngredient) =>
+              userIngredient.strIngredient1.toLowerCase() ===
+              ingredient.strIngredient1.toLowerCase()
+          )
+        );
+      } else {
+        //display all ingredients
+        matchedIngredients = filteredIngredientsByAlcohol;
+      }
+      setPageIndex(1);
+      setPageIndexCount(Math.ceil(matchedIngredients.length / 9));
+      setFilteredIngredientsByName(matchedIngredients);
+      const selectedIngredients = matchedIngredients.slice(0, 9);
+      const selectedIngredientCards = (
+        <IngredientCards
+          ingredients={selectedIngredients}
+          reloadIngredients={loadIngredients}
+        />
+      );
+      setDisplayedCardItems(selectedIngredientCards);
+    }
+    //filter the ingredients based on the search text
+    else {
+      if (isUserIngredientListFilterApplied) {
+      }
+    }
+    setIsUserIngredientListFilterApplied(!isUserIngredientListFilterApplied);
+  };
   useEffect(() => {
     loadIngredients();
   }, []);
-
-  const [alcoholicCheckBoxState, setAlcoholicCheckBoxState] = useState({
-    Alcoholic: false,
-    Non_Alcoholic: false,
-  });
-
-  const handleAlocoholCheckboxChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, checked } = event.target;
-
-    let newState = { Alcoholic: false, Non_Alcoholic: false };
-
-    if (checked) {
-      newState =
-        name === "Alcoholic"
-          ? { Alcoholic: true, Non_Alcoholic: false }
-          : { Alcoholic: false, Non_Alcoholic: true };
-      const filteredIngredients = allIngredients.filter((ingredient) =>
-        name === "Alcoholic"
-          ? ingredient.strAlcoholic
-          : !ingredient.strAlcoholic
-      );
-      setPageIndexCount(Math.ceil(filteredIngredients.length / 9));
-      setFilteredIngredientsByAlcohol(filteredIngredients);
-      const selectedIngredients = filteredIngredients.slice(0, 9);
-      const selectedIngredientCards = (
-        <IngredientCards ingredients={selectedIngredients} reloadIngredients={loadIngredients} />
-      );
-      setPageIndex(1);
-      setDisplayedCardItems(selectedIngredientCards);
-    } else {
-      //unchecked all the options
-      setFilteredIngredientsByAlcohol(allIngredients);
-      setPageIndexCount(Math.ceil(allIngredients.length / 9));
-      const selectedIngredients = allIngredients.slice(0, 9);
-      const selectedIngredientCards = (
-        <IngredientCards ingredients={selectedIngredients} reloadIngredients={loadIngredients} />
-      );
-      setDisplayedCardItems(selectedIngredientCards);
-      setPageIndex(1);
-    }
-
-    setAlcoholicCheckBoxState(newState);
-  };
-
-  const { Alcoholic, Non_Alcoholic } = alcoholicCheckBoxState;
 
   return (
     <>
@@ -318,7 +375,7 @@ const MyIngredients = () => {
                     control={
                       <Checkbox
                         checked={Alcoholic}
-                        onChange={handleAlocoholCheckboxChange}
+                        onChange={handleAlcoholCheckboxChange}
                         name="Alcoholic"
                       />
                     }
@@ -328,7 +385,7 @@ const MyIngredients = () => {
                     control={
                       <Checkbox
                         checked={Non_Alcoholic}
-                        onChange={handleAlocoholCheckboxChange}
+                        onChange={handleAlcoholCheckboxChange}
                         name="Non_Alcoholic"
                       />
                     }
@@ -346,6 +403,20 @@ const MyIngredients = () => {
                   margin="normal"
                 />
               </FormControl>
+              <Button
+                onClick={filterIngredientsInUserList}
+                sx={{
+                  color: isUserIngredientListFilterApplied
+                    ? "#5CC5E1"
+                    : "#ACCEFF",
+                  paddingTop: 2,
+                  fontSize: 16,
+                }}
+              >
+                {isUserIngredientListFilterApplied
+                  ? "Check Out All Ingredients"
+                  : "Filter Out Ingredients In My List"}
+              </Button>
             </Box>
           </Paper>
         </Grid>

@@ -223,7 +223,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
                         variant="outlined"
                         startIcon={<ClearIcon />}
                         sx={{
-                          backgroundColor: "#FF7C7C !important",
+                          backgroundColor: "#FF5B5B !important",
                           "&:hover": {
                             backgroundColor: "#FF4B4B !important",
                           },
