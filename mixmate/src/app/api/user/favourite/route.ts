@@ -30,34 +30,34 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
 
       // Validate if user exist
       let db = await dbRtns.getDBInstance();
-      //user.sub is  unique id of each user
-      let userExist = await dbRtns.findOne(db, userCollection, { sub: user.sub });
-
-      if (isNotSet(userExist)) {
-        return NextResponse.json({ error: 'User information not found' }, { status: 404 });
-      }
-      //adding extra fields to the favourite recipe documents
+      //add userIngredientDocument which is a collection of ingredients for each user if not found
+      let userFavoriteDocument = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
       const favouriteRecipe = body.recipe;
-      delete favouriteRecipe._id;
       favouriteRecipe.sub = user.sub;
       favouriteRecipe.created_at = new Date().toISOString();
-      favouriteRecipe.nickname = user.nickname;
 
-      let favouriteExist = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub, idDrink: body.recipe.idDrink });
+      if (isNotSet(userFavoriteDocument)) {
+        const userFavouriteDocument = {
+          sub: user.sub, favorites: [favouriteRecipe], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        };
+        await dbRtns.addOne(db, userFavouriteCollection, userFavouriteDocument);
+      } else {
+        if (userFavoriteDocument.favorites.some(favorite => favorite._id === body.recipe._id)) {
+          return NextResponse.json({ error: `${body.recipe.strDrink} already exists in your list.` }, { status: 400 });
+        }
 
-      if (isSet(favouriteExist)) {
-        result.setFalse("The recipe is already on your favourite list.")
-        return NextResponse.json(result, { status: 201 });
+        const recipe = body.recipe;
+        userFavoriteDocument.favorites.push(recipe);
+        await dbRtns.updateOne(db, userFavouriteCollection, { sub: user.sub }, { favorites: userFavoriteDocument.favorites, updated_at: new Date().toISOString() });
       }
-      await dbRtns.addOne(db, userFavouriteCollection, favouriteRecipe);
 
-      result.setTrue(`The recipe has been added to your favourite.`);
+      result.data = userFavoriteDocument.favorites;
+      result.message = `${body.recipe.strDrink} was added to your list successfully.`;
+      return NextResponse.json(result, { status: 200 })
 
     } catch (error) {
       return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
     }
-    return NextResponse.json(result, { status: 201 });
-
   }
 }
 )
@@ -75,20 +75,20 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     let db = await dbRtns.getDBInstance();
 
-    let recipes = await dbRtns.findAllWithPagination(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
-    let allRecipes = await dbRtns.findAll(db, userFavouriteCollection, { sub: user.sub }, {});
 
+    //let recipes = await dbRtns.findAllWithPagination(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
+    let userFavouriteDocument = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
+    let recipes = userFavouriteDocument.favorites.slice((pageNumber - 1) * 5, pageNumber * 5);
     const updatedRecipes = recipes.map((recipe) => {
       delete recipe.sub;
       return recipe;
     })
-    console.log(allRecipes.length);
-    const data = { recipes: updatedRecipes, allRecipes: allRecipes, length: allRecipes.length };
+    const data = { recipes: updatedRecipes, allRecipes: userFavouriteDocument.favorites, length: userFavouriteDocument.favorites.length };
 
     //response is the object deleted
     const result = new Result(true);
     result.data = data;
-    result.message = allRecipes.length > 0 ? `${allRecipes.length} recipes found!` : "No reciped found."
+    result.message = userFavouriteDocument.favorites.length > 0 ? `${userFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
     console.log(err);
@@ -111,7 +111,6 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
   }
   const { user } = await getSession();
 
-
   try {
     const { user } = await getSession();
 
@@ -119,12 +118,11 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
       return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
     }
 
-
     let db = await dbRtns.getDBInstance();
 
-    let response = await dbRtns.findOne(db, userFavouriteCollection, { _id: drinkId });
+    let response = await dbRtns.findOne(db, userFavouriteCollection, { sub: userId });
     if (!response) {
-      return NextResponse.json({ error: 'Selected recipe does not exist on your list.' }, { status: 404 })
+      return NextResponse.json({ error: 'User does not exist.' }, { status: 404 })
     }
     //when the unique id of the user and the id of the user who created
     //the favourite list do not match    
@@ -132,8 +130,9 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
       return NextResponse.json({ error: "The user is not authorized to delete this recipe." }, { status: 401 });
     }
 
-    //response is the object deleted
-    response = await dbRtns.deleteOne(db, userFavouriteCollection, { _id: drinkId });
+    const updatedFavoriteList = response.favorites.filter(favorite => favorite._id !== drinkId);
+    response = await dbRtns.updateOne(db, userFavouriteCollection, { sub: userId }, { favorites: updatedFavoriteList, updated_at: new Date().toISOString() });
+
     if (response) {
       const result = new Result(true);
       result.message = "Selected recipe has been deleted successfully";
