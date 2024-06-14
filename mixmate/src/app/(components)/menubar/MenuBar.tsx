@@ -24,6 +24,12 @@ import {
   Backdrop,
   CircularProgress,
   useTheme,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  SpeedDial,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -48,6 +54,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import NavLink from "@/app/(components)/menubar/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 const pages = [
   { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },
@@ -58,20 +65,44 @@ function MenuBar() {
   const theme = useTheme();
   const pathName = usePathname();
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
-
+  const isAuthModalOpen = useSelector(
+    (state: any) => state.pageState.authenticatedModalOpen
+  );
   const loadingPage = useSelector((state: any) => state.pageState.isLoading);
   const toastMessage: ToastMessage = useSelector(
     (state: any) => state.pageState.toastMessage
   );
   const router = useRouter();
   const dispatch = useDispatch();
+  const [signInPromptOpen, setSignInPromptOpen] = useState(false);
   const { user, isLoading, error } = useUser();
 
   const handlePageChange = (route: string) => {
-    if (pathName !== APPLICATION_PAGE.root && pathName !== APPLICATION_PAGE.about && pathName !== route)
+    if (!user) {
+      if (
+        route === APPLICATION_PAGE.myMixMate ||
+        route === APPLICATION_PAGE.favourites ||
+        route === APPLICATION_PAGE.myIngredients ||
+        route === APPLICATION_PAGE.myRecipes ||
+        route === APPLICATION_PAGE.social
+      )
+        dispatch(pageStateActions.setAuthenticatedModalOpen(true));
+      return;
+    }
+    if (
+      pathName !== APPLICATION_PAGE.root &&
+      pathName !== APPLICATION_PAGE.about &&
+      pathName !== route
+    )
       dispatch(pageStateActions.setPageLoadingState(true));
+
     router.push(route);
   };
+  const handleClose = () => {
+    setSignInPromptOpen(false);
+  };
+
+  //if logged in successfully using Auth0, sync with MongoDB
   const loginHandleMongo = async (userInfoData) => {
     makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
       (err) => {
@@ -100,127 +131,147 @@ function MenuBar() {
   let loginControls = null;
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
-  if (!isLoading) {
-    if (isSet(user)) {
-      // Set user's menu
-      userMenu = (
-        <Drawer
-          anchor={"left"}
-          open={openUserMenu}
-          onClick={() => setOpenUserMenu(false)}
-        >
-          <Box sx={{ width: 250 }} role="presentation">
-            <List>
-              <ListItem
-                disablePadding
-                sx={{ display: "flex", justifyContent: "end" }}
-              >
-                <ListItemButton onClick={() => setOpenUserMenu(false)}>
-                  <ListItemIcon>
-                    <IoMdCloseCircle
-                      fontSize={25}
-                      style={{ marginBottom: "4px" }}
-                    />
-                  </ListItemIcon>
-                </ListItemButton>
-              </ListItem>
-              <Divider />
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => handlePageChange(APPLICATION_PAGE.home)}
-                >
-                  <ListItemIcon>
-                    <HomeIcon color="primary" />
-                  </ListItemIcon>
-                  <ListItemText primary="Home" />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => handlePageChange(APPLICATION_PAGE.recipes)}
-                >
-                  <ListItemIcon>
-                    <LiaCocktailSolid
-                      fontSize={25}
-                      fontWeight="bold"
-                      style={{ color: theme.palette.primary.main }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText primary="Recipes" />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => handlePageChange(APPLICATION_PAGE.favourites)}
-                >
-                  <ListItemIcon>
-                    <FavoriteIcon color="primary" />
-                  </ListItemIcon>
-                  <ListItemText primary="My MixMate" />
-                </ListItemButton>
-              </ListItem>
-            </List>
-            <Divider />
-            <List>
-              <ListItem disablePadding>
-                <a href={API_ROUTES.logout}>
-                  <ListItemButton
-                    onClick={() => {
-                      dispatch(userInfoActions.setUserInfo(null));
-                    }}
-                  >
-                    <ListItemIcon>
-                      <LogoutIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={"Log Out"} />
-                  </ListItemButton>
-                </a>
-              </ListItem>
-            </List>
-          </Box>
-        </Drawer>
-      );
-
-      // Set buttons for logout
-      loginControls = (
-        <Box display="flex">
-          <a href={API_ROUTES.logout}>
-            <Button
-              color="inherit"
-              onClick={() => {
-                dispatch(userInfoActions.setUserInfo(null));
-              }}
-              startIcon={<LogoutIcon />}
+  const handleUserMenuOpen = () => {
+    console.log(openUserMenu);
+    setOpenUserMenu(true);
+  };
+  // Set user's menu
+  userMenu = (
+    <Drawer
+      anchor={"left"}
+      open={openUserMenu}
+      onClick={() => setOpenUserMenu(false)}
+    >
+      <Box sx={{ width: 250 }} role="presentation">
+        <List>
+          <ListItem
+            disablePadding
+            sx={{ display: "flex", justifyContent: "end" }}
+          >
+            <ListItemButton onClick={() => setOpenUserMenu(false)}>
+              <ListItemIcon>
+                <IoMdCloseCircle
+                  fontSize={25}
+                  style={{ marginBottom: "4px" }}
+                />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handlePageChange(APPLICATION_PAGE.home)}
             >
-              Logout
-            </Button>
-          </a>
-          <a href={API_ROUTES.userJson}>
-            <Avatar
-              src={`https://images.weserv.nl/?url=${encodeURIComponent(
-                user.picture
-              )}`}
-              sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
-            />
-          </a>
-        </Box>
-      );
-    } else {
-      // No user session yet
-      loginControls = (
-        <>
-          <a href={API_ROUTES.login}>
-            <Button color="inherit" startIcon={<PersonIcon />}>
-              Login
-            </Button>
-          </a>
-        </>
-      );
-    }
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Home" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handlePageChange(APPLICATION_PAGE.recipes)}
+            >
+              <ListItemIcon>
+                <LiaCocktailSolid fontSize={25} fontWeight="bold" />
+              </ListItemIcon>
+              <ListItemText primary="Recipes" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handlePageChange(APPLICATION_PAGE.favourites)}
+            >
+              <ListItemIcon>
+                <FavoriteIcon />
+              </ListItemIcon>
+              <ListItemText primary="My MixMate" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem disablePadding>
+            <a href={API_ROUTES.logout}>
+              <ListItemButton
+                onClick={() => {
+                  dispatch(userInfoActions.setUserInfo(null));
+                }}
+              >
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary={"Log Out"} />
+              </ListItemButton>
+            </a>
+          </ListItem>
+        </List>
+      </Box>
+    </Drawer>
+  );
+
+  if (isSet(user)) {
+    // Set buttons for logout
+    loginControls = (
+      <Box display="flex">
+        <a href={API_ROUTES.logout}>
+          <Button
+            color="inherit"
+            onClick={() => {
+              dispatch(userInfoActions.setUserInfo(null));
+            }}
+            startIcon={<LogoutIcon />}
+          >
+            Logout
+          </Button>
+        </a>
+        <a href={API_ROUTES.userJson}>
+          <Avatar
+            src={`https://images.weserv.nl/?url=${encodeURIComponent(
+              user.picture
+            )}`}
+            sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
+          />
+        </a>
+      </Box>
+    );
+  } else {
+    // No user session yet
+    loginControls = (
+      <>
+        <a href={API_ROUTES.login}>
+          <Button color="inherit" startIcon={<PersonIcon />}>
+            Login
+          </Button>
+        </a>
+      </>
+    );
   }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      <button
+        style={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+          zIndex: 9999,
+          backgroundColor: "#00C1F5",
+          borderRadius: "50%",
+          width: "50px", 
+          height: "50px",
+          display: "flex",
+          justifyContent: "center", 
+          alignItems: "center", 
+          boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)",
+        }}
+        onClick={() => {
+          window.scrollTo(0, 0);
+        }}
+      >
+        <KeyboardDoubleArrowUpIcon />
+      </button>
+
       <Snackbar
         open={toastMessage.open}
         autoHideDuration={3000}
@@ -239,6 +290,45 @@ function MenuBar() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      <Dialog
+        open={isAuthModalOpen}
+        onClose={() =>
+          dispatch(pageStateActions.setAuthenticatedModalOpen(false))
+        }
+        aria-labelledby="sign-in-dialog-title"
+        aria-describedby="sign-in-dialog-description"
+      >
+        <DialogTitle id="sign-in-dialog-title" style={{ fontWeight: "bold" }}>
+          Unlock the Epic MixMate Experience!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            id="sign-in-dialog-description"
+            style={{ fontSize: "1.1rem" }}
+          >
+            Sign in to enjoy the most epic features uniquely provided by
+            MixMate! Unleash a world of mind-blowing cocktail recipes and
+            immersive mixology adventures like never before.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() =>
+              dispatch(pageStateActions.setAuthenticatedModalOpen(false))
+            }
+            color="primary"
+          >
+            Maybe Later :(
+          </Button>
+          <Button
+            onClick={() => (window.location.href = API_ROUTES.login)}
+            sx={{ color: "#7FE0FA", marginLeft: "20px" }}
+            autoFocus
+          >
+            Why not, let's go!
+          </Button>
+        </DialogActions>
+      </Dialog>
       <AppBar
         position="sticky"
         color="secondary"
@@ -263,10 +353,9 @@ function MenuBar() {
             <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
-                aria-label="account of current user"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
-                onClick={() => setOpenUserMenu(true)}
+                onClick={handleUserMenuOpen}
                 color="inherit"
               >
                 <MenuIcon />
@@ -294,6 +383,7 @@ function MenuBar() {
                   }}
                   isDropdown={page.route === APPLICATION_PAGE.myMixMate}
                   route={page.route}
+                  handlePageChange={handlePageChange}
                 >
                   {page.page}
                 </NavLink>

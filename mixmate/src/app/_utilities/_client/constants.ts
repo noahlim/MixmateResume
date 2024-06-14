@@ -21,7 +21,6 @@ const APPLICATION_PAGE =
   root: '/',
   home: '/',
   about: '/about',
-  mongo: '/mongo',
   profile: '/profile',
   recipes: '/recipes',
   myMixMate: '/mymixmate',
@@ -29,8 +28,6 @@ const APPLICATION_PAGE =
   myRecipes: '/mymixmate/myrecipes',
   social: '/mymixmate/socialrecipes',
   myIngredients: '/mymixmate/myingredients',
-  sharedPublic: '/sharedpublic',
-  resetPassword: '/resetpassword',
 }
 
 const API_ROUTES = {

@@ -14,13 +14,9 @@ import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
 import { usePathname } from "next/navigation";
-export default function MenuBarDropdown() {
+export default function MenuBarDropdown({handlePageChange}) {
   const dispatch = useDispatch();
   const pathName = usePathname();
-  const handlePageChange = (page: String) => {
-    if (pathName !== page)
-      dispatch(pageStateActions.setPageLoadingState(true));
-  };
   return (
     <Paper sx={{ width: 200, zIndex: 10, position: "absolute" }}>
       <MenuList style={{ zIndex: 10 }}>
@@ -28,25 +24,19 @@ export default function MenuBarDropdown() {
           <ListItemIcon>
             <FavoriteIcon fontSize="small" />
           </ListItemIcon>
-          <Link href={APPLICATION_PAGE.favourites}>
             <ListItemText>Favourites</ListItemText>
-          </Link>
         </MenuItem>
         <MenuItem onClick={() => handlePageChange(APPLICATION_PAGE.myRecipes)}>
           <ListItemIcon>
             <LiaCocktailSolid fontSize={20} />
           </ListItemIcon>
-          <Link href={APPLICATION_PAGE.myRecipes}>
             <ListItemText>My Recipes</ListItemText>
-          </Link>
         </MenuItem>
         <MenuItem onClick={() => handlePageChange(APPLICATION_PAGE.social)}>
           <ListItemIcon>
             <FaEarthAmericas fontSize={16} />
           </ListItemIcon>
-          <Link href={APPLICATION_PAGE.social}>
             <ListItemText>Community Recipes</ListItemText>
-          </Link>
         </MenuItem>
         <MenuItem
           onClick={() => handlePageChange(APPLICATION_PAGE.myIngredients)}
@@ -54,9 +44,7 @@ export default function MenuBarDropdown() {
           <ListItemIcon>
             <WineBarIcon fontSize="small" />
           </ListItemIcon>
-          <Link href={APPLICATION_PAGE.myIngredients}>
             <ListItemText>My Ingredients</ListItemText>
-          </Link>
         </MenuItem>
       </MenuList>
     </Paper>

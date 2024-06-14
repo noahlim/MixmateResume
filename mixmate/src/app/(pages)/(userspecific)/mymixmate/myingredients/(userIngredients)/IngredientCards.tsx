@@ -57,9 +57,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
   const [, setTrigger] = useState(0);
 
   const { user, error, isLoading } = useUser();
-  const handleIngredientsChange = () => {
-    setTrigger((prevTrigger) => prevTrigger + 1); // Increment the state to trigger re-render
-  };
+
   const dispatch = useDispatch();
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
@@ -149,11 +147,10 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
       });
   };
   useEffect(() => {
-    handleIngredientsChange(); // Call the function when ingredients change
+    setTrigger((prevTrigger) => prevTrigger + 1);// Call the function when ingredients change
   }, [ingredients]);
   return (
-    <Container maxWidth="lg" sx={{ padding: 3 }}>
-      <Box mb={4}></Box>
+    <Container maxWidth="lg">
       <Grid
         container
         spacing={2}

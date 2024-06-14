@@ -7,17 +7,21 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import WineBarIcon from "@mui/icons-material/WineBar";
-import Link from "next/link";
+import { FaEarthAmericas } from "react-icons/fa6";
 import { LiaCocktailSolid } from "react-icons/lia";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
+import { useUser } from "@auth0/nextjs-auth0/client";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState(0);
-
+  const { user, error, isLoading } = useUser();
   useEffect(() => {
+    if(!user) {
+      dispatch(pageStateActions.setAuthenticatedModalOpen(true));
+    }
     switch (pathname) {
       case APPLICATION_PAGE.favourites:
         setSelectedTab(0);
@@ -51,22 +55,52 @@ const MyMixMate = ({ children }) => {
     <>
       {/* SubMenu */}
       <Box sx={{ width: "100%" }}>
-         <Box sx={{ borderBottom: 1, borderColor: "divider", backgroundColor:"#B8FFF9", borderTop:"divider" }}>
-          <Tabs value={selectedTab} onChange={handleTabChange} scrollButtons={true}>
-            <Link href={APPLICATION_PAGE.favourites}>
-              <Tab icon={<FavoriteIcon />} label="Favorites" />
-            </Link>
-            <Link href={APPLICATION_PAGE.myRecipes}>
-              <Tab icon={<LiaCocktailSolid />} label="My Recipes" sx={{color:"#151515"}}/>
-            </Link>
-            <Link href={APPLICATION_PAGE.social}>
-              <Tab icon={<FavoriteIcon />} label="Community Recipes" />
-            </Link>
-            <Link href={APPLICATION_PAGE.myIngredients}>
-              <Tab icon={<WineBarIcon />} label="My Ingredients" />
-            </Link>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            backgroundColor: "#B8FFF9",
+            borderTop: "divider",
+          }}
+        >
+          <Tabs
+            value={selectedTab}
+            onChange={handleTabChange}
+            scrollButtons={true}
+          >
+            <Tab
+              icon={<FavoriteIcon/>}
+              label="Favorites"
+              onClick={() =>
+                dispatch(pageStateActions.setPageLoadingState(true))
+              }
+            />
+
+            <Tab
+              icon={<LiaCocktailSolid size={23}/>}
+              label="My Recipes"
+              onClick={() =>
+                dispatch(pageStateActions.setPageLoadingState(true))
+              }
+            />
+
+            <Tab
+              icon={<FaEarthAmericas  size={23} />}
+              label="Community Recipes"
+              onClick={() =>
+                dispatch(pageStateActions.setPageLoadingState(true))
+              }
+            />
+
+            <Tab
+              icon={<WineBarIcon />}
+              label="My Ingredients"
+              onClick={() =>
+                dispatch(pageStateActions.setPageLoadingState(true))
+              }
+            />
           </Tabs>
-        </Box> 
+        </Box>
         {children}
       </Box>
     </>

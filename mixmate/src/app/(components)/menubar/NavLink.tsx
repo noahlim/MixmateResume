@@ -64,7 +64,7 @@ const StyledNavLink = styled.div`
   }
 `;
 
-const NavLink = ({ children, isDropdown, onClick, route }) => {
+const NavLink = ({ children, isDropdown, onClick, route, handlePageChange }) => {
   const [isopen, setisopen] = useState(false);
 
   const handleMouseEnter = () => {
@@ -92,7 +92,7 @@ const NavLink = ({ children, isDropdown, onClick, route }) => {
           {children}
         </StyledNavLink>
       </Link>
-      {isDropdown && isopen ? <MenuBarDropdown /> : null}
+      {isDropdown && isopen ? <MenuBarDropdown handlePageChange={handlePageChange}/> : null}
     </Box>
   );
 };

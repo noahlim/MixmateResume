@@ -216,8 +216,12 @@ const AvailableRecipes = ({
     if (open) {
       loadAllAvailableRecipes();
     }
+    
   }, [userIngredients, open]);
 
+  useEffect(() => {
+    console.log("test");
+  },[])
   function isIngredientInList(ingredient) {
     for (let word of userIngredients) {
       if (word.strIngredient1.toLowerCase() == ingredient.toLowerCase()) {

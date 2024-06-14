@@ -444,7 +444,7 @@ function HomePage() {
             </Grid>
           </Grid>
         </Grid>
-        <MarqueeScroll/>
+        <MarqueeScroll direction="left"/>
 
         <Box bgcolor="white">
           <BlogSection />

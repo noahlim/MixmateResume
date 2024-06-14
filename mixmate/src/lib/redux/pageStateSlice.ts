@@ -3,6 +3,7 @@ import { SEVERITY } from "@/app/_utilities/_client/constants";
 import {PageState, ToastMessage} from "../../interface/toastMessage";   
 const initialPageState: PageState = {
     isLoading: false,
+    authenticatedModalOpen: false,
     toastMessage: { open: false, severity: SEVERITY.Info, title: "", message: "" },
   };
   
@@ -21,6 +22,9 @@ const initialPageState: PageState = {
       },
       setToastMessageOpen(state) {
         state.toastMessage.open = true;
+      },
+      setAuthenticatedModalOpen(state, action: PayloadAction<boolean>) {
+        state.authenticatedModalOpen = action.payload;
       },
     },
   });

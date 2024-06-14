@@ -152,6 +152,7 @@ function CustomRecipes() {
 
   useEffect(() => {
     loadSocialRecipes();
+    window.scrollTo(0, 0);
   }, []);
 
   return (

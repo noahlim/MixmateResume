@@ -128,6 +128,7 @@ function MyRecipes() {
 
   useEffect(() => {
     loadMyRecipes();
+    window.scrollTo(0, 0);
   }, []);
 
   // Add edit recipes
