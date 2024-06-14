@@ -145,11 +145,16 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
         else {
             if (!body.recipe)
                 return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
+            if(!body.userId)
+                return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
         }
         let result = new Result(true);
         const { user } = await getSession();
         if (!user) {
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
+        }
+        if(user.sub !== body.userId){
+            return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
         }
         try {
             // Validate if user exist

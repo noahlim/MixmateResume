@@ -157,7 +157,7 @@ function RecipeRow(props) {
             sx={{ padding: 4 }}
           >
             <Button
-              onClick={() => props.btnAddToMyMixMate_onClick(drink)}
+              onClick={() => props.handleAddToFavorite(drink)}
               color="primary"
               variant="contained"
               startIcon={<FavoriteIcon />}

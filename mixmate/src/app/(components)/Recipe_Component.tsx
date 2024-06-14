@@ -135,7 +135,7 @@ function Recipe_Component(props) {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
-  let btnRemoveRecipe_onClick = () => {
+  let handleRemoveRecipeClick = () => {
     if (title === "My Favourite Recipes") {
       dispatch(pageStateActions.setPageLoadingState(true));
 
@@ -369,7 +369,7 @@ function Recipe_Component(props) {
           reviewComments = (
             <>
               <Grid item xs={12}>
-                <Divider sx={{ margin: "20px 0px", width:"80%" }} />
+                <Divider sx={{ margin: "20px 0px", width: "80%" }} />
               </Grid>
               <Grid item xs={12}>
                 <Typography
@@ -536,7 +536,7 @@ function Recipe_Component(props) {
                         <Tooltip title="Share Recipe" placement="top">
                           <IconButton
                             color="success"
-                            onClick={() => modalShareRecipe_onOpen(drink)}
+                            onClick={() => handleModalShareRecipeOpen(drink)}
                           >
                             <ShareIcon />
                           </IconButton>
@@ -609,34 +609,58 @@ function Recipe_Component(props) {
                         alignContent: "center",
                       }}
                     >
-                      {((applicationPage === APPLICATION_PAGE.social ||
-                        applicationPage === APPLICATION_PAGE.myRecipes) && drink.sub === user.sub) && (
-                        <Button
-                          onClick={() => btnShareInSocial_onclick(drink)}
-               
-                          variant="contained"
-                          startIcon={
-                            drink?.visibility === "private" ? (
-                              <FaEarthAmericas fontSize={16} />
-                            ) : (
-                              <FaEye fontSize={16} />
-                            )
-                          }
-                          sx={{
-                            backgroundColor: "#4BF4FF !important",
-                            "&:hover": {
-                              backgroundColor: "#00CBD8 !important",
-                            },
-                            "&:focus": {
-                              backgroundColor: "#00A3AD !important",
-                            },
-                          }}
-                        >
-                          {drink?.visibility === "private"
-                            ? "Share On Community"
-                            : "Set as Private"}
-                        </Button>
-                      )}
+                      {(applicationPage === APPLICATION_PAGE.social ||
+                        applicationPage === APPLICATION_PAGE.myRecipes) &&
+                        drink.sub === user.sub && (
+                          <Button
+                            onClick={() => handleSetRecipeVisibility(drink)}
+                            variant="contained"
+                            startIcon={
+                              drink?.visibility === "private" ? (
+                                <FaEarthAmericas fontSize={16} />
+                              ) : (
+                                <FaEye fontSize={16} />
+                              )
+                            }
+                            sx={{
+                              backgroundColor: "#4BF4FF !important",
+                              "&:hover": {
+                                backgroundColor: "#00CBD8 !important",
+                              },
+                              "&:focus": {
+                                backgroundColor: "#00A3AD !important",
+                              },
+                            }}
+                          >
+                            {drink?.visibility === "private"
+                              ? "Share On Community"
+                              : "Set as Private"}
+                          </Button>
+                        )}
+                      <Button
+                        onClick={() => handleAddToFavorite(drink)}
+                        variant="contained"
+                        startIcon={
+                          drink?.visibility === "private" ? (
+                            <FaEarthAmericas fontSize={16} />
+                          ) : (
+                            <FaEye fontSize={16} />
+                          )
+                        }
+                        sx={{
+                          backgroundColor: "#4BF4FF !important",
+                          "&:hover": {
+                            backgroundColor: "#00CBD8 !important",
+                          },
+                          "&:focus": {
+                            backgroundColor: "#00A3AD !important",
+                          },
+                        }}
+                      >
+                        {drink?.visibility === "private"
+                          ? "Share On Community"
+                          : "Set as Private"}
+                      </Button>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -652,10 +676,11 @@ function Recipe_Component(props) {
   // Share recipes
   const [modalShareRecipeOpen, setModalShareRecipeOpen] = useState(false);
   const [selectedRecipeToShare, setSelectedRecipeToShare] = useState(null);
-  let modalShareRecipe_onOpen = (drink) => {
+  const handleModalShareRecipeOpen = (drink) => {
     setSelectedRecipeToShare(drink);
     setModalShareRecipeOpen(true);
   };
+
   let copySharedToClipboard = () => {
     const shareUrl = `${MIXMATE_DOMAIN}recipes/${selectedRecipeToShare._id}`;
     clipboard(shareUrl);
@@ -669,19 +694,20 @@ function Recipe_Component(props) {
     dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
 
-  let btnShareInSocial_onclick = (drink) => {
+
+  let handleSetRecipeVisibility = (drink) => {
     const newRecipeObject = JSON.parse(JSON.stringify(drink));
     newRecipeObject.visibility =
       newRecipeObject.visibility === "public" ? "private" : "public";
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.put,
-      { recipe: newRecipeObject },
+      { recipe: newRecipeObject, userId: user.sub },
       (response) => {
         setModalShareRecipeOpen(false);
         const toastMessageObject: ToastMessage = {
-          title: "Social",
-          message: "Recipe shared on the Social!",
+          title: "Visibility updated",
+          message: "The recipe visibility has been updated successfully.",
           severity: SEVERITY.Success,
           open: true,
         };
@@ -699,6 +725,40 @@ function Recipe_Component(props) {
       });
   };
 
+  let handleAddToFavorite = (recipe) => {
+    // Get user
+    if (!user) {
+      const toastMessageObject: ToastMessage = {
+        open: true,
+        title: "Please Log In",
+        severity: SEVERITY.Warning,
+        message: "You must be logged in to use Favourite Features",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+    }
+
+    dispatch(pageStateActions.setPageLoadingState(true));
+    makeRequest(
+      API_ROUTES.favourite,
+      REQ_METHODS.post,
+      { userId: user.sub, recipe: recipe },
+      (response) => {
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          title: "Recipe",
+          severity: SEVERITY.Success,
+          message: response.message,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
+  };
   // Write reviews
 
   const [ratingValue, setRatingValue] = useState(1);
@@ -743,6 +803,7 @@ function Recipe_Component(props) {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
+
   return (
     <>
       <AddEditRecipe_Component
@@ -767,7 +828,7 @@ function Recipe_Component(props) {
           </DialogContent>
           <DialogActions>
             <Button
-              onClick={() => btnRemoveRecipe_onClick()}
+              onClick={() => handleRemoveRecipeClick()}
               color="error"
               variant="outlined"
               startIcon={<DeleteForeverIcon />}

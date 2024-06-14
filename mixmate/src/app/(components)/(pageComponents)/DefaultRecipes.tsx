@@ -114,7 +114,7 @@ function DefaultRecipesComponent() {
   }, []);
 
   // Recipe actions
-  let addToFavouriteHandler = (recipe) => {
+  let handleAddToFavorite = (recipe) => {
     // Get user
     if (!user) {
       const toastMessageObject: ToastMessage = {
@@ -195,7 +195,7 @@ function DefaultRecipesComponent() {
                     <RecipeRow
                       key={drink.idDrink}
                       drink={drink}
-                      btnAddToMyMixMate_onClick={addToFavouriteHandler}
+                      handleAddToFavorite={handleAddToFavorite}
                     />
                   ))
                 ) : (
