@@ -19,17 +19,21 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 function Favourites() {
   const dispatch = useDispatch();
   // Variables
-  const [recipesFiltered, setRecipesFiltered] = useState(null);
-  const [allFavouriteRecipes, setAllFavouriteRecipes] = useState([]);
+  const [recipesFiltered, setRecipesFiltered] = useState([]);
+  const [recipesFilteredToBeDisplayed, setRecipesFilteredToBeDisplayed] =
+    useState([]);
+  const [allFavoriteRecipes, setAllFavouriteRecipes] = useState([]);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
-  const [pageIndexCount, setPageIndexCount] = useState(0);
+  const [pageIndexCount, setPageIndexCount] = useState(1);
+  const [pageIndex, setPageIndex] = useState(1);
+
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
   }>({ filter: "", criteria: "" });
   const clearFilters = () => {
-    setRecipesFiltered(allFavouriteRecipes.slice(0, 5));
-    setPageIndexCount(Math.ceil(allFavouriteRecipes.length / 5));
+    setRecipesFilteredToBeDisplayed(allFavoriteRecipes.slice(0, 5));
+    setPageIndexCount(Math.ceil(allFavoriteRecipes.length / 5));
   };
   // Loading recipe options
   let loadFavoriteRecipes = (pageIndex = 1) => {
@@ -41,9 +45,10 @@ function Favourites() {
       (response) => {
         setIsFilterApplied(false);
 
-        setRecipesFiltered(response.data.recipes);
+        setRecipesFilteredToBeDisplayed(response.data.recipes);
+        setRecipesFiltered(response.data.allRecipes);
         setAllFavouriteRecipes(response.data.allRecipes);
-        setPageIndexCount(Math.ceil(allFavouriteRecipes.length / 5));
+        setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
       }
     )
       .catch((error) => {
@@ -53,37 +58,84 @@ function Favourites() {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
-  let onPageIndexChange = (e) => {
-    dispatch(pageStateActions.setPageLoadingState(true));
 
-    const index = parseInt(e.target.innerText);
-    if (!isFilterApplied) loadFavoriteRecipes(index);
-    else loadFilteredFavouriteRecipes(index);
-    dispatch(pageStateActions.setPageLoadingState(false));
+  const handlePageChange = (newPageIndex) => {
+    setPageIndex(newPageIndex);
+    if (isFilterApplied)
+      setRecipesFilteredToBeDisplayed(
+        recipesFiltered.slice((newPageIndex - 1) * 5, newPageIndex * 5)
+      );
+    else
+      setRecipesFilteredToBeDisplayed(
+        allFavoriteRecipes.slice((newPageIndex - 1) * 5, newPageIndex * 5)
+      );
   };
+
+  let onPageIndexChange = (e) => {
+    const buttonLabel = e.currentTarget.getAttribute("aria-label");
+
+    if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
+      handlePageChange(pageIndex + 1);
+    } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
+      handlePageChange(pageIndex - 1);
+    } else if (e.target.innerText) {
+      const index = parseInt(e.target.innerText);
+      handlePageChange(index);
+    } else {
+      alert("Invalid page index");
+    }
+  };
+
   let loadFilteredFavouriteRecipes = (pageIndex) => {
     setIsFilterApplied(true);
     dispatch(pageStateActions.setPageLoadingState(true));
-
-    makeRequest(
-      API_ROUTES.favouritesByFilter,
-      REQ_METHODS.get,
-      { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
-      (response) => {
-        setRecipesFiltered(response.data.recipes);
-        setIsFilterApplied(true);
-        //loadFilteredRecipesCount(filter.filter, filter.criteria);
-        setPageIndexCount(Math.ceil(response.data.length / 5));
-
-        dispatch(pageStateActions.setPageLoadingState(false));
+    if (!allFavoriteRecipes || allFavoriteRecipes.length === 0) {
+      loadFavoriteRecipes();
+      dispatch(pageStateActions.setPageLoadingState(true));
+      return;
+    }
+    let filteredRecipes = allFavoriteRecipes.filter((recipe) => {
+      if (filter.filter === "Category") {
+        return recipe.strCategory === filter.criteria;
+      } else if (filter.filter === "Alcoholic") {
+        return recipe.strAlcoholic === filter.criteria;
+      } else if (filter.filter === "Glass") {
+        return recipe.strGlass === filter.criteria;
+      } else if (filter.filter === "Ingredient") {
+        return recipe.ingredients.some(
+          (ing) =>
+            ing.ingredient.toLowerCase().includes(filter.criteria.toLowerCase()) 
+        );
+      } else {
+        return recipe.strDrink
+          .toLowerCase()
+          .includes(filter.criteria.toLowerCase());
       }
-    )
-      .catch((error) => {
-        displayErrorSnackMessage(error, dispatch);
-      })
-      .finally(() => {
-        dispatch(pageStateActions.setPageLoadingState(false));
-      });
+    });
+    setRecipesFiltered(filteredRecipes);
+    setPageIndex(1);
+    setPageIndexCount(Math.ceil(filteredRecipes.length / 5));
+    setRecipesFilteredToBeDisplayed(filteredRecipes.slice(0, 5));
+    dispatch(pageStateActions.setPageLoadingState(false));
+    // makeRequest(
+    //   API_ROUTES.favouritesByFilter,
+    //   REQ_METHODS.get,
+    //   { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
+    //   (response) => {
+    //     setRecipesFiltered(response.data.recipes);
+    //     setIsFilterApplied(true);
+    //     //loadFilteredRecipesCount(filter.filter, filter.criteria);
+    //     setPageIndexCount(Math.ceil(response.data.length / 5));
+
+    //     dispatch(pageStateActions.setPageLoadingState(false));
+    //   }
+    // )
+    //   .catch((error) => {
+    //     displayErrorSnackMessage(error, dispatch);
+    //   })
+    //   .finally(() => {
+    //     dispatch(pageStateActions.setPageLoadingState(false));
+    //   });
   };
   useEffect(() => {
     loadFavoriteRecipes();
@@ -126,8 +178,9 @@ function Favourites() {
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipesComponent
+            recipeAllRecipes={allFavoriteRecipes}
             loadFilteredRecipes={loadFilteredFavouriteRecipes}
-            setRecipesFiltered={setRecipesFiltered}
+            setRecipesFiltered={setRecipesFilteredToBeDisplayed}
             filterCriteriaSetter={setFilter}
             filterCriteria={filter}
             onFilterClear={clearFilters}
@@ -138,7 +191,7 @@ function Favourites() {
           <Recipe_Component
             applicationPage={APPLICATION_PAGE.favourites}
             title="My Favourite Recipes"
-            recipes={recipesFiltered}
+            recipes={recipesFilteredToBeDisplayed}
             reloadRecipes={loadFavoriteRecipes}
           />
         </Grid>

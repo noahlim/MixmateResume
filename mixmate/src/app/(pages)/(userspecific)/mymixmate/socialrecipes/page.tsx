@@ -176,7 +176,7 @@ function CustomRecipes() {
             loadMyRecipes={loadMyRecipes}
           />       
         </Grid>
-        <Grid item xs={12} sm={9}>
+        <Grid item xs={12} md={9}>
           <Recipe_Component
             applicationPage={APPLICATION_PAGE.social}
             title="My MixMate Recipes"
