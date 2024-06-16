@@ -64,7 +64,6 @@ const RecipeById = ({ params }) => {
         drinkData.ingredients.map((ing, index) => {
           if (ing.ingredient && ing.measure) {
             return (
-              <Typography className="margin-left-35px" key={index}>
                 {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
               </Typography>
             );
@@ -167,7 +166,6 @@ const RecipeById = ({ params }) => {
               {ingredients}
               <br></br>
               <InputLabel>How to prepare:</InputLabel>
-              <Typography className="margin-left-35px">
                 {recipe.strInstructions}
               </Typography>
             </Grid>

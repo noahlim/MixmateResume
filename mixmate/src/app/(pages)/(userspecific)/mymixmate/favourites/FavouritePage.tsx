@@ -126,7 +126,6 @@ function Favourites() {
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipesComponent
-            recipeAllRecipes={allFavouriteRecipes}
             loadFilteredRecipes={loadFilteredFavouriteRecipes}
             setRecipesFiltered={setRecipesFiltered}
             filterCriteriaSetter={setFilter}

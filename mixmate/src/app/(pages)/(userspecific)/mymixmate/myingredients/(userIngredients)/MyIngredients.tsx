@@ -71,11 +71,29 @@ const MyIngredients = () => {
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [displayedCardItems, setDisplayedCardItems] = useState(null);
 
+  const handleAvailableRecipesModalOpen = () => {
+    if (userIngredients.length > 0) {
+      setAvailableRecipesModalOpen(true);
+    } else {
+      if (availableRecipesModalOpen) {
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          message:
+            "Please add ingredients to your list to view available recipes.",
+          severity: SEVERITY.Warning,
+          title: "Ingredients",
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }else{
+        setAvailableRecipesModalOpen(false);
+      }
+    }
+  };
+  
   const handleAlcoholCheckboxChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, checked } = event.target;
-    console.log(name, checked);
     let tempFilterState: FilterState;
     if (name === "Alcoholic") {
       tempFilterState = {
@@ -318,7 +336,8 @@ const MyIngredients = () => {
       <AvailableRecipes
         isSingleIngredient={false}
         open={availableRecipesModalOpen}
-        setOpen={setAvailableRecipesModalOpen}
+        setOpen={handleAvailableRecipesModalOpen}
+        setClose={()=>setAvailableRecipesModalOpen(false)}
       />
       {/* Page body */}
       <MyMixMateHeader title="My Ingredients">
@@ -407,7 +426,7 @@ const MyIngredients = () => {
       </Grid>
       <Grid
         item
-        xs={12}
+        xs={9}
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -416,6 +435,7 @@ const MyIngredients = () => {
       >
         <Button
           variant="contained"
+          onClick={handleAvailableRecipesModalOpen}
           sx={{
             backgroundColor: "#4BF4FF !important",
             "&:hover": {
@@ -426,7 +446,7 @@ const MyIngredients = () => {
             },
           }}
         >
-          Check Out the List of Available Recipes
+          Check out the available recipes!
         </Button>
       </Grid>
       <Grid item xs={12}>

@@ -28,7 +28,6 @@ import FilterRecipesComponent from "../FilterRecipesComponent";
 import MarqueeScroll from "../MarqueeAnimation";
 import { Space_Grotesk } from "next/font/google";
 import MyMixMateHeader from "../MyMixMateHeader";
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function DefaultRecipesComponent() {
   // Validate session
@@ -44,7 +43,7 @@ function DefaultRecipesComponent() {
   const dispatch = useDispatch();
 
   //pagination
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
   const [page, setPage] = useState(1);
 
   const handleChange = (event, value) => {
@@ -85,6 +84,7 @@ function DefaultRecipesComponent() {
 
     if (!allRecipes || allRecipes.length === 0) {
       loadAllRecipes();
+      dispatch(pageStateActions.setPageLoadingState(false));
     } else {
       let filteredRecipes = allRecipes.filter((recipe) => {
         if (filter.filter === "Category") {
@@ -154,12 +154,13 @@ function DefaultRecipesComponent() {
   };
   return (
     <>
-      <MyMixMateHeader title="Favorites">
-        The Favorites page is your personal collection where you can store and
-        access your most beloved recipes with ease, ensuring that your culinary
-        treasures are always within reach whenever the craving strikes.
-      </MyMixMateHeader>    
-      <Grid container spacing={2} style={{ marginTop: 10 }}>
+      <MyMixMateHeader title="Classic Recipes">
+        Step into the world of mixology with confidence! This curated collection
+        of classic and innovative cocktails serves as your personal recipe
+        starter pack, providing a foundation for endless exploration and
+        delicious experimentation.
+      </MyMixMateHeader>
+      <Grid container spacing={2} sx={{ mt: 10 }}>
         <Grid item xs={12} md={3}>
           <FilterRecipesComponent
             recipeAllRecipes={allRecipes}

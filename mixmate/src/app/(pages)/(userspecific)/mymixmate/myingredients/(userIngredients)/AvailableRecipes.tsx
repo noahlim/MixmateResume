@@ -49,6 +49,7 @@ import { Pagination } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import Image from "next/image";
 import { ToastMessage } from "interface/toastMessage";
+import { Sarabun, Vollkorn } from "next/font/google";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -59,11 +60,15 @@ const MenuProps = {
     },
   },
 };
+const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
+const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
+
 const AvailableRecipes = ({
   isSingleIngredient,
   open,
   setOpen,
-  ingredient=null,
+  setClose,
+  ingredient = null,
 }) => {
   const theme = useTheme();
   const { user, error, isLoading } = useUser();
@@ -137,7 +142,7 @@ const AvailableRecipes = ({
   }
 
   const handleClose = () => {
-    setOpen(false);
+    setClose();
     setIngredientName([]);
   };
   let onPageIndexChange = (e) => {
@@ -203,25 +208,12 @@ const AvailableRecipes = ({
       });
   };
 
-
-
-  // const handleDeleteIngredientFilter = (ingToDelete) => () => {
-  //   console.log(ingToDelete);
-  //   setIngredientName((ingredients) =>
-  //     ingredients.filter((ing) => ing !== ingToDelete)
-  //   );
-  // };
-
   useEffect(() => {
     if (open) {
       loadAllAvailableRecipes();
     }
-    
   }, [userIngredients, open]);
 
-  useEffect(() => {
-    console.log("test");
-  },[])
   function isIngredientInList(ingredient) {
     for (let word of userIngredients) {
       if (word.strIngredient1.toLowerCase() == ingredient.toLowerCase()) {
@@ -285,13 +277,12 @@ const AvailableRecipes = ({
 
                 let ingredientTypography = isIngredientInList(txtIngredient) ? (
                   <Typography
-                    className="margin-left-35px included-ingredients"
                     sx={{ fontWeight: "bold", backgroundColor: "orange" }}
                   >
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
                 ) : (
-                  <Typography className="margin-left-35px included-ingredients">
+                  <Typography>
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
                 );
@@ -316,9 +307,15 @@ const AvailableRecipes = ({
                       />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
-                      <div className="text-tangerine text-55px margin-left-35px">
+                      <Typography
+                        sx={{
+                          fontSize: "30px",
+                          textShadow: "3px 3px 3px #F8F8F8",
+                        }}
+                        className={vollkorn.className}
+                      >
                         {drink.strDrink}
-                      </div>
+                      </Typography>
 
                       {/* Category */}
                       <FormControl variant="standard">
@@ -326,7 +323,7 @@ const AvailableRecipes = ({
                           Category
                         </InputLabel>
                         <Input
-                          id="input-with-icon-adornment"
+                          className={vollkorn.className}
                           startAdornment={
                             <InputAdornment position="start">
                               <ClassIcon />
@@ -344,7 +341,7 @@ const AvailableRecipes = ({
                           Alcoholic type
                         </InputLabel>
                         <Input
-                          id="input-with-icon-adornment"
+                          className={vollkorn.className}
                           startAdornment={
                             <InputAdornment position="start">
                               <LocalBarIcon />
@@ -362,7 +359,7 @@ const AvailableRecipes = ({
                           Glass
                         </InputLabel>
                         <Input
-                          id="input-with-icon-adornment"
+                          className={vollkorn.className}
                           startAdornment={
                             <InputAdornment position="start">
                               <LocalDrinkIcon />
@@ -374,12 +371,16 @@ const AvailableRecipes = ({
                       <br />
                       <br />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <Grid item xs={12}>
                       <InputLabel>Ingredients:</InputLabel>
                       {drinkIngredients}
                       <br></br>
                       <InputLabel>How to prepare:</InputLabel>
-                      <Typography className="margin-left-35px">
+                      <Typography
+                        fontWeight="bold"
+                        sx={{ color: "black", fontSize: "20px" }}
+                        className={sarabun.className}
+                      >
                         {drink.strInstructions}
                       </Typography>
                     </Grid>
@@ -396,7 +397,7 @@ const AvailableRecipes = ({
                         variant="outlined"
                         startIcon={<FavoriteIcon />}
                       >
-                        Add to Favorites
+                        Add to My Favorites
                       </Button>
                     </Grid>
                   </Grid>
@@ -451,6 +452,7 @@ const AvailableRecipes = ({
   return (
     <Dialog
       open={open}
+      onClose={handleClose}
       sx={{
         "& .MuiDialog-paper": {
           width: "100%",
@@ -480,7 +482,7 @@ const AvailableRecipes = ({
             : "Available Recipes with your Current Ingredients"}
         </Typography>
         <IconButton
-          onClick={() => handleClose()}
+          onClick={handleClose}
           sx={{
             position: "absolute",
             right: 8,
@@ -509,9 +511,12 @@ const AvailableRecipes = ({
                   <TableCell align="center" colSpan={2}>
                     <CardContent
                       style={{
+                      sx={{
                         textAlign: "center",
                         paddingTop: 10,
                         paddingBottom: 0,
+                        pt: 10,
+                        pb: 0,
                       }}
                     >
                       <Box

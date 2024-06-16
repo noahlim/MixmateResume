@@ -33,13 +33,20 @@ const nextConfig = {
         port: "",
         pathname: "/*",
       },
+      {
+        protocol: "https",
+        hostname: "images.weserv.nl",
+        port: "",
+        pathname: "/*",
+      },
     ],
     domains: [
       "www.thecocktaildb.com",
       "mixmatebucket.s3.us-east-2.amazonaws.com",
       "s.gravatar.com",
       "aem.lcbo.com",
-      "i0.wp.com"
+      "i0.wp.com",
+      "images.weserv.nl"
     ],
   },
   async rewrites() {

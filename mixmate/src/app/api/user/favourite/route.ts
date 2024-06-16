@@ -37,25 +37,29 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       favouriteRecipe.created_at = new Date().toISOString();
 
       if (isNotSet(userFavoriteDocument)) {
-        const userFavouriteDocument = {
+        console.log("hi");
+        const tempFavouriteDocument = {
           sub: user.sub, favorites: [favouriteRecipe], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
         };
-        await dbRtns.addOne(db, userFavouriteCollection, userFavouriteDocument);
+        await dbRtns.addOne(db, userFavouriteCollection, tempFavouriteDocument);
+        result.data = tempFavouriteDocument.favorites;
       } else {
-        if (userFavoriteDocument.favorites.some(favorite => favorite._id === body.recipe._id)) {
+        if (userFavoriteDocument.favorites.some(favorite => favorite._id === body.recipe._id.toString())) {
           return NextResponse.json({ error: `${body.recipe.strDrink} already exists in your list.` }, { status: 400 });
         }
 
         const recipe = body.recipe;
         userFavoriteDocument.favorites.push(recipe);
         await dbRtns.updateOne(db, userFavouriteCollection, { sub: user.sub }, { favorites: userFavoriteDocument.favorites, updated_at: new Date().toISOString() });
+        result.data = userFavoriteDocument.favorites;
+
       }
 
-      result.data = userFavoriteDocument.favorites;
       result.message = `${body.recipe.strDrink} was added to your list successfully.`;
       return NextResponse.json(result, { status: 200 })
 
     } catch (error) {
+      console.log(error);
       return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
     }
   }
@@ -78,7 +82,9 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     //let recipes = await dbRtns.findAllWithPagination(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
     let userFavouriteDocument = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
-    let recipes = userFavouriteDocument.favorites.slice((pageNumber - 1) * 5, pageNumber * 5);
+    let publicRecipes = userFavouriteDocument.favorites.filter(recipe => recipe.visibility === "public");
+    let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
+
     const updatedRecipes = recipes.map((recipe) => {
       delete recipe.sub;
       return recipe;

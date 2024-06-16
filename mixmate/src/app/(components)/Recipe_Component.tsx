@@ -33,7 +33,7 @@ import {
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent, TextField, Divider } from "@mui/material";
+import { Typography, CardContent, TextField, Divider, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
@@ -70,13 +70,12 @@ import { ToastMessage } from "interface/toastMessage";
 import { FaEarthAmericas } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { Sarabun, Vollkorn } from "next/font/google";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
-const italiana = Vollkorn({ subsets: ["latin"], weight: "variable" });
+const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
-function Recipe_Component(props) {
-  // Inherited variables
-  const { applicationPage, title, recipes, reloadRecipes } = props;
+function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
   const dispatch = useDispatch();
 
   const isEditablePage =
@@ -195,7 +194,7 @@ function Recipe_Component(props) {
     return recipes?.map((drink) => {
       // Format ingredients
       const ingredientsList = drink.ingredients?.map((ing, index) => (
-        <Typography className={italiana.className} fontSize="17px" key={index}>
+        <Typography className={vollkorn.className} fontSize="17px" key={index}>
           {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
         </Typography>
       ));
@@ -232,7 +231,7 @@ function Recipe_Component(props) {
             >
               Author:
             </Typography>
-            <Typography className={italiana.className} fontSize="18px">
+            <Typography className={vollkorn.className} fontSize="18px">
               {isSet(drink.strAuthor) ? drink.strAuthor : "www.cocktailDB.com"}
             </Typography>
           </Grid>
@@ -444,9 +443,9 @@ function Recipe_Component(props) {
                     <Typography
                       sx={{
                         fontSize: "30px",
-                        textShadow: "2px 2px 2px #F8F8F8",
+                        textShadow: "3px 3px 3px #F8F8F8",
                       }}
-                      className={italiana.className}
+                      className={vollkorn.className}
                     >
                       {drink.strDrink}
                     </Typography>
@@ -457,7 +456,7 @@ function Recipe_Component(props) {
                         Category
                       </InputLabel>
                       <Input
-                        className={italiana.className}
+                        className={vollkorn.className}
                         startAdornment={
                           <InputAdornment position="start">
                             <ClassIcon />
@@ -475,7 +474,7 @@ function Recipe_Component(props) {
                         Alcoholic type
                       </InputLabel>
                       <Input
-                        className={italiana.className}
+                        className={vollkorn.className}
                         startAdornment={
                           <InputAdornment position="start">
                             <LocalBarIcon />
@@ -493,7 +492,7 @@ function Recipe_Component(props) {
                         Glass
                       </InputLabel>
                       <Input
-                        className={italiana.className}
+                        className={vollkorn.className}
                         startAdornment={
                           <InputAdornment position="start">
                             <LocalDrinkIcon />
@@ -609,58 +608,58 @@ function Recipe_Component(props) {
                         alignContent: "center",
                       }}
                     >
-                      {(applicationPage === APPLICATION_PAGE.social ||
-                        applicationPage === APPLICATION_PAGE.myRecipes) &&
-                        drink.sub === user.sub && (
+                      <Stack direction={{ xs: 'column', sm: 'row' }}>
+                        {(applicationPage === APPLICATION_PAGE.social ||
+                          applicationPage === APPLICATION_PAGE.myRecipes) &&
+                          drink.sub === user.sub && (
+                            <Button
+                              onClick={() => handleSetRecipeVisibility(drink)}
+                              variant="contained"
+                              startIcon={
+                                drink?.visibility === "private" ? (
+                                  <FaEarthAmericas fontSize={16} />
+                                ) : (
+                                  <FaEye fontSize={16} />
+                                )
+                              }
+                              sx={{
+                                backgroundColor: "#00B6E7 !important",
+                                "&:hover": {
+                                  backgroundColor: "#009CC6 !important",
+                                },
+                                "&:focus": {
+                                  backgroundColor: "#00A3AD !important",
+                                },
+                              }}
+                            >
+                              {drink?.visibility === "private"
+                                ? "Share On Community"
+                                : "Set as Private"}
+                            </Button>
+                          )}
+
+                        {applicationPage !== APPLICATION_PAGE.favourites && (
                           <Button
-                            onClick={() => handleSetRecipeVisibility(drink)}
+                            onClick={() => handleAddToFavorite(drink)}
                             variant="contained"
-                            startIcon={
-                              drink?.visibility === "private" ? (
-                                <FaEarthAmericas fontSize={16} />
-                              ) : (
-                                <FaEye fontSize={16} />
-                              )
-                            }
+                            startIcon={<FavoriteIcon />}
                             sx={{
-                              backgroundColor: "#4BF4FF !important",
+                              backgroundColor: "#FFA1A1 !important",
                               "&:hover": {
-                                backgroundColor: "#00CBD8 !important",
+                                backgroundColor: "#FF5F5F !important",
                               },
                               "&:focus": {
-                                backgroundColor: "#00A3AD !important",
+                                backgroundColor: "#E91A1A !important",
                               },
+
+                              ml: { xs: 0, md: 2 },
+                              mt: { xs: 2, md: 0 },
                             }}
                           >
-                            {drink?.visibility === "private"
-                              ? "Share On Community"
-                              : "Set as Private"}
+                            Add To My Favorites
                           </Button>
                         )}
-                      <Button
-                        onClick={() => handleAddToFavorite(drink)}
-                        variant="contained"
-                        startIcon={
-                          drink?.visibility === "private" ? (
-                            <FaEarthAmericas fontSize={16} />
-                          ) : (
-                            <FaEye fontSize={16} />
-                          )
-                        }
-                        sx={{
-                          backgroundColor: "#4BF4FF !important",
-                          "&:hover": {
-                            backgroundColor: "#00CBD8 !important",
-                          },
-                          "&:focus": {
-                            backgroundColor: "#00A3AD !important",
-                          },
-                        }}
-                      >
-                        {drink?.visibility === "private"
-                          ? "Share On Community"
-                          : "Set as Private"}
-                      </Button>
+                      </Stack>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -693,7 +692,6 @@ function Recipe_Component(props) {
     };
     dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
-
 
   let handleSetRecipeVisibility = (drink) => {
     const newRecipeObject = JSON.parse(JSON.stringify(drink));
@@ -974,44 +972,42 @@ function Recipe_Component(props) {
           </Dialog>
         ))}
 
-      <div style={{ paddingLeft: 25, paddingRight: 55 }}>
-        <Table aria-label="collapsible table">
-          {isEditablePage && (
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" colSpan={2}>
-                  <CardContent
-                    style={{
-                      textAlign: "center",
-                      paddingTop: 25,
-                      paddingBottom: 0,
-                    }}
-                  >
-                    <Typography variant="h6">{title}</Typography>
-                  </CardContent>
-                </TableCell>
-              </TableRow>
-            </TableHead>
+      <Table aria-label="collapsible table">
+        {isEditablePage && (
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" colSpan={2}>
+                <CardContent
+                  style={{
+                    textAlign: "center",
+                    paddingTop: 25,
+                    paddingBottom: 0,
+                  }}
+                >
+                  <Typography variant="h6">{title}</Typography>
+                </CardContent>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+        )}
+        <TableBody>
+          {/* Print recipes on screen */}
+          {recipes && recipes.length > 0 ? (
+            renderRecipes()
+          ) : (
+            <TableRow>
+              <TableCell>
+                <Typography
+                  variant="h6"
+                  sx={{ textAlign: "center", mt: "20px" }}
+                >
+                  No recipes found.
+                </Typography>
+              </TableCell>
+            </TableRow>
           )}
-          <TableBody>
-            {/* Print recipes on screen */}
-            {recipes && recipes.length > 0 ? (
-              renderRecipes()
-            ) : (
-              <TableRow>
-                <TableCell>
-                  <Typography
-                    variant="h6"
-                    style={{ textAlign: "center", marginTop: "20px" }}
-                  >
-                    No recipes found.
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+        </TableBody>
+      </Table>
     </>
   );
 }

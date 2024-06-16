@@ -182,9 +182,6 @@ function CustomRecipes() {
             title="My MixMate Recipes"
             recipes={recipesFiltered}
             reloadRecipes={loadSocialRecipes}
-            recipeCategories={categories}
-            recipeAlcoholicTypes={alcoholicTypes}
-            recipeGlasses={glasses}
           />
         </Grid>
       </Grid>

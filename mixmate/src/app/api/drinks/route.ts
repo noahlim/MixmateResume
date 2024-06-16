@@ -41,8 +41,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
                 }
                 case API_DRINK_ROUTES.drinkCategories: {
                     const response = await fetchFromCocktailDbApi("list.php?c=list");
-                    
-                    result= response;
+
+                    result = response;
                     break;
                 }
                 case API_DRINK_ROUTES.glassTypes: {
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
                 case API_DRINK_ROUTES.ingredients: {
                     let db = await dbRtns.getDBInstance();
                     let allIngredients = await dbRtns.findAll(db, ingredientCollection, {}, {});
-            
+
                     const sortedIngredients = allIngredients.sort((a, b) => {
                         const ingredientA = a.strIngredient1.toUpperCase();
                         const ingredientB = b.strIngredient1.toUpperCase();
@@ -105,7 +105,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
             return NextResponse.json({ error: " Criteria was not passed in" }, { status: 400 });
 
     } catch (err) {
-        return NextResponse.json({ error: "lel" }, { status: 400 });
+        return NextResponse.json({ error: err.message }, { status: 400 });
     }
     return NextResponse.json(result, { status: 200 });
 }

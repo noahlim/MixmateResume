@@ -5,6 +5,7 @@ import { Result } from "@/app/_utilities/_server/util";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { API_DRINK_ROUTES } from "@/app/_utilities/_client/constants";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import page from "@/app/(pages)/(userspecific)/mymixmate/page";
 export const GET = withApiAuthRequired(async function getFilteredFavourites(req: NextRequest) {
 
     //rate limiting
@@ -15,7 +16,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
     const filterType = req.nextUrl.searchParams.get('filter');
     const filterCriteria = req.nextUrl.searchParams.get('criteria');
     const pageIndex = req.nextUrl.searchParams.get('index');
-    console.log(`Page index is ${pageIndex}`);
     let criteria;
     const result = new Result(true);
     //add extra validation to collection name for security
@@ -50,7 +50,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                     //let recipesByIngredients = await dbRtns.findAll(db, sharedRecipeCollection, query, {});
 
                     const filteredCount = await dbRtns.count(db, sharedRecipeCollection, query);    
-                    console.log("Filtered count: ", filteredCount);
                     const data = {
                         recipes: recipesByIngredients,
                         length: filteredCount   
@@ -71,7 +70,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
                         strDrink: { $regex: regexQuery },
                         sub: user.sub
                     };
-
+                    
                     let recipesByName = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, query, {}, index, 5);
                     let filteredCount = await dbRtns.count(db, sharedRecipeCollection, query);
                     const data = {
@@ -120,7 +119,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
             return NextResponse.json({ error: "Criteria was not passed in" }, { status: 400 });
 
     } catch (err) {
-        console.log(err);
         return NextResponse.json({ error: "Error occured while fetching the data from the database." }, { status: 400 });
     }
 }

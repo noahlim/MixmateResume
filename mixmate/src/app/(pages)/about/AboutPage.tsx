@@ -5,14 +5,21 @@ import { Space_Grotesk } from "next/font/google";
 import Image from "next/image";
 import MarqueeComponent from "@/app/(components)/MarqueeAnimation";
 import "../../../app/globals.css";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { pageStateActions } from "@lib/redux/pageStateSlice";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function AboutPage() {
 
+  const dispatch = useDispatch();
   const isTabletScreen = useMediaQuery((theme: any) =>
     theme.breakpoints.up("md")
   );
 
+  useEffect(()=>{
+    dispatch(pageStateActions.setPageLoadingState(false));
+  },[])
   return (
     <Box
       sx={{

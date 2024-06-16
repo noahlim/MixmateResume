@@ -11,7 +11,7 @@ import { FaEarthAmericas } from "react-icons/fa6";
 import { LiaCocktailSolid } from "react-icons/lia";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -19,9 +19,6 @@ const MyMixMate = ({ children }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const { user, error, isLoading } = useUser();
   useEffect(() => {
-    if(!user) {
-      dispatch(pageStateActions.setAuthenticatedModalOpen(true));
-    }
     switch (pathname) {
       case APPLICATION_PAGE.favourites:
         setSelectedTab(0);
@@ -107,4 +104,4 @@ const MyMixMate = ({ children }) => {
   );
 };
 
-export default MyMixMate;
+export default withPageAuthRequired(MyMixMate);

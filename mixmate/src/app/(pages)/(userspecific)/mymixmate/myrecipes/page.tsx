@@ -30,8 +30,7 @@ function MyRecipes() {
   const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const recipeAllRecipes = useSelector((state: any) => state.recipe.recipes);
-  const categories = useSelector((state: any) => state.recipe.categories);
-  const glasses = useSelector((state: any) => state.recipe.glasses);
+
   const [pageIndex, setPageIndex] = useState(1);
 
   
@@ -44,29 +43,24 @@ function MyRecipes() {
   // Variables
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
-  const alcoholicTypes = useSelector(
-    (state: any) => state.recipe.alcoholicTypes
-  );
 
   let onPageIndexChange = (e) => {
-  
     const buttonLabel = e.currentTarget.getAttribute("aria-label");  
     dispatch(pageStateActions.setPageLoadingState(true));
   
-    if (buttonLabel === "Go to next page" || pageIndex < pageIndexCount) {
+    if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       setPageIndex(pageIndex + 1);
-      loadMyRecipes(pageIndex + 1);
-    } else if (buttonLabel === "Go to previous page" || pageIndex > 1) {
+      filter.isFilterApplied ? loadFilteredMyRecipes(pageIndex + 1) : loadMyRecipes(pageIndex + 1);      
+
+    } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       setPageIndex(pageIndex - 1);
-      loadMyRecipes(pageIndex - 1);
-    } else if (e.target.innerText) {
+      filter.isFilterApplied ? loadFilteredMyRecipes(pageIndex - 1) : loadMyRecipes(pageIndex - 1);      
+    } else if (e.currentTarget.innerText) {
       const index = parseInt(e.target.innerText);
+      console.log(index);
       setPageIndex(index);
-      if (!filter.isFilterApplied) {
-        loadMyRecipes(index);
-      } else {
-        loadFilteredMyRecipes(index);
-      }
+      filter.isFilterApplied ? loadFilteredMyRecipes(index) : loadMyRecipes(index);      
+
     } else {
       alert("Invalid page index");
     }
@@ -193,9 +187,6 @@ function MyRecipes() {
             title="My MixMate Recipes"
             recipes={recipesFiltered}
             reloadRecipes={loadMyRecipes}
-            recipeCategories={categories}
-            recipeAlcoholicTypes={alcoholicTypes}
-            recipeGlasses={glasses}
           />
         </Grid>
       </Grid>
@@ -203,7 +194,7 @@ function MyRecipes() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        mt={4} // Margin top of 4 (adjust as needed)
+        mt={4} 
       >
         <Pagination
           count={pageIndexCount}

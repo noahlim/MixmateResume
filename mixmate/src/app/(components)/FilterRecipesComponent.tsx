@@ -11,6 +11,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
+import Box from "@mui/material/Box";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import {
   capitalizeWords,
@@ -28,6 +29,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import { FaLemon } from "react-icons/fa";
+
 function FilterRecipesComponent({
   recipeAllRecipes,
   setRecipesFiltered,
@@ -68,9 +71,6 @@ function FilterRecipesComponent({
     dispatch(pageStateActions.setPageLoadingState(false));
   };
 
-  let btnFindMyRecipes_onClick = () => {
-    
-  }
 
   let loadAlcoholicTypes = () => {
     if (alcoholicTypes.length === 0) {
@@ -212,16 +212,16 @@ function FilterRecipesComponent({
   }, []);
   return (
     <>
-      <Paper elevation={3} style={{ margin: 15 }}>
+      <Paper elevation={3} sx={{ m: 15 }}>
         <CardContent
-          style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
+          sx={{ textAlign: "center", pt: 25, pb: 0 }}
         >
           <Typography variant="h6">Search By...</Typography>
         </CardContent>
 
         {/* Filters */}
 
-        <div style={{ padding: 25 }}>
+        <Box sx={{ p: 25 }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel id="filter-select-label">Filter By</InputLabel>
             <Select
@@ -250,11 +250,11 @@ function FilterRecipesComponent({
               })}
             </Select>
           </FormControl>
-        </div>
+        </Box>
 
         {/* Categories */}
         {filterCriteria.filter === "Category" && (
-          <div style={{ padding: 25 }}>
+          <Box sx={{ p: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="category-select-label">Category</InputLabel>
               <Select
@@ -278,12 +278,12 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </div>
+          </Box>
         )}
 
         {/* Glasses */}
         {filterCriteria.filter === "Glass" && (
-          <div style={{ padding: 25 }}>
+          <Box sx={{ p: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="glass-select-label">Glass</InputLabel>
               <Select
@@ -306,43 +306,35 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </div>
+          </Box>
         )}
 
         {/* Ingredients */}
         {filterCriteria.filter === "Ingredient" && (
-          <div style={{ padding: 25 }}>
+          <Box sx={{ p: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="ingredient-select-label">Ingredient</InputLabel>
-              <Select
-                labelId="ingredient-select-label"
-                label="Ingredient"
-                value={filterCriteria.criteria}
+              <Input
+                id="input-with-icon-adornment"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <FaLemon />
+                  </InputAdornment>
+                }
                 onChange={(e) =>
                   filterCriteriaSetter({
                     filter: filterCriteria.filter,
                     criteria: e.target.value,
                   })
                 }
-              >
-                {allIngredients?.map((ing) => {
-                  return (
-                    <MenuItem
-                      key={ing.strIngredient1}
-                      value={ing.strIngredient1}
-                    >
-                      {capitalizeWords(ing.strIngredient1)}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
+              />
             </FormControl>
-          </div>
+          </Box>
         )}
 
         {/* Alcoholic types */}
         {filterCriteria.filter === "Alcoholic Type" && (
-          <div style={{ padding: 25 }}>
+          <Box sx={{ p: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="alcoholictype-select-label">
                 Alcoholic Type
@@ -367,12 +359,12 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </div>
+          </Box>
         )}
 
         {/* Recipe name */}
         {filterCriteria.filter === "Recipe Name" && (
-          <div style={{ padding: 25 }}>
+          <Box sx={{ p: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel htmlFor="input-with-icon-adornment">
                 Recipe name
@@ -392,18 +384,18 @@ function FilterRecipesComponent({
                 }
               />
             </FormControl>
-          </div>
+          </Box>
         )}
 
         <CardContent
-          style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
+          sx={{ textAlign: "center", pt: 10, pb: 25 }}
         >
           <Button
             onClick={() => btnClear_onClick()}
             color="error"
             variant="outlined"
             startIcon={<ClearIcon />}
-            style={{ marginRight: 7 }}
+            sx={{ mr: 7 }}
           >
             Clear
           </Button>
@@ -412,7 +404,7 @@ function FilterRecipesComponent({
             color="primary"
             variant="outlined"
             startIcon={<SearchIcon />}
-            style={{ marginLeft: 7 }}
+            sx={{ ml: 7 }}
           >
             Find
           </Button>
@@ -420,14 +412,14 @@ function FilterRecipesComponent({
 
         {applicationPage === APPLICATION_PAGE.social && (
           <CardContent
-            style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
+            sx={{ textAlign: "center", pt: 10, pb: 25 }}
           >
             <Button
               onClick={()=>loadMyRecipes()}
               variant="outlined"
               startIcon={<EditIcon />}
-              style={{ marginRight: 7 }}
               sx={{
+                mr: 7,
                 color: "#81E500",
                 backgroundColor: "#81E500",
                 "&:hover": {
