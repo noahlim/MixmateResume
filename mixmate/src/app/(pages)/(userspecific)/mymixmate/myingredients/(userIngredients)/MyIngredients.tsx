@@ -469,6 +469,11 @@ const MyIngredients = () => {
           color="primary"
           showFirstButton
           showLastButton
+          sx={{
+            "& .MuiPaginationItem-root": {
+              backgroundColor:"#FFFFFF"
+            },
+          }}
         />
       </Box>
       <MarqueeScroll direction="left" />

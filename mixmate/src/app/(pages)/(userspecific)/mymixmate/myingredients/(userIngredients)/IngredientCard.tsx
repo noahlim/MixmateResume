@@ -9,6 +9,7 @@ import {
   Tooltip,
   IconButton,
   Button,
+  Stack,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import {
@@ -22,6 +23,8 @@ import { LiaCocktailSolid } from "react-icons/lia";
 import { Sarabun } from "next/font/google";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import WineBarIcon from "@mui/icons-material/WineBar";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastMessage } from "interface/toastMessage";
@@ -32,6 +35,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import ShoppingItemCardGridDialog from "./ShoppingItemCard/ShoppingItemCardGrid";
 const StyledCard = styled(Card)<{ isalcoholic: string }>(
   ({ theme, isalcoholic }) => ({
     margin: theme.spacing(2),
@@ -52,12 +56,43 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   paddingInlineStart: "1rem",
 }));
 const IngredientCard = ({ ingredient, reloadIngredients }) => {
+  const [ingredientProducts, setIngredientProducts] = useState([]);
+  const [shoppingListDialogOpen, setShoppingListDialogOpen] = useState(false);
+  const [isDataFetched, setIsDataFetched] = useState(false);
+
   const dispatch = useDispatch();
   const { user, error, isLoading } = useUser();
 
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
+
+  const fetchStockInfoFromWeb = async () => {
+    if (!isDataFetched) {
+      dispatch(pageStateActions.setPageLoadingState(true));
+
+      const apiEndpoint = ingredient.strAlcoholic
+        ? API_ROUTES.lcboItems
+        : API_ROUTES.walmartItems;
+
+      makeRequest(
+        apiEndpoint,
+        REQ_METHODS.get,
+        { query: ingredient.strIngredient1 },
+        (response) => {
+          setIngredientProducts(response.data);
+          setIsDataFetched(true);
+        }
+      )
+        .catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
+    }
+    setShoppingListDialogOpen(true);
+  };
   const deleteIngredientFromList = async (ingredient) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     let tempIngredients = [...userIngredients];
@@ -146,6 +181,12 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
 
   return (
     <Grid item xs={12} sm={6} md={4}>
+      <ShoppingItemCardGridDialog
+        open={shoppingListDialogOpen}
+        onClose={() => setShoppingListDialogOpen(false)}
+        products={ingredientProducts}
+        ing={ingredient}
+      />
       <StyledCard
         sx={{
           backgroundColor: "#F5F5F5",
@@ -197,45 +238,78 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
                 marginTop: "10px",
               }}
             >
-              {userIngredients.find(
-                (ing) => ing.strIngredient1 === ingredient.strIngredient1
-              ) ? (
+              <Stack direction={"column"}>
+                {userIngredients.find(
+                  (ing) => ing.strIngredient1 === ingredient.strIngredient1
+                ) ? (
+                  <Button
+                    onClick={() => deleteIngredientFromList(ingredient)}
+                    color="secondary"
+                    variant="outlined"
+                    startIcon={<ClearIcon />}
+                    sx={{
+                      width: "100%",
+                      backgroundColor: "#FF5B5B !important",
+                      "&:hover": {
+                        backgroundColor: "#FF4B4B !important",
+                      },
+                      "&:focus": {
+                        backgroundColor: "#FF7C7C !important",
+                      },
+                    }}
+                  >
+                    Remove From My List
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => addIngredientToList(ingredient)}
+                    color="primary"
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    sx={{
+                      width: "100%",
+                      backgroundColor: "#FFFFFF !important",
+                      "&:hover": {
+                        backgroundColor: "#DFDFDF !important",
+                      },
+                      "&:focus": {
+                        backgroundColor: "#DADADA !important",
+                      },
+                    }}
+                  >
+                    Add To My List
+                  </Button>
+                )}
                 <Button
-                  onClick={() => deleteIngredientFromList(ingredient)}
-                  color="secondary"
-                  variant="outlined"
-                  startIcon={<ClearIcon />}
-                  sx={{
-                    backgroundColor: "#FF5B5B !important",
-                    "&:hover": {
-                      backgroundColor: "#FF4B4B !important",
-                    },
-                    "&:focus": {
-                      backgroundColor: "#FF7C7C !important",
-                    },
+                  onClick={() => {
+                    fetchStockInfoFromWeb();
                   }}
-                >
-                  Remove From My List
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => addIngredientToList(ingredient)}
-                  color="primary"
+                  color="success"
                   variant="outlined"
-                  startIcon={<AddIcon />}
+                  startIcon={
+                    ingredient.strAlcoholic ? (
+                      <WineBarIcon />
+                    ) : (
+                      <ShoppingCartIcon />
+                    )
+                  }
                   sx={{
+                    width: "100%",
+                    marginTop:2,
                     backgroundColor: "#FFFFFF !important",
-                    "&:hover": {
-                      backgroundColor: "#DFDFDF !important",
-                    },
-                    "&:focus": {
-                      backgroundColor: "#DADADA !important",
-                    },
+                      "&:hover": {
+                        backgroundColor: "#DFDFDF !important",
+                      },
+                      "&:focus": {
+                        backgroundColor: "#DADADA !important",
+                      },
                   }}
                 >
-                  Add To My List
+                  {ingredient.strAlcoholic
+                    ? "View Items on LCBO"
+                    : "View Items on Walmart"}
                 </Button>
-              )}
+              </Stack>
             </Grid>
           </Grid>
         </StyledCardContent>

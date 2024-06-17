@@ -160,7 +160,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
         sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
       >
         {ingredients.map((ingredient, index) => (
-          <IngredientCard ingredient={ingredient} reloadIngredients={reloadIngredients}/>
+          <IngredientCard key={index} ingredient={ingredient} reloadIngredients={reloadIngredients}/>
         ))}
       </Grid>
     </Container>
