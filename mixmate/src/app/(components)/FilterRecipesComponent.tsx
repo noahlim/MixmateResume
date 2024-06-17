@@ -71,7 +71,6 @@ function FilterRecipesComponent({
     dispatch(pageStateActions.setPageLoadingState(false));
   };
 
-
   let loadAlcoholicTypes = () => {
     if (alcoholicTypes.length === 0) {
       makeRequest(
@@ -212,16 +211,16 @@ function FilterRecipesComponent({
   }, []);
   return (
     <>
-      <Paper elevation={3} sx={{ m: 15 }}>
+      <Paper elevation={3} style={{ margin: 15 }}>
         <CardContent
-          sx={{ textAlign: "center", pt: 25, pb: 0 }}
+          style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
         >
           <Typography variant="h6">Search By...</Typography>
         </CardContent>
 
         {/* Filters */}
 
-        <Box sx={{ p: 25 }}>
+        <div style={{ padding: 25 }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel id="filter-select-label">Filter By</InputLabel>
             <Select
@@ -250,11 +249,11 @@ function FilterRecipesComponent({
               })}
             </Select>
           </FormControl>
-        </Box>
+        </div>
 
         {/* Categories */}
         {filterCriteria.filter === "Category" && (
-          <Box sx={{ p: 25 }}>
+          <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="category-select-label">Category</InputLabel>
               <Select
@@ -278,12 +277,12 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </Box>
+          </div>
         )}
 
         {/* Glasses */}
         {filterCriteria.filter === "Glass" && (
-          <Box sx={{ p: 25 }}>
+          <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="glass-select-label">Glass</InputLabel>
               <Select
@@ -306,12 +305,12 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </Box>
+          </div>
         )}
 
         {/* Ingredients */}
         {filterCriteria.filter === "Ingredient" && (
-          <Box sx={{ p: 25 }}>
+          <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="ingredient-select-label">Ingredient</InputLabel>
               <Input
@@ -329,12 +328,12 @@ function FilterRecipesComponent({
                 }
               />
             </FormControl>
-          </Box>
+          </div>
         )}
 
         {/* Alcoholic types */}
         {filterCriteria.filter === "Alcoholic Type" && (
-          <Box sx={{ p: 25 }}>
+           <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel id="alcoholictype-select-label">
                 Alcoholic Type
@@ -359,12 +358,12 @@ function FilterRecipesComponent({
                 })}
               </Select>
             </FormControl>
-          </Box>
+          </div>
         )}
 
         {/* Recipe name */}
         {filterCriteria.filter === "Recipe Name" && (
-          <Box sx={{ p: 25 }}>
+          <div style={{ padding: 25 }}>
             <FormControl variant="standard" fullWidth>
               <InputLabel htmlFor="input-with-icon-adornment">
                 Recipe name
@@ -384,18 +383,16 @@ function FilterRecipesComponent({
                 }
               />
             </FormControl>
-          </Box>
+            </div>
         )}
 
-        <CardContent
-          sx={{ textAlign: "center", pt: 10, pb: 25 }}
-        >
+        <CardContent style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}>
           <Button
             onClick={() => btnClear_onClick()}
             color="error"
             variant="outlined"
             startIcon={<ClearIcon />}
-            sx={{ mr: 7 }}
+            style={{ marginRight: 7 }}
           >
             Clear
           </Button>
@@ -404,22 +401,20 @@ function FilterRecipesComponent({
             color="primary"
             variant="outlined"
             startIcon={<SearchIcon />}
-            sx={{ ml: 7 }}
+            style={{ marginLeft: 7 }}
           >
             Find
           </Button>
         </CardContent>
 
         {applicationPage === APPLICATION_PAGE.social && (
-          <CardContent
-            sx={{ textAlign: "center", pt: 10, pb: 25 }}
-          >
+          <CardContent style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}>
             <Button
-              onClick={()=>loadMyRecipes()}
+              onClick={() => loadMyRecipes()}
               variant="outlined"
-              startIcon={<EditIcon />}
+              startIcon={<EditIcon />}              
               sx={{
-                mr: 7,
+                marginRight: 0.7,
                 color: "#81E500",
                 backgroundColor: "#81E500",
                 "&:hover": {

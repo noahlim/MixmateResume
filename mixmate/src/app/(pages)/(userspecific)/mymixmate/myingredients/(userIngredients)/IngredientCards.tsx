@@ -32,6 +32,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import IngredientCard from "./IngredientCard";
 
 const StyledCard = styled(Card)<{ isalcoholic: string }>(
   ({ theme, isalcoholic }) => ({
@@ -113,6 +114,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
+
   const deleteIngredientFromList = async (ingredient) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     let tempIngredients = [...userIngredients];
@@ -146,6 +148,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
   };
+  
   useEffect(() => {
     setTrigger((prevTrigger) => prevTrigger + 1);// Call the function when ingredients change
   }, [ingredients]);
@@ -157,104 +160,7 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
         sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
       >
         {ingredients.map((ingredient, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StyledCard
-              sx={{
-                backgroundColor: "#F5F5F5",
-              }}
-              //to prevent error, convert boolean to string
-              isalcoholic={ingredient.strAlcoholic.toString()}
-            >
-              <Box
-                sx={{ display: "flex", justifyContent: "end", padding: "10px" }}
-              >
-                <Tooltip
-                  title={`This item is ${
-                    ingredient.strAlcoholic ? "alcoholic." : "is non-alcoholic."
-                  }`}
-                >
-                  <IconButton>
-                    {ingredient.strAlcoholic ? (
-                      <LiaCocktailSolid size={30} color="#B50000" />
-                    ) : (
-                      <LuCupSoda size={30} color="#419DFF" />
-                    )}
-                  </IconButton>
-                </Tooltip>
-              </Box>
-              <Image
-                src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-                  ingredient.strIngredient1
-                )}.png`}
-                alt={ingredient.strIngredient1}
-                height={400}
-                width={400}
-              />
-              <StyledCardContent>
-                <Grid container style={{ marginTop: "60px" }}>
-                  <Grid item xs={12}>
-                    <Typography
-                      color="#FBFBFB"
-                      style={{ fontSize: "25px" }}
-                      className={sarabun.className}
-                    >
-                      {capitalizeWords(ingredient.strIngredient1)}
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignContent: "center",
-                      marginTop: "10px",
-                    }}
-                  >
-                    {userIngredients.find(
-                      (ing) => ing.strIngredient1 === ingredient.strIngredient1
-                    ) ? (
-                      <Button
-                        onClick={() => deleteIngredientFromList(ingredient)}
-                        color="secondary"
-                        variant="outlined"
-                        startIcon={<ClearIcon />}
-                        sx={{
-                          backgroundColor: "#FF5B5B !important",
-                          "&:hover": {
-                            backgroundColor: "#FF4B4B !important",
-                          },
-                          "&:focus": {
-                            backgroundColor: "#FF7C7C !important",
-                          },
-                        }}
-                      >
-                        Remove From My List
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => addIngredientToList(ingredient)}
-                        color="primary"
-                        variant="outlined"
-                        startIcon={<AddIcon />}
-                        sx={{
-                          backgroundColor: "#FFFFFF !important",
-                          "&:hover": {
-                            backgroundColor: "#DFDFDF !important",
-                          },
-                          "&:focus": {
-                            backgroundColor: "#DADADA !important",
-                          },
-                        }}
-                      >
-                        Add To My List
-                      </Button>
-                    )}
-                  </Grid>
-                </Grid>
-              </StyledCardContent>
-            </StyledCard>
-          </Grid>
+          <IngredientCard ingredient={ingredient} reloadIngredients={reloadIngredients}/>
         ))}
       </Grid>
     </Container>

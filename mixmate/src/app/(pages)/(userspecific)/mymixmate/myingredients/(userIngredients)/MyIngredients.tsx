@@ -256,7 +256,6 @@ const MyIngredients = () => {
       });
     }
     dispatch(pageStateActions.setPageLoadingState(false));
-    window.scrollTo(0, 0);
   };
 
   let loadIngredients = () => {
