@@ -12,12 +12,8 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  FormHelperText,
   Button,
-  Switch,
   TextField,
-  Divider,
-  Stack,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
@@ -140,11 +136,14 @@ const MyIngredients = () => {
 
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-
     if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       handlePageChange(pageIndex - 1);
+    }else if(buttonLabel === "Go to first page" && pageIndex > 1){
+      handlePageChange(1);
+    } else if(buttonLabel === "Go to last page" && pageIndex < pageIndexCount){
+      handlePageChange(pageIndexCount);
     } else if (e.target.innerText) {
       const index = parseInt(e.target.innerText);
       handlePageChange(index);
@@ -471,7 +470,8 @@ const MyIngredients = () => {
           showLastButton
           sx={{
             "& .MuiPaginationItem-root": {
-              backgroundColor:"#FFFFFF"
+              backgroundColor:"#FFFFFF",
+              marginBottom: 1
             },
           }}
         />

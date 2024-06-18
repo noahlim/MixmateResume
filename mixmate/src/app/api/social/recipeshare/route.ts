@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
+import { readRequestBody, Result, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
 import { userCollection, sharedRecipeCollection, recipeReviewCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
@@ -16,7 +16,6 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
         const userId = req.nextUrl.searchParams.get('userid');
 
         const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-        console.log(req.nextUrl.searchParams.get('index'));
         const isVisible =  req.nextUrl.searchParams.get('publicflag') === 'true';
         const { user } = await getSession();
         if (userId) {
@@ -111,8 +110,8 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             }
             body.recipe.sub = user.sub;
             body.recipe.created_at = new Date().toISOString();
+            body.recipe.updated_at = new Date().toISOString();
             body.recipe.reviews = [];
-            body.recipe.visibility = "private";
             body.recipe.nickname = user.nickname;
             body.recipe.strAuthor = user.nickname;
             body.recipe.strDrinkThumb = fileName;
@@ -165,13 +164,9 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             if (isNotSet(userExist)) {
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
-
-            const id = body.recipe._id;
+         
             delete body.recipe._id;
-
-            const bruh = await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(id) }, body.recipe);
-
-            delete body.recipe._id;
+            body.recipe.updated_at = new Date().toISOString();  
             await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);
 
             result.setTrue(`The recipe has updated.`);

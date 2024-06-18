@@ -33,7 +33,6 @@ function MyRecipes() {
 
   const [pageIndex, setPageIndex] = useState(1);
 
-  
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
@@ -44,23 +43,38 @@ function MyRecipes() {
   const [recipesFiltered, setRecipesFiltered] = useState(null);
   const [pageIndexCount, setPageIndexCount] = useState(1);
 
+  // Add edit recipes
+  const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
+  const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
+  let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
+    setSelectedRecipeIdAddEdit(selectedRecipeId);
+    setOpenAddEditRecipemodal(true);
+  };
+  let modalAddEditRecipe_onClose = () => {
+    setSelectedRecipeIdAddEdit(null);
+    setOpenAddEditRecipemodal(false);
+  };
+
   let onPageIndexChange = (e) => {
-    const buttonLabel = e.currentTarget.getAttribute("aria-label");  
+    const buttonLabel = e.currentTarget.getAttribute("aria-label");
     dispatch(pageStateActions.setPageLoadingState(true));
-  
+
     if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       setPageIndex(pageIndex + 1);
-      filter.isFilterApplied ? loadFilteredMyRecipes(pageIndex + 1) : loadMyRecipes(pageIndex + 1);      
-
+      filter.isFilterApplied
+        ? loadFilteredMyRecipes(pageIndex + 1)
+        : loadMyRecipes(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       setPageIndex(pageIndex - 1);
-      filter.isFilterApplied ? loadFilteredMyRecipes(pageIndex - 1) : loadMyRecipes(pageIndex - 1);      
+      filter.isFilterApplied
+        ? loadFilteredMyRecipes(pageIndex - 1)
+        : loadMyRecipes(pageIndex - 1);
     } else if (e.currentTarget.innerText) {
       const index = parseInt(e.target.innerText);
-      console.log(index);
       setPageIndex(index);
-      filter.isFilterApplied ? loadFilteredMyRecipes(index) : loadMyRecipes(index);      
-
+      filter.isFilterApplied
+        ? loadFilteredMyRecipes(index)
+        : loadMyRecipes(index);
     } else {
       alert("Invalid page index");
     }
@@ -71,7 +85,7 @@ function MyRecipes() {
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.get,
-      { userid: user?.sub, index: pageIndex, publicflag: false  },
+      { userid: user?.sub, index: pageIndex, publicflag: false },
       (response) => {
         setRecipesFiltered(response.data.recipes);
         setPageIndexCount(Math.ceil(response.data.length / 5));
@@ -91,7 +105,12 @@ function MyRecipes() {
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
       REQ_METHODS.get,
-      { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
+      {
+        filter: filter.filter,
+        criteria: filter.criteria,
+        index: pageIndex,
+        userid: user.sub,
+      },
       (response) => {
         setRecipesFiltered(response.data.recipes);
         setPageIndexCount(Math.ceil(response.data.length / 5));
@@ -125,18 +144,6 @@ function MyRecipes() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Add edit recipes
-  const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
-  const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
-  let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
-    setSelectedRecipeIdAddEdit(selectedRecipeId);
-    setOpenAddEditRecipemodal(true);
-  };
-  let modalAddEditRecipe_onClose = () => {
-    setSelectedRecipeIdAddEdit(null);
-    setOpenAddEditRecipemodal(false);
-  };
-
   return (
     <>
       {/* Add new recipe modal */}
@@ -145,6 +152,7 @@ function MyRecipes() {
         closeModal={modalAddEditRecipe_onClose}
         reloadPage={loadMyRecipes}
         recipeId={selectedRecipeIdAddEdit}
+        applicationPage={APPLICATION_PAGE.myRecipes}
       />
 
       {/* Page body */}
@@ -190,12 +198,7 @@ function MyRecipes() {
           />
         </Grid>
       </Grid>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        mt={4} 
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
         <Pagination
           count={pageIndexCount}
           defaultPage={1}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   API_ROUTES,
   API_DRINK_ROUTES,
@@ -11,7 +11,7 @@ import {
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent, Pagination, Stack, Box } from "@mui/material";
+import { Typography, CardContent, Pagination, Box } from "@mui/material";
 import RecipeRow from "@/app/(components)/RecipeRow";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -24,10 +24,9 @@ import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import FilterRecipesComponent from "../FilterRecipesComponent";
-import MarqueeScroll from "../MarqueeAnimation";
-import { Space_Grotesk } from "next/font/google";
-import MyMixMateHeader from "../MyMixMateHeader";
+import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
+import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
 function DefaultRecipesComponent() {
   // Validate session
@@ -117,13 +116,8 @@ function DefaultRecipesComponent() {
   let handleAddToFavorite = (recipe) => {
     // Get user
     if (!user) {
-      const toastMessageObject: ToastMessage = {
-        open: true,
-        title: "Please Log In",
-        severity: SEVERITY.Warning,
-        message: "You must be logged in to use Favourite Features",
-      };
-      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      dispatch(pageStateActions.setAuthenticatedModalOpen(true));
+      return;
     }
 
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -228,10 +222,22 @@ function DefaultRecipesComponent() {
       >
         <Pagination
           shape="rounded"
-          variant="outlined"
+          variant="outlined"          
+          showFirstButton
+          showLastButton
+          defaultPage={6}
+          siblingCount={0}
+          boundaryCount={2}          
+          color="primary"
           count={Math.ceil(recipesFiltered?.length / itemsPerPage)}
           page={page}
           onChange={handleChange}
+          sx={{
+            "& .MuiPaginationItem-root": {
+              backgroundColor:"#FFFFFF",
+              marginBottom: 1
+            },
+          }}
         />
       </Box>
       <MarqueeScroll direction="left" />

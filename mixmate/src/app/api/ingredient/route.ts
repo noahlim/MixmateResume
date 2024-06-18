@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
 import { ingredientCollection } from '@/app/_utilities/_server/database/config';
-import { Result, fetchFromCocktailDbApi } from "@/app/_utilities/_server/util";
+import { Result } from "@/app/_utilities/_server/util";
 
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 export async function GET(req: NextRequest, res: NextResponse) {

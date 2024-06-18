@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import Rating from "@mui/material/Rating";
 import moment from "moment";
-import CancelIcon from "@mui/icons-material/Cancel";
 import CloseIcon from "@mui/icons-material/Close";
-import InfoIcon from "@mui/icons-material/Info";
-import MapsUgcIcon from "@mui/icons-material/MapsUgc";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   APPLICATION_PAGE,
@@ -29,17 +26,22 @@ import {
   isNotSet,
   isSet,
   makeRequest,
+  formatDateTime
 } from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, CardContent, TextField, Divider, Stack } from "@mui/material";
+import {
+  Typography,
+  TextField,
+  Divider,
+  Stack,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -233,6 +235,18 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
             </Typography>
             <Typography className={vollkorn.className} fontSize="18px">
               {isSet(drink.strAuthor) ? drink.strAuthor : "www.cocktailDB.com"}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sx={{ marginTop: "30px" }}>
+            <Typography
+              fontWeight="bold"
+              sx={{ color: "black", fontSize: "20px" }}
+              className={sarabun.className}
+            >
+              Recipe Created At:
+            </Typography>
+            <Typography className={vollkorn.className} fontSize="18px">
+              {formatDateTime(drink.created_at)}
             </Typography>
           </Grid>
         </Grid>
@@ -608,7 +622,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         alignContent: "center",
                       }}
                     >
-                      <Stack direction={{ xs: 'column', sm: 'row' }}>
+                      <Stack direction={{ xs: "column", sm: "row" }}>
                         {(applicationPage === APPLICATION_PAGE.social ||
                           applicationPage === APPLICATION_PAGE.myRecipes) &&
                           drink.sub === user.sub && (
@@ -809,6 +823,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
         closeModal={modalAddEditRecipe_onClose}
         reloadPage={reloadRecipes}
         recipeId={selectedRecipeIdAddEdit}
+        applicationPage={applicationPage}
       />
       {/* Delete Recipe Modal */}
       {isEditablePage && (
@@ -973,23 +988,6 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
         ))}
 
       <Table aria-label="collapsible table">
-        {isEditablePage && (
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" colSpan={2}>
-                <CardContent
-                  style={{
-                    textAlign: "center",
-                    paddingTop: 25,
-                    paddingBottom: 0,
-                  }}
-                >
-                  <Typography variant="h6">{title}</Typography>
-                </CardContent>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-        )}
         <TableBody>
           {/* Print recipes on screen */}
           {recipes && recipes.length > 0 ? (
@@ -1001,7 +999,12 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                   variant="h6"
                   sx={{ textAlign: "center", mt: "20px" }}
                 >
-                  No recipes found.
+                  {applicationPage === APPLICATION_PAGE.favourites &&
+                    "Currently your favorite list is empty. Start by adding your favorite recipes!"}
+                  {applicationPage === APPLICATION_PAGE.myRecipes &&
+                    "Currently your recipe list is empty. Start by adding your own recipes!"}
+                  {applicationPage === APPLICATION_PAGE.social &&
+                    "Currently there are no recipes available. Be the first one to share a recipe!"}
                 </Typography>
               </TableCell>
             </TableRow>

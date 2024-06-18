@@ -55,7 +55,6 @@ function RecipeRow(props) {
         sx={{
           widhth: "90%",
           padding: 3,
-
         }}
       >
         <Grid container spacing={1}>
@@ -162,16 +161,16 @@ function RecipeRow(props) {
               variant="contained"
               startIcon={<FavoriteIcon />}
               sx={{
-                backgroundColor: "#4BF4FF !important",
+                backgroundColor: "#FFA1A1 !important",
                 "&:hover": {
-                  backgroundColor: "#00CBD8 !important",
+                  backgroundColor: "#FF5F5F !important",
                 },
                 "&:focus": {
-                  backgroundColor: "#00A3AD !important",
+                  backgroundColor: "#E91A1A !important",
                 },
               }}
             >
-              Add to Favorites
+              Add to My Favorites
             </Button>
           </Grid>
         </Grid>

@@ -4,19 +4,12 @@ import MenuList from "@mui/material/MenuList";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import Typography from "@mui/material/Typography";
 import { LiaCocktailSolid } from "react-icons/lia";
 import WineBarIcon from "@mui/icons-material/WineBar";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FaEarthAmericas } from "react-icons/fa6";
-import Link from "next/link";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
-import { useDispatch } from "react-redux";
-import { pageStateActions } from "@lib/redux/pageStateSlice";
-import { usePathname } from "next/navigation";
 export default function MenuBarDropdown({handlePageChange}) {
-  const dispatch = useDispatch();
-  const pathName = usePathname();
   return (
     <Paper sx={{ width: 200, zIndex: 10, position: "absolute" }}>
       <MenuList style={{ zIndex: 10 }}>

@@ -2,7 +2,6 @@
 import {
   Box,
   Button,
-  Divider,
   Grid,
   Typography,
 } from "@mui/material";
@@ -14,9 +13,11 @@ import FloatingBoxWrapper from "./(shapeComponents)/FloatingBox";
 import Image from "next/image";
 import HoverTypography from "./(shapeComponents)/HoverTypography";
 import BlogSection from "./(shapeComponents)/BlogSection";
-import { FaGithub, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import MarqueeScroll from "./MarqueeAnimation";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { pageStateActions } from "@lib/redux/pageStateSlice";
 
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
@@ -32,7 +33,10 @@ function HomePage() {
     theme.breakpoints.up("lg")
   );
   const router = useRouter();
-
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(pageStateActions.setPageLoadingState(false));
+  })
   return (
     <>
       <Grid container direction="column" justifyContent="center">

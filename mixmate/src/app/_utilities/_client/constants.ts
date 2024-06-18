@@ -50,8 +50,6 @@ const API_ROUTES = {
   sharedRecipesFilter: '/social/filtered',
   drinksByFilter: '/drinks/filter',
   favouritesByFilter : '/user/favourite/filtered',
-  favouriteCount : '/user/favourite/count',
-  favouriteFilteredCount : '/user/favourite/filteredcount',
   walmartItems: '/shoppinglist/walmart',
   lcboItems: '/shoppinglist/lcbo',
   availableRecipes: '/user/availablerecipes',

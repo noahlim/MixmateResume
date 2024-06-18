@@ -1,4 +1,4 @@
-import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Grid, Typography } from "@mui/material";
 
 import { FaGithub } from "react-icons/fa6";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";

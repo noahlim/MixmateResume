@@ -4,13 +4,9 @@ import {
   Box,
   Toolbar,
   IconButton,
-  Typography,
-  Menu,
   Container,
   Avatar,
   Button,
-  Tooltip,
-  MenuItem,
   ListItemIcon,
   ListItemText,
   Divider,
@@ -23,13 +19,11 @@ import {
   AlertTitle,
   Backdrop,
   CircularProgress,
-  useTheme,
   DialogTitle,
   Dialog,
   DialogContent,
   DialogContentText,
   DialogActions,
-  SpeedDial,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -62,7 +56,6 @@ const pages = [
   { route: APPLICATION_PAGE.myMixMate, page: "My MixMate" },
 ];
 function MenuBar() {
-  const theme = useTheme();
   const pathName = usePathname();
   const userInfo = useSelector((state: any) => state.userInfo.userInfo);
   const isAuthModalOpen = useSelector(
@@ -74,7 +67,6 @@ function MenuBar() {
   );
   const router = useRouter();
   const dispatch = useDispatch();
-  const [signInPromptOpen, setSignInPromptOpen] = useState(false);
   const { user, isLoading, error } = useUser();
 
   const handlePageChange = (route: string) => {
@@ -87,19 +79,16 @@ function MenuBar() {
         route === APPLICATION_PAGE.social
       )
         dispatch(pageStateActions.setAuthenticatedModalOpen(true));
+        router.push(route);
       return;
     }
     if (
-      pathName !== APPLICATION_PAGE.root &&
-      pathName !== APPLICATION_PAGE.about &&
-      pathName !== route
+      route !== APPLICATION_PAGE.root &&
+      route !== APPLICATION_PAGE.about
     )
       dispatch(pageStateActions.setPageLoadingState(true));
 
     router.push(route);
-  };
-  const handleClose = () => {
-    setSignInPromptOpen(false);
   };
 
   //if logged in successfully using Auth0, sync with MongoDB
@@ -132,7 +121,6 @@ function MenuBar() {
   let userMenu = null;
   let [openUserMenu, setOpenUserMenu] = useState(false);
   const handleUserMenuOpen = () => {
-    console.log(openUserMenu);
     setOpenUserMenu(true);
   };
   // Set user's menu
@@ -166,6 +154,16 @@ function MenuBar() {
                 <HomeIcon />
               </ListItemIcon>
               <ListItemText primary="Home" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handlePageChange(APPLICATION_PAGE.about)}
+            >
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="About" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>

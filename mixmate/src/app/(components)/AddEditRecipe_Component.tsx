@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import {
@@ -22,6 +22,7 @@ import {
   SEVERITY,
   API_ROUTES,
   REQ_METHODS,
+  APPLICATION_PAGE,
 } from "@/app/_utilities/_client/constants";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -32,11 +33,10 @@ import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import { error } from "console";
 import { ToastMessage } from "interface/toastMessage";
 
-function AddEditRecipe_Component(props) {
-  const { openModal, closeModal, recipeId, reloadPage } = props;
+function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, applicationPage }) {
+
 
   const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
@@ -250,8 +250,7 @@ function AddEditRecipe_Component(props) {
             REQ_METHODS.post,
             formData,
             (response) => {
-              if (response.message === "File has been added to the storage.") {
-                console.log(response.data);
+              if (response.message === "File has been added to the storage.") {              
                 fileName = response.data;
               }
             }
@@ -267,6 +266,7 @@ function AddEditRecipe_Component(props) {
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
+          visibility: applicationPage === APPLICATION_PAGE.social ? "public" : "private",
         };
 
         //if image is not included, only send {recipe:newRecipeInfo}

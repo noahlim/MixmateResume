@@ -73,6 +73,7 @@ const findAllWithPagination = async (
     .collection(coll)
     .find(criteria)
     .project(projection)
+    .sort({ created_at: -1 })
     .skip(skip)
     .limit(limit)
     .toArray();

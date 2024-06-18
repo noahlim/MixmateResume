@@ -11,7 +11,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 import Input from "@mui/material/Input";
 import InputAdornment from "@mui/material/InputAdornment";
-import Box from "@mui/material/Box";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import {
   capitalizeWords,
@@ -410,7 +409,7 @@ function FilterRecipesComponent({
         {applicationPage === APPLICATION_PAGE.social && (
           <CardContent style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}>
             <Button
-              onClick={() => loadMyRecipes()}
+              onClick={loadMyRecipes}
               variant="outlined"
               startIcon={<EditIcon />}              
               sx={{

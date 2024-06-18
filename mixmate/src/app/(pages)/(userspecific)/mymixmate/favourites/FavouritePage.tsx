@@ -78,6 +78,10 @@ function Favourites() {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       handlePageChange(pageIndex - 1);
+    }else if(buttonLabel === "Go to first page" && pageIndex > 1){
+      handlePageChange(1);
+    } else if(buttonLabel === "Go to last page" && pageIndex < pageIndexCount){
+      handlePageChange(pageIndexCount);
     } else if (e.target.innerText) {
       const index = parseInt(e.target.innerText);
       handlePageChange(index);
@@ -116,26 +120,7 @@ function Favourites() {
     setPageIndex(1);
     setPageIndexCount(Math.ceil(filteredRecipes.length / 5));
     setRecipesFilteredToBeDisplayed(filteredRecipes.slice(0, 5));
-    dispatch(pageStateActions.setPageLoadingState(false));
-    // makeRequest(
-    //   API_ROUTES.favouritesByFilter,
-    //   REQ_METHODS.get,
-    //   { filter: filter.filter, criteria: filter.criteria, index: pageIndex },
-    //   (response) => {
-    //     setRecipesFiltered(response.data.recipes);
-    //     setIsFilterApplied(true);
-    //     //loadFilteredRecipesCount(filter.filter, filter.criteria);
-    //     setPageIndexCount(Math.ceil(response.data.length / 5));
-
-    //     dispatch(pageStateActions.setPageLoadingState(false));
-    //   }
-    // )
-    //   .catch((error) => {
-    //     displayErrorSnackMessage(error, dispatch);
-    //   })
-    //   .finally(() => {
-    //     dispatch(pageStateActions.setPageLoadingState(false));
-    //   });
+    dispatch(pageStateActions.setPageLoadingState(false));    
   };
   useEffect(() => {
     loadFavoriteRecipes();
@@ -209,7 +194,18 @@ function Favourites() {
           defaultPage={6}
           siblingCount={0}
           boundaryCount={2}
+          page={pageIndex}
+          showFirstButton
+          showLastButton
+          color="primary"
+          disabled={pageIndexCount === 1}
           onChange={onPageIndexChange}
+          sx={{
+            "& .MuiPaginationItem-root": {
+              backgroundColor:"#FFFFFF",
+              marginBottom: 1
+            },
+          }}
         />
       </Box>
       <MarqueeScroll direction="left" />

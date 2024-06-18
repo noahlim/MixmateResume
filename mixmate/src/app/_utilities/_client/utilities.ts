@@ -25,7 +25,7 @@ type FetchOptions = {
   body?: FormData | string;
 };
 
-const displayErrorSnackMessage = (error:any, dispatch:Dispatch) => {
+const displayErrorSnackMessage = (error: any, dispatch: Dispatch) => {
   dispatch(pageStateActions.setToastMessage({
     title: "Error",
     message: error.message,
@@ -49,14 +49,14 @@ async function executeFetch(url: string, options: RequestInit, funOk?: (data: an
     }
     funOk?.(responseData);
   } catch (error) {
-      throw error;  
+    throw error;
   }
 }
 const makeRequest = async (
-  apiRoute: string, 
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE', 
-  data: any, 
-  funOk?: (data: any) => void, 
+  apiRoute: string,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  data: any,
+  funOk?: (data: any) => void,
   funErr?: (error: Error) => void
 ): Promise<void> => {
   let fullUrl: string;
@@ -74,9 +74,9 @@ const makeRequest = async (
         fetchOptions.headers = { "Content-Type": "application/json" };
         fetchOptions.body = JSON.stringify(data);
         break;
-      case "DELETE": 
+      case "DELETE":
       case "GET":
-        fullUrl =jsonToQueryString(END_POINT, apiRoute, data);
+        fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
         break;
       default:
         throw new Error('Unsupported HTTP method');
@@ -149,11 +149,26 @@ function getCallerLine() {
   const callerLine = stack[3]; // This might be the line where the function was called
   return callerLine.match(/:(\d+):\d+\)?$/)?.[1]; // Extracts line number
 }// a function used to determine where is the function be called from
-  // const filterSetter = (data) => {
-  //   const callerLine = getCallerLine();
-  //   console.log(`filterSetter was called from line: ${callerLine}`);
-  //   console.log(data[0]);
-  //   setRecipesFiltered(data);
-  // };
-  // Loading recipe options
-export { displayErrorSnackMessage, doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine };
+// const filterSetter = (data) => {
+//   const callerLine = getCallerLine();
+//   console.log(`filterSetter was called from line: ${callerLine}`);
+//   console.log(data[0]);
+//   setRecipesFiltered(data);
+// };
+// Loading recipe options
+
+function formatDateTime(dateTimeString: string): string {
+  const date = new Date(dateTimeString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false
+  };
+  return new Intl.DateTimeFormat('en-EN', options).format(date);
+}
+
+
+export { displayErrorSnackMessage, doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine, formatDateTime };
