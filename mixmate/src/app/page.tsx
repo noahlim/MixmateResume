@@ -4,9 +4,9 @@ import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
 import MenuBar from "./(components)/global/MenuBar";
 import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
-import HomePage from "./(components)/HomePage";
+import HomePage from "./HomePage";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
-import Footer from "./(components)/Footer";
+import Footer from "./(components)/global/Footer";
 
 function RootPage({ children }) {
   // Check if the current route is the home page
