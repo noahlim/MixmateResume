@@ -6,13 +6,13 @@ import {
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import Grid from "@mui/material/Grid";
-import { APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
+import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
 import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import { Space_Grotesk } from "next/font/google";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
@@ -159,7 +159,7 @@ function Favourites() {
           </Grid>
         </Grid>
       </Box>
-      <MarqueeScroll direction="right" />
+      <MarqueeAnimation direction="right" />
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} sm={3}>
           <FilterRecipesComponent
@@ -208,7 +208,7 @@ function Favourites() {
           }}
         />
       </Box>
-      <MarqueeScroll direction="left" />
+      <MarqueeAnimation direction="left" />
     </>
   );
 }

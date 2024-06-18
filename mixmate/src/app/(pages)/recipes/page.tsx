@@ -1,5 +1,5 @@
 'use client'
-import Fallback from '@/app/(components)/Fallback'
+import Fallback from '@/app/(components)/global/Fallback'
 import { Suspense } from 'react';
 import DefaultRecipes from './DefaultRecipes';
 

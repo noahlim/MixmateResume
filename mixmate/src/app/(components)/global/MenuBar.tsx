@@ -46,7 +46,7 @@ import {
 import { LiaCocktailSolid } from "react-icons/lia";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
-import NavLink from "@/app/(components)/menubar/NavLink";
+import NavLink from "@/app/(components)/global/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 const pages = [

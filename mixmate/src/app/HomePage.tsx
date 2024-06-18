@@ -6,15 +6,15 @@ import {
   Typography,
 } from "@mui/material";
 import "@fontsource/dela-gothic-one";
-import { API_ROUTES, APPLICATION_PAGE } from "../_utilities/_client/constants";
+import { API_ROUTES, APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import { useMediaQuery } from "@mui/material";
-import StarShape from "./(shapeComponents)/StarShape";
-import FloatingBoxWrapper from "./(shapeComponents)/FloatingBox";
+import StarShape from "@/app/(components)/(shapeComponents)/StarShape";
+import FloatingBoxWrapper from "@/app/(components)/(shapeComponents)/FloatingBox";
 import Image from "next/image";
-import HoverTypography from "./(shapeComponents)/HoverTypography";
-import BlogSection from "./(shapeComponents)/BlogSection";
+import HoverTypography from "@/app/(components)/(shapeComponents)/HoverTypography";
+import BlogSection from "@/app/(components)/(shapeComponents)/BlogSection";
 import { useRouter } from "next/navigation";
-import MarqueeScroll from "./MarqueeAnimation";
+import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
@@ -125,33 +125,7 @@ function HomePage() {
               >
                 Get Your Own Mixes
               </Box>
-            </Grid>
-            <Grid item>
-              <Box
-                component={Button}
-                sx={{
-                  width: "250px",
-                  zIndex: 1,
-                  borderRadius: "50vh",
-                  backgroundColor: "white",
-                  color: "black",
-                  fontFamily: "Dela Gothic one",
-                  fontSize: "15px",
-                  marginBottom: { sm: "20px", xs: "0px" },
-                  marginLeft: { md: "50px", xs: "0px" },
-                  transition:
-                    "color .3s ease-in-out, box-shadow .3s ease-in-out",
-                  boxShadow: "inset 0 0 0 0 #54b3d6",
-                  ":hover": {
-                    boxShadow: "inset 250px 0 0 0 #54b3d6",
-                    color: "white",
-                  },
-                }}
-                onClick={() => { throw new Error("error test"); }}
-              >
-                Error test
-              </Box>
-            </Grid>
+            </Grid>           
           </Grid>
         </Grid>
         <Grid

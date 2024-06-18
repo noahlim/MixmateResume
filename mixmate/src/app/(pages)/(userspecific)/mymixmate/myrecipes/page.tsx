@@ -22,7 +22,7 @@ import FilterCustomRecipesComponent from "@/app/(components)/FilterCustomRecipes
 import { useDispatch, useSelector } from "react-redux";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import { ToastMessage } from "interface/toastMessage";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
@@ -207,7 +207,7 @@ function MyRecipes() {
           page={pageIndex}
         />
       </Box>
-      <MarqueeScroll direction="left" />
+      <MarqueeAnimation direction="left" />
     </>
   );
 }

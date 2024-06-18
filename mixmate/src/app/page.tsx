@@ -1,7 +1,7 @@
 "use client";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
-import MenuBar from "./(components)/menubar/MenuBar";
+import MenuBar from "./(components)/global/MenuBar";
 import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";

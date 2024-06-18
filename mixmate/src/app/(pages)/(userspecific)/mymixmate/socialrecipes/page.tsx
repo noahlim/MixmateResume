@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 
@@ -94,8 +94,6 @@ function CustomRecipes() {
   };
 
   const loadRecipes = (newPageIndex) => {
-    console.log(filter);
-
     if (!filter.isFilterApplied) {
       if (filter.isMyRecipes) loadMyRecipes(newPageIndex);
       else loadSocialRecipes(newPageIndex);
@@ -301,7 +299,7 @@ function CustomRecipes() {
           }}
         />
       </Box>
-      <MarqueeScroll direction="left" />
+      <MarqueeAnimation direction="left" />
     </>
   );
 }

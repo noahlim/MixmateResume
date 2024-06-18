@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from "@mui/material";
-import MarqueeScroll from "./MarqueeAnimation";
+import MarqueeScroll from "./(shapeComponents)/MarqueeAnimation";
 import { Space_Grotesk } from "next/font/google";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 

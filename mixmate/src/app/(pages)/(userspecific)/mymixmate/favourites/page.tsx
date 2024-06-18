@@ -1,4 +1,4 @@
-import Fallback from '@/app/(components)/Fallback'
+import Fallback from '@/app/(components)/global/Fallback'
 import Favourites from './FavouritePage';
 import { Suspense } from 'react';
 const FavouritesPage = () => {

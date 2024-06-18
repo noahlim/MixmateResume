@@ -35,7 +35,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 import IngredientCards from "./IngredientCards";
 import { Ingredient } from "interface/ingredient";
@@ -476,7 +476,7 @@ const MyIngredients = () => {
           }}
         />
       </Box>
-      <MarqueeScroll direction="left" />
+      <MarqueeAnimation direction="left" />
     </>
   );
 };

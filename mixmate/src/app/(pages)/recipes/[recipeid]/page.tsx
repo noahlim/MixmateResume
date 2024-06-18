@@ -36,7 +36,6 @@ const RecipeById = ({ params }) => {
       REQ_METHODS.get,
       { recipeid: recipeId },
       (response) => {
-        console.log(response);
 
         if (response.message === "Recipe not found") {
           makeRequest(
@@ -48,7 +47,6 @@ const RecipeById = ({ params }) => {
                 notFound();
               }
               setRecipeAndIngredients(response.data);
-              console.log(response.data);
             }
           );
         } else {

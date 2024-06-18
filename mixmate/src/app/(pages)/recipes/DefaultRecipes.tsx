@@ -25,7 +25,7 @@ import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
-import MarqueeScroll from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
 function DefaultRecipesComponent() {
@@ -240,7 +240,7 @@ function DefaultRecipesComponent() {
           }}
         />
       </Box>
-      <MarqueeScroll direction="left" />
+      <MarqueeAnimation direction="left" />
     </>
   );
 }

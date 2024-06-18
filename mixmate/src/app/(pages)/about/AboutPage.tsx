@@ -3,7 +3,7 @@ import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { Space_Grotesk } from "next/font/google";
 import Image from "next/image";
-import MarqueeComponent from "@/app/(components)/MarqueeAnimation";
+import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import "../../../app/globals.css";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -102,7 +102,7 @@ function AboutPage() {
           </Grid>
         </Grid>
         <Grid container>
-          <MarqueeComponent direction="left" />
+          <MarqueeAnimation direction="left" />
         </Grid>
         <Grid container>
           <Grid container item xs={12}>
@@ -246,7 +246,7 @@ function AboutPage() {
           </Grid>
         </Grid>
         <Grid container justifyContent="center" sx={{backgroundColor:"white"}}>
-          <MarqueeComponent direction="left" />
+          <MarqueeAnimation direction="left" />
           <Grid
             item
             xs={10}

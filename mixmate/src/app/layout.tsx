@@ -4,7 +4,7 @@ import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { API_ROUTES } from "./_utilities/_client/constants";
 import RootPage from "./page";
 import { ErrorBoundary, HighlightInit } from "@highlight-run/next/client";
-import ErrorPage from "./(components)/ErrorPage";
+import ErrorPage from "./(components)/global/ErrorPage";
 
 export const metadata = {
   title: "MixMate",
