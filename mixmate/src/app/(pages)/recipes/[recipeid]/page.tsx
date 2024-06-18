@@ -36,7 +36,6 @@ const RecipeById = ({ params }) => {
       REQ_METHODS.get,
       { recipeid: recipeId },
       (response) => {
-        console.log(response);
 
         if (response.message === "Recipe not found") {
           makeRequest(
@@ -48,7 +47,6 @@ const RecipeById = ({ params }) => {
                 notFound();
               }
               setRecipeAndIngredients(response.data);
-              console.log(response.data);
             }
           );
         } else {
@@ -64,7 +62,7 @@ const RecipeById = ({ params }) => {
         drinkData.ingredients.map((ing, index) => {
           if (ing.ingredient && ing.measure) {
             return (
-              <Typography className="margin-left-35px" key={index}>
+              <Typography key={index}>
                 {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
               </Typography>
             );
@@ -96,7 +94,7 @@ const RecipeById = ({ params }) => {
                 src={
                   recipe.strDrinkThumb
                     ? recipe.strDrinkThumb
-                    : "not-found-icon.png"
+                    : "/not-found-icon.png"
                 }
                 alt="Drink"
                 height={700}
@@ -167,7 +165,7 @@ const RecipeById = ({ params }) => {
               {ingredients}
               <br></br>
               <InputLabel>How to prepare:</InputLabel>
-              <Typography className="margin-left-35px">
+              <Typography>
                 {recipe.strInstructions}
               </Typography>
             </Grid>

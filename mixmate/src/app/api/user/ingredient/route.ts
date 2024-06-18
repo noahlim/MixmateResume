@@ -23,7 +23,7 @@ export const GET = withApiAuthRequired(async function getAllUserIngredients(req:
     let db = await dbRtns.getDBInstance();
 
     let userIngredientDocument = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
-   
+
     if (isNotSet(userIngredientDocument)) {
       const newUserIngredientDocument = { sub: user.sub, ingredients: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
       await dbRtns.addOne(db, userIngredientCollection, newUserIngredientDocument);
@@ -63,6 +63,7 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
 
     let db = await dbRtns.getDBInstance();
 
+    //add userIngredientDocument which is a collection of ingredients for each user if not found
     let userIngredientDocument = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
     if (isNotSet(userIngredientDocument)) {
       const newUserIngredientDocument = {
@@ -75,21 +76,20 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
       await dbRtns.addOne(db, userIngredientCollection, newUserIngredientDocument);
     } else {
       // Check if the ingredient already exists
-      if (userIngredientDocument.ingredients.some(ingredient => ingredient.strIngredient1.toLowerCase() === body.ingredient.toLowerCase())) {
-        return NextResponse.json({ error: 'Ingredient already exists.' }, { status: 400 });
+
+      if (userIngredientDocument.ingredients.some(ingredient => ingredient.strIngredient1.toLowerCase() === body.ingredient.strIngredient1.toLowerCase())) {
+        return NextResponse.json({ error: `${body.ingredient.strIngredient1} already exists in your list.` }, { status: 400 });
       }
 
-      userIngredientDocument.ingredients.push({
-        strIngredient1: body.ingredient, strIngredientThumb: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-          body.ingredient
-        )}.png`
-      });
+      const ingredient = body.ingredient;
+      delete ingredient._id;
+      userIngredientDocument.ingredients.push(ingredient);
       await dbRtns.updateOne(db, userIngredientCollection, { sub: user.sub }, { ingredients: userIngredientDocument.ingredients, updated_at: new Date().toISOString() });
     }
     const result = new Result(true);
 
     result.data = userIngredientDocument.ingredients;
-    result.message = "Ingredient added successfully";
+    result.message = `${body.ingredient.strIngredient1} was added to your list successfully.`;
     //response is the object deleted
     return NextResponse.json(result, { status: 200 })
   } catch (err) {
@@ -102,39 +102,39 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
 export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req: NextRequest) {
   //rate limiting
   if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
-      return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+    return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
   }
 
   const userId = req.nextUrl.searchParams.get('userId');
   const ingredient = req.nextUrl.searchParams.get('ingredient');
 
   if (!ingredient) {
-      return NextResponse.json({ error: 'Body is Empty' }, { status: 400 });
+    return NextResponse.json({ error: 'Body is Empty' }, { status: 400 });
   }
-  
-  try {
-  const { user } = await getSession();
 
-  if (!userId || userId !== user.sub) {
-    return NextResponse.json({ error: 'Invalid user data.' }, { status: 400 });
-  }
-      let db = await dbRtns.getDBInstance();
-      let response = await dbRtns.findOne(db, userIngredientCollection, { sub: userId });
-      if (!response) {
-          return NextResponse.json({ error: "User does not exist." }, { status: 404 })
-      }
-     
-      const updatedIngredientList = response.ingredients.filter(ing => ing.strIngredient1 !== ingredient);  
-      console.log(updatedIngredientList);
-      response = await dbRtns.updateOne(db, userIngredientCollection, { sub: userId }, { ingredients: updatedIngredientList, updated_at: new Date().toISOString() }); 
-      
-      if (response) {
-          const result = new Result(true);
-          result.message = "Selected recipe has been deleted successfully.";
-          return NextResponse.json(result, { status: 200 });
-      }
+  try {
+    const { user } = await getSession();
+
+    if (!userId || userId !== user.sub) {
+      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+    }
+    let db = await dbRtns.getDBInstance();
+    let response = await dbRtns.findOne(db, userIngredientCollection, { sub: userId });
+    if (!response) {
+      return NextResponse.json({ error: "User does not exist." }, { status: 404 })
+    }
+
+    const updatedIngredientList = response.ingredients.filter(ing => ing.strIngredient1 !== ingredient);
+    response = await dbRtns.updateOne(db, userIngredientCollection, { sub: userId }, { ingredients: updatedIngredientList, updated_at: new Date().toISOString() });
+
+    if (response) {
+      const result = new Result(true);
+      result.message = "Selected ingredient has been deleted successfully.";
+      return NextResponse.json(result, { status: 200 });
+    }
   } catch (err) {
-      return NextResponse.json({ error: err }, { status: 400 });
+    console.log('here')
+    return NextResponse.json({ error: "err" }, { status: 400 });
 
   }
 })

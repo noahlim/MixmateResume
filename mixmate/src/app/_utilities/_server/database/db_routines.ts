@@ -51,17 +51,12 @@ const findAll = async (
   db: Db,
   coll: string,
   criteria: any,
-  projection: any,
-  page: number = 1,
-  limit: number = 10, // Default to 10 documents per page,
+  projection: any
 ): Promise<any[]> => {
-  const skip = limit > 0 ? (page - 1) * limit : 0;
   return db
     .collection(coll)
     .find(criteria)
     .project(projection)
-    .skip(skip)
-    .limit(limit)
     .toArray();
 };
 
@@ -71,13 +66,14 @@ const findAllWithPagination = async (
   criteria: any,
   projection: any,
   page: number = 1,
-  limit: number = 5 // Default to 10 documents per page
+  limit: number = 10 // Default to 10 documents per page
 ): Promise<any[]> => {
   const skip = (page - 1) * limit;
   return db
     .collection(coll)
     .find(criteria)
     .project(projection)
+    .sort({ created_at: -1 })
     .skip(skip)
     .limit(limit)
     .toArray();

@@ -1,15 +1,15 @@
+import { Box, Grid, Typography } from "@mui/material";
+import AboutPage from "./AboutPage"; // Import the client component
 
 export const metadata = {
-    title: "Page Title",
-    description: "Description test"
+  title: "MixMate | About",
+  description: "Description test",
+};
+
+export default function Page() {
+  return (
+    <Box>
+      <AboutPage />
+    </Box>
+  );
 }
-
-
-
-function Page  ()  {
-    return (
-        <h1>This is a page</h1>
-    )
-}
-
-export default Page;

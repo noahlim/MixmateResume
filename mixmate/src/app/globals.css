@@ -2,11 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-
-.roboto {
-  font-family: var(--font-roboto);
+.quick_sand {
+  font-family: "Quicksand", sans-serif;
 }
 
 .noto_sans {
   font-family: var(--font-noto-sans);
 }
+/* Supressing the error overlay */
+/* nextjs-portal {
+  display: none;
+}
+body {
+  padding: 0 !important;
+  overflow: auto !important;
+} */

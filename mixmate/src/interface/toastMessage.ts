@@ -10,6 +10,8 @@ interface ToastMessage {
 interface PageState {
     isLoading: boolean;
     toastMessage: ToastMessage;
+    authenticatedModalOpen: boolean;
+
 }
 
 export type { PageState, ToastMessage};

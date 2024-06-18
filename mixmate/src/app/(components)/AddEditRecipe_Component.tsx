@@ -1,7 +1,8 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import {
+  displayErrorSnackMessage,
   isNotSet,
   isSet,
   makeRequest,
@@ -21,6 +22,7 @@ import {
   SEVERITY,
   API_ROUTES,
   REQ_METHODS,
+  APPLICATION_PAGE,
 } from "@/app/_utilities/_client/constants";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -31,15 +33,10 @@ import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { ToastMessage } from "interface/toastMessage";
 
-function AddEditRecipe_Component(props) {
-  const {
-    openModal,
-    closeModal,
-    showToastMessage,
-    recipeId,
-    reloadPage,
-  } = props;
+function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, applicationPage }) {
+
 
   const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
@@ -51,7 +48,8 @@ function AddEditRecipe_Component(props) {
   const [newMeasure, setNewMeasure] = useState("");
   const [originalListIngredients, setOriginalListIngredients] = useState([]);
   const [originalListMueasure, setOriginalListMeasure] = useState([]);
-  const [currentRecipeRowObjectId, setCurrentRecipeRowObjectId] = useState(null);
+  const [currentRecipeRowObjectId, setCurrentRecipeRowObjectId] =
+    useState(null);
   const [currentRecipeRowId, setCurrentRecipeRowId] = useState(null);
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
@@ -68,13 +66,12 @@ function AddEditRecipe_Component(props) {
   // Load data if recipe ID exist
   let loadRecipeIfExist = () => {
     if (isSet(recipeId)) {
-      dispatch(pageStateActions.setPageLoadingState(false));
+      dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
         API_ROUTES.sharedRecipeById,
         REQ_METHODS.get,
         { recipeid: recipeId },
         (response) => {
-          console.log(response.data);
           setCurrentRecipeRowId(response.data.idDrink);
           setCurrentRecipeRowObjectId(response.data._id);
           setCurrentRecipeName(response.data.strDrink);
@@ -90,18 +87,25 @@ function AddEditRecipe_Component(props) {
           });
           setCurrentRecipeIngredients(ingredients);
           setCurrentRecipeMeasure(measures);
-          setCurrentRecipeInstructions(response.data.strInstructions);          
+          setCurrentRecipeInstructions(response.data.strInstructions);
           dispatch(pageStateActions.setPageLoadingState(false));
-          
         }
-      );
+      )
+        .catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
     }
 
     return recipeId;
   };
   //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
 
-  useEffect(()=>{loadRecipeIfExist()},[openModal])
+  useEffect(() => {
+    loadRecipeIfExist();
+  }, [openModal]);
   // Modal events
   let closeNewRecipeModal_onClick = () => {
     setNewIngredient("");
@@ -125,15 +129,18 @@ function AddEditRecipe_Component(props) {
   let fileSelectImage_onChange = (file) => {
     setCurrentRecipeImage(file);
   };
-  let btnAddNewIngredient_onClick = () => {
+  let handleAddNewIngredientButtonClick = () => {
     // Validations
-    if (isNotSet(newIngredient))
-      showToastMessage(
-        "Ingredients",
-        "Enter a new ingredient name",
-        SEVERITY.Warning
-      );
-    else {
+    let toastMessageObject : ToastMessage;
+    if (isNotSet(newIngredient)) {
+      toastMessageObject = {
+        open: true,
+        message: "Enter a new ingredient name",
+        severity: SEVERITY.Warning,
+        title: "Ingredients",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+    } else {
       let addNewIngredientToList = currentRecipeIngredients;
       addNewIngredientToList.push(newIngredient);
       setCurrentRecipeIngredients(addNewIngredientToList);
@@ -143,11 +150,16 @@ function AddEditRecipe_Component(props) {
       addNewMeasureToList.push(newMeasure);
       setCurrentRecipeMeasure(addNewMeasureToList);
       setNewMeasure("");
-
-      showToastMessage("Ingredients", "Ingredient added", SEVERITY.Success);
+      toastMessageObject = {
+        open: true,
+        message: "Ingredient added",
+        severity: SEVERITY.Success,
+        title: "Ingredients",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
     }
   };
-  let btnRemoveIngredient_onClick = (index) => {
+  let handleRemoveIngredientButtonClick = (index) => {
     let newIngredientsList = [];
     currentRecipeIngredients.forEach((x, i) =>
       i !== index ? newIngredientsList.push(x) : null
@@ -159,50 +171,66 @@ function AddEditRecipe_Component(props) {
       i !== index ? newMeasureList.push(x) : null
     );
     setCurrentRecipeMeasure(newMeasureList);
-
-    showToastMessage("Ingredients", "Ingredient removed", SEVERITY.Success);
+    
+    const toastMessageObject: ToastMessage = {
+      open: true,
+      message: "Ingredient removed.",
+      severity: SEVERITY.Success,
+      title: "Ingredients",
+    };
+    dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
-  let btnAddNewOrEditRecipe_onClick = async () => {
+  let handleAddNewOrEditRecipeButtonClick = async () => {
+    let toastMessageObject : ToastMessage;
+
     // Validate data
     if (isNotSet(currentRecipeName))
-      showToastMessage(
-        "New Recipe",
-        "Recipe name is required",
-        SEVERITY.Warning
-      );
+      toastMessageObject={
+        open: true,
+        message: "Recipe name is required",
+        severity: SEVERITY.Warning,
+        title: "New Recipe",
+      }
     else if (
       isNotSet(currentRecipeIngredients) ||
       currentRecipeIngredients.length === 0
-    )
-      showToastMessage(
-        "New Recipe",
-        "Add at least one ingredient",
-        SEVERITY.Warning
-      );
-    else if (isNotSet(currentRecipeInstructions))
-      showToastMessage(
-        "New Recipe",
-        "Write the instructions to prepare your recipe",
-        SEVERITY.Warning
-      );
+    ){
+      toastMessageObject={
+        open: true,
+        message: "Add at least one ingredient",
+        severity: SEVERITY.Warning,
+        title: "New Recipe",
+      }
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+    }
+    else if (isNotSet(currentRecipeInstructions)){
+      toastMessageObject={
+        open: true,
+        message: "Write the instructions to prepare your recipe",
+        severity: SEVERITY.Warning,
+        title: "New Recipe",
+      }
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+    }
     else if (
       currentRecipeType === "Favorite" &&
       JSON.stringify(currentRecipeIngredients) ===
         JSON.stringify(originalListIngredients) &&
       JSON.stringify(currentRecipeMeasure) ===
         JSON.stringify(originalListMueasure)
-    )
-      showToastMessage(
-        "New Recipe",
-        "List of ingredients cannot be the same",
-        SEVERITY.Warning
-      );
-      
+    ){
+      toastMessageObject={
+        open: true,
+        message: "List of ingredients cannot be the same",
+        severity: SEVERITY.Warning,
+        title: "New Recipe",
+      }
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+    }
     //validated!
     else {
       dispatch(pageStateActions.setPageLoadingState(true));
       //if the recipe is newly created, or if from favorite page, create a copy of the recipe
-      console.log(currentRecipeRowId);
       if (isNotSet(currentRecipeRowId) || currentRecipeType === "Favorite") {
         const ingredientsArray = [];
         // Add new recipe
@@ -222,8 +250,7 @@ function AddEditRecipe_Component(props) {
             REQ_METHODS.post,
             formData,
             (response) => {
-              if (response.message === "File has been added to the storage.") {
-                console.log(response.data);
+              if (response.message === "File has been added to the storage.") {              
                 fileName = response.data;
               }
             }
@@ -231,7 +258,7 @@ function AddEditRecipe_Component(props) {
         }
 
         let newRecipeInfo = {
-          idDrink:  generateRandomKey(12),
+          idDrink: generateRandomKey(12),
           strDrink: currentRecipeName,
           strDrinkThumb: fileName,
           strCategory: currentRecipeCategory,
@@ -239,6 +266,7 @@ function AddEditRecipe_Component(props) {
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
+          visibility: applicationPage === APPLICATION_PAGE.social ? "public" : "private",
         };
 
         //if image is not included, only send {recipe:newRecipeInfo}
@@ -251,27 +279,26 @@ function AddEditRecipe_Component(props) {
             filename: fileName,
           },
           (response) => {
-            if (response.isOk) {
               closeNewRecipeModal_onClick();
-              showToastMessage(
-                "New Recipe",
-                newRecipeInfo.strDrink + " added!",
-                SEVERITY.Success
-              );
+              const toastMessageObject: ToastMessage = {
+                open: true,
+                message: newRecipeInfo.strDrink + " added!",
+                severity: SEVERITY.Success,
+                title: "New Recipe",
+              };
+              dispatch(pageStateActions.setToastMessage(toastMessageObject));               
 
               // Reload recipes list
-              reloadPage();
-            } else
-              showToastMessage("New Recipe", response.message, SEVERITY.Error);
-
-              dispatch(pageStateActions.setPageLoadingState(false));
-            }
-        );
+              reloadPage();            
+          }
+        ).catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        }).finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
       } else {
-        
         // Update recipe info
         const ingredientsArray = [];
-        console.log("come on i am updating");
         for (let i = 0; i < currentRecipeIngredients.length; i++) {
           if (currentRecipeIngredients[i] && currentRecipeMeasure[i])
             ingredientsArray.push({
@@ -280,8 +307,8 @@ function AddEditRecipe_Component(props) {
             });
         }
 
-        let newRecipeInfo = {          
-          _id:currentRecipeRowObjectId,
+        let newRecipeInfo = {
+          _id: currentRecipeRowObjectId,
           idDrink: currentRecipeRowId,
           strDrink: currentRecipeName,
           strDrinkThumb: currentRecipeImage,
@@ -297,26 +324,27 @@ function AddEditRecipe_Component(props) {
           REQ_METHODS.put,
           { recipe: newRecipeInfo },
           (response) => {
-            if (response.isOk) {
               closeNewRecipeModal_onClick();
-              showToastMessage(
-                "Recipe Updated",
-                newRecipeInfo.strDrink + " updated!",
-                SEVERITY.Success
-              );
-
-              // Reload recipes list
+              const toastMessageObject: ToastMessage = {
+                open: true,
+                message: newRecipeInfo.strDrink + " updated!",
+                severity: SEVERITY.Success,
+                title: "New Recipe",
+              };
+              dispatch(pageStateActions.setToastMessage(toastMessageObject));
+              
               reloadPage();
-            } else
-              showToastMessage("New Recipe", response.message, SEVERITY.Error);
-
-              dispatch(pageStateActions.setPageLoadingState(false));
-            }
-        );
+            } 
+          
+        ).catch((error) => {
+          displayErrorSnackMessage(error, dispatch);
+        }).finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
+      
       }
     }
   };
-
   return (
     <>
       {/* Add new recipe Modal */}
@@ -431,7 +459,7 @@ function AddEditRecipe_Component(props) {
                 </TableCell>
                 <TableCell>
                   <IconButton
-                    onClick={() => btnAddNewIngredient_onClick()}
+                    onClick={() => handleAddNewIngredientButtonClick()}
                     color="primary"
                   >
                     <AddIcon />
@@ -448,7 +476,7 @@ function AddEditRecipe_Component(props) {
                     </TableCell>
                     <TableCell>
                       <IconButton
-                        onClick={() => btnRemoveIngredient_onClick(index)}
+                        onClick={() => handleRemoveIngredientButtonClick(index)}
                         color="error"
                       >
                         <ClearIcon />
@@ -473,8 +501,7 @@ function AddEditRecipe_Component(props) {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => btnAddNewOrEditRecipe_onClick()
-            }
+            onClick={() => handleAddNewOrEditRecipeButtonClick()}
             color="success"
             variant="outlined"
             startIcon={<BorderColorIcon />}

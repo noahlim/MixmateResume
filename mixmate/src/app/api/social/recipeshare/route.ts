@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
+import { readRequestBody, Result, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
 import { userCollection, sharedRecipeCollection, recipeReviewCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
@@ -14,19 +14,25 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
     let result = new Result();
     try {
         const userId = req.nextUrl.searchParams.get('userid');
-        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-        const { user } = await getSession();
 
+        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
+        const isVisible =  req.nextUrl.searchParams.get('publicflag') === 'true';
+        const { user } = await getSession();
         if (userId) {
             if (!user || user.sub !== userId) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 10);
+            const criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
+
+            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, criteria, {}, pageNumber ? pageNumber : 0, 5);
+
+            let totalCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
+
+
             const updatedRecipes = await Promise.all(
                 recipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
-                    delete updatedRecipe.sub;
 
                     const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
@@ -35,36 +41,36 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                 })
             );
 
-            const data = {recipes: updatedRecipes, count: updatedRecipes.length};
-            result.setTrue("Recipes Fetched.");
+            const data = { recipes: updatedRecipes, length: totalCount };
             result.data = data;
-            result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} recipes found!` : "No recipe found.";
+            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
             return NextResponse.json(result, { status: 200 });
         } else {
             if (!user) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
             let db = await dbRtns.getDBInstance();
-            let recipes = await dbRtns.findAll(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 10);
+            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 5);
+            const totalCount = await dbRtns.count(db, sharedRecipeCollection, { visibility: "public" });
+
             const updatedRecipes = await Promise.all(
                 recipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
-                    delete updatedRecipe.sub;
 
-                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {}, 0, 0);                  
+                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
 
                     return updatedRecipe;
                 })
             );
 
-            if (updatedRecipes && updatedRecipes.length > 0) {
-                result.setTrue("Recipes Fetched.");
-                result.data = updatedRecipes;
-            } else result.setFalse("Recipes not found");
+            const data = { recipes: updatedRecipes, length: totalCount };
+            result.data = data;
+            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
             return NextResponse.json(result, { status: 200 });
         }
     } catch (err) {
+        console.log(err);
         return NextResponse.json({ error: 'Error fetching the recipes from the custom recipes collection.' }, { status: 400 });
     }
 });
@@ -104,8 +110,8 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             }
             body.recipe.sub = user.sub;
             body.recipe.created_at = new Date().toISOString();
+            body.recipe.updated_at = new Date().toISOString();
             body.recipe.reviews = [];
-            body.recipe.visibility = "private";
             body.recipe.nickname = user.nickname;
             body.recipe.strAuthor = user.nickname;
             body.recipe.strDrinkThumb = fileName;
@@ -138,11 +144,16 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
         else {
             if (!body.recipe)
                 return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
+            if(!body.userId)
+                return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
         }
         let result = new Result(true);
         const { user } = await getSession();
         if (!user) {
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
+        }
+        if(user.sub !== body.userId){
+            return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
         }
         try {
             // Validate if user exist
@@ -153,13 +164,9 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             if (isNotSet(userExist)) {
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
-
-            const id = body.recipe._id;
+         
             delete body.recipe._id;
-
-            const bruh = await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(id) }, body.recipe);
-
-            delete body.recipe._id;
+            body.recipe.updated_at = new Date().toISOString();  
             await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);
 
             result.setTrue(`The recipe has updated.`);

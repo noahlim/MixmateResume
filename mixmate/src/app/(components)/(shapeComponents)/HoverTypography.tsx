@@ -6,7 +6,7 @@ const StyledTypography = styled(Typography)<{ $isLargeScreen?: boolean, $isTable
   position: relative;
   text-decoration: none;
   font-family: "Dela Gothic One";
-  flex: 1 1 50%; // 너비를 50%로 설정
+  flex: 1 1 50%; 
   padding: 20px;
   z-index: 3;
 

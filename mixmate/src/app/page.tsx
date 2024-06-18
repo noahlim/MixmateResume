@@ -1,22 +1,22 @@
 "use client";
 import { makeRequest } from "@/app/_utilities/_client/utilities";
 import { API_ROUTES, REQ_METHODS } from "./_utilities/_client/constants";
-import MenuBar from "./(components)/MenuBar";
+import MenuBar from "./(components)/global/MenuBar";
 import ReduxProvider from "../lib/redux/provider";
 import { usePathname } from "next/navigation";
 import HomePage from "./(components)/HomePage";
-import { EdgeStoreProvider } from "lib/edgestore";
 import { Box, ThemeProvider, createTheme } from "@mui/material";
+import Footer from "./(components)/Footer";
 
 function RootPage({ children }) {
   // Check if the current route is the home page
   const theme = createTheme({
     palette: {
       primary: {
-        main: "#489FB5",
+        main: "#ACCEFF",
       },
       secondary: {
-        main: "#F3E3FF",
+        main: "#FFFFFF",
       },
     },
     typography: {
@@ -39,11 +39,11 @@ function RootPage({ children }) {
     return (
       <ReduxProvider>
         <ThemeProvider theme={theme}>
-          <EdgeStoreProvider>
             <MenuBar />
 
             <HomePage />
-          </EdgeStoreProvider>
+          <Footer />
+
         </ThemeProvider>
       </ReduxProvider>
     );
@@ -53,13 +53,12 @@ function RootPage({ children }) {
   return (
     <ReduxProvider>
       <ThemeProvider theme={theme}>
-        <EdgeStoreProvider>
-          <Box>
+          <Box sx={{backgroundColor:"#E6FFFF"}}>
             <MenuBar />
 
             {children}
           </Box>
-        </EdgeStoreProvider>
+          <Footer />
       </ThemeProvider>
     </ReduxProvider>
   );

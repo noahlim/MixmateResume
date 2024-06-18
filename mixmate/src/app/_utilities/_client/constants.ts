@@ -1,7 +1,9 @@
 import { AlertColor } from '@mui/material/Alert';
 
-const END_POINT = "https://mixmate-one.vercel.app/api";
-const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
+// const END_POINT = "https://mixmate-one.vercel.app/api";
+// const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
+const END_POINT = "http://localhost:3000/api";
+const MIXMATE_DOMAIN = 'http://localhost:3000/';
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
@@ -18,15 +20,14 @@ const APPLICATION_PAGE =
 {
   root: '/',
   home: '/',
-  mongo: '/mongo',
+  about: '/about',
   profile: '/profile',
   recipes: '/recipes',
   myMixMate: '/mymixmate',
-  favourites: '/favourites',
-  myRecipes: '/myrecipes',
-  social: '/social',
-  sharedPublic: '/sharedpublic',
-  resetPassword: '/resetpassword',
+  favourites: '/mymixmate/favourites',
+  myRecipes: '/mymixmate/myrecipes',
+  social: '/mymixmate/socialrecipes',
+  myIngredients: '/mymixmate/myingredients',
 }
 
 const API_ROUTES = {
@@ -49,8 +50,6 @@ const API_ROUTES = {
   sharedRecipesFilter: '/social/filtered',
   drinksByFilter: '/drinks/filter',
   favouritesByFilter : '/user/favourite/filtered',
-  favouriteCount : '/user/favourite/count',
-  favouriteFilteredCount : '/user/favourite/filteredcount',
   walmartItems: '/shoppinglist/walmart',
   lcboItems: '/shoppinglist/lcbo',
   availableRecipes: '/user/availablerecipes',

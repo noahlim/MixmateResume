@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@/app/*" :["app/*"]
+      "@/app/*" :["app/*"],
+      "@lib/*" :["lib/*"],
     },
     "lib": [
       "dom",
@@ -31,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/layout.js", "src/app/_utilities/_server/database/db_routines.ts"  ],
+, "src/app/layout.js", "src/app/_utilities/_server/database/db_routines.ts", "src/app/(components)/NavLink.jsx", "src/app/(components)/NavLink.jsx"  ],
   "exclude": [
     "node_modules"
   ]

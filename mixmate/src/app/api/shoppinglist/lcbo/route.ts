@@ -1,65 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
-import { walmart_api_host, walmart_api_key } from "@/app/_utilities/_server/database/config";
-
+import { Result, isSet} from "@/app/_utilities/_server/util";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 
+
 export async function GET(req: NextRequest) {
-    //rate limiting
-    if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
-        return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+  //rate limiting
+  if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
+    return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+  }
+
+  const query = req.nextUrl.searchParams.get('query');
+
+  let result = new Result(true);
+  console.log(query);
+  try {
+
+    let response = await fetch(
+      `https://lcbostats.com/api/alcohol?search=${query}`
+    );
+    let data = await response.json();
+
+    //fs.writeFileSync('D:\\Mixmate\\mixmate\\src\\app\\api\\shoppinglist\\lcbo\\lcbo.json', JSON.stringify(data));
+
+    let alcohols = data.data;
+    if (isSet(alcohols)) {
+      result.data = alcohols;
+      console.log(alcohols);
     }
+    else
+      return NextResponse.json({ error: "Unable to connect to LCBO API." }, { status: 400 });
 
-    const query = req.nextUrl.searchParams.get('query');
 
-    let result = new Result(true);
-    try {
-        let response = await fetch(
-            "https://platform.cloud.coveo.com/rest/search/v2?organizationId=lcboproductionx2kwygnc",
-            {
-              headers: {
-                accept: "*/*",
-                "accept-language": "en-US,en;q=0.9,ko;q=0.8",
-                authorization: "Bearer xx883b5583-07fb-416b-874b-77cce565d927",
-                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "sec-ch-ua":
-                  '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
-                "sec-ch-ua-mobile": "?0",
-                "sec-ch-ua-platform": '"Windows"',
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "cross-site",
-              },
-              referrer: "https://www.lcbo.com/en/catalogsearch/result/",
-              referrerPolicy: "no-referrer-when-downgrade",
-              method: "POST",
-              body: `actionsHistory=%5B%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22${encodeURIComponent(
-                query
-              )}%22%2C%22time%22%3A%22%5C%222023-12-05T08%3A33%3A34.305Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22${encodeURIComponent(
-                query
-              )}%22%2C%22time%22%3A%22%5C%222023-12-05T08%3A31%3A14.040Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22time%22%3A%22%5C%222023-12-05T06%3A41%3A04.005Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T06%3A14%3A38.442Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T05%3A59%3A16.056Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T05%3A53%3A40.325Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T02%3A39%3A29.431Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22time%22%3A%22%5C%222023-12-05T01%3A57%3A02.525Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T01%3A25%3A30.086Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T01%3A24%3A24.430Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T01%3A20%3A14.288Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A30%3A49.282Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A28%3A13.226Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A25%3A13.721Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A21%3A06.242Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A20%3A52.899Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A20%3A30.318Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-05T00%3A11%3A30.623Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22vodka%20citrus%22%2C%22time%22%3A%22%5C%222023-12-04T23%3A50%3A59.414Z%5C%22%22%7D%2C%7B%22name%22%3A%22Query%22%2C%22value%22%3A%22lime%22%2C%22time%22%3A%22%5C%222023-12-04T23%3A50%3A47.154Z%5C%22%22%7D%5D&referrer=&analytics=%7B%22clientId%22%3A%229fefd53b-f20f-0c55-be0f-24fbe2c0c7b5%22%2C%22documentLocation%22%3A%22https%3A%2F%2Fwww.lcbo.com%2Fen%2Fcatalogsearch%2Fresult%2F%23q%3D${encodeURIComponent(
-                query
-              )}%26t%3DProducts%26sort%3Drelevancy%26layout%3Dcard%22%2C%22documentReferrer%22%3A%22%22%2C%22pageId%22%3A%22%22%2C%22actionCause%22%3A%22searchFromLink%22%2C%22customData%22%3A%7B%22JSUIVersion%22%3A%222.10095.4%3B2.10095.4%22%2C%22context_website%22%3A%22lcbo%22%2C%22context_langage%22%3A%22en%22%2C%22website%22%3A%22lcbo%22%2C%22siteName%22%3A%22LCBO%22%7D%2C%22originContext%22%3A%22Search%22%7D&visitorId=9fefd53b-f20f-0c55-be0f-24fbe2c0c7b5&isGuestUser=false&q=${encodeURIComponent(
-                query
-              )}&cq=%40source%3D%3D'ProductsEN'%20AND%20%40enabled%20%3D%3D%20'true'(%40ec_visibility%3D%3D(3%2C4))%20(%40cp_browsing_category_deny%20%3C%3E0)&searchHub=Web_Main_Search_EN&tab=Products&locale=en&wildcards=true&firstResult=0&numberOfResults=48&excerptLength=200&enableDidYouMean=true&sortCriteria=relevancy&queryFunctions=%5B%5D&rankingFunctions=%5B%5D&groupBy=%5B%7B%22field%22%3A%22%40commontabs%22%2C%22constantQueryOverride%22%3A%22%40source%3D%3D'ProductsEN'%20AND%20%40enabled%20%3D%3D%20'true'(%40ec_visibility%3D%3D(3%2C4))%20(%40cp_browsing_category_deny%20%3C%3E0)%20OR%20%40source%3D%3D'RecipesEN'%20AND%20%40active%20%3D%3D%20'true'%20OR%20%40source%3D%3D'ArticlesEN'%22%2C%22maximumNumberOfValues%22%3A10%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A10000%2C%22completeFacetWithStandardValues%22%3Atrue%2C%22allowedValues%22%3A%5B%5D%2C%22queryOverride%22%3A%22${encodeURIComponent(
-                query
-              )}%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_sweetness%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_bintag_wine_sweetness%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_sweetness%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_body%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_bintag_wine_body%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_body%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_flavor_intensity%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_bintag_wine_flavor_intensity%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_flavor_intensity%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_acidity%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_bintag_wine_acidity%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_acidity%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_tannins%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_bintag_wine_tannins%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_bintag_wine_tannins%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40ec_price%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40ec_price%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40ec_price%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_total_volume%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_total_volume%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_total_volume%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_alcohol_percent%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_alcohol_percent%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_alcohol_percent%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%2C%7B%22field%22%3A%22%40lcbo_sugar_gm_per_ltr%22%2C%22injectionDepth%22%3A10000%2C%22computedFields%22%3A%5B%7B%22field%22%3A%22%40lcbo_sugar_gm_per_ltr%22%2C%22operation%22%3A%22minimum%22%7D%2C%7B%22field%22%3A%22%40lcbo_sugar_gm_per_ltr%22%2C%22operation%22%3A%22maximum%22%7D%5D%2C%22maximumNumberOfValues%22%3A1%7D%5D&facets=%5B%7B%22facetId%22%3A%22%40ec_category%22%2C%22field%22%3A%22ec_category%22%2C%22type%22%3A%22hierarchical%22%2C%22injectionDepth%22%3A1000%2C%22delimitingCharacter%22%3A%22%7C%22%2C%22filterFacetCount%22%3Atrue%2C%22basePath%22%3A%5B%22Products%22%5D%2C%22filterByBasePath%22%3Afalse%2C%22currentValues%22%3A%5B%5D%2C%22preventAutoSelect%22%3Afalse%2C%22numberOfValues%22%3A5%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40lcbo_varietal_name%22%2C%22field%22%3A%22lcbo_varietal_name%22%2C%22type%22%3A%22specific%22%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A5%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40lcbo_vqa_code%22%2C%22field%22%3A%22lcbo_vqa_code%22%2C%22type%22%3A%22specific%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A8%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40country_of_manufacture%22%2C%22field%22%3A%22country_of_manufacture%22%2C%22type%22%3A%22specific%22%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A5%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40lcbo_region_name%22%2C%22field%22%3A%22lcbo_region_name%22%2C%22type%22%3A%22specific%22%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A5%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40lcbo_program%22%2C%22field%22%3A%22lcbo_program%22%2C%22type%22%3A%22specific%22%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A5%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40lcbo_current_offer%22%2C%22field%22%3A%22lcbo_current_offer%22%2C%22type%22%3A%22specific%22%2C%22sortCriteria%22%3A%22occurrences%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A8%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40stores_stock%22%2C%22field%22%3A%22stores_stock%22%2C%22type%22%3A%22specific%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%5D%2C%22numberOfValues%22%3A8%2C%22freezeCurrentValues%22%3Afalse%2C%22preventAutoSelect%22%3Afalse%2C%22isFieldExpanded%22%3Afalse%7D%2C%7B%22facetId%22%3A%22%40ec_rating%22%2C%22field%22%3A%22ec_rating%22%2C%22type%22%3A%22numericalRange%22%2C%22sortCriteria%22%3A%22descending%22%2C%22injectionDepth%22%3A1000%2C%22filterFacetCount%22%3Atrue%2C%22currentValues%22%3A%5B%7B%22start%22%3A1%2C%22end%22%3A1.9%2C%22endInclusive%22%3Atrue%2C%22state%22%3A%22idle%22%7D%2C%7B%22start%22%3A2%2C%22end%22%3A2.9%2C%22endInclusive%22%3Atrue%2C%22state%22%3A%22idle%22%7D%2C%7B%22start%22%3A3%2C%22end%22%3A3.9%2C%22endInclusive%22%3Atrue%2C%22state%22%3A%22idle%22%7D%2C%7B%22start%22%3A4%2C%22end%22%3A4.9%2C%22endInclusive%22%3Atrue%2C%22state%22%3A%22idle%22%7D%2C%7B%22start%22%3A5%2C%22end%22%3A5%2C%22endInclusive%22%3Atrue%2C%22state%22%3A%22idle%22%7D%5D%2C%22numberOfValues%22%3A5%2C%22freezeCurrentValues%22%3Afalse%2C%22generateAutomaticRanges%22%3Afalse%7D%5D&facetOptions=%7B%7D&categoryFacets=%5B%5D&retrieveFirstSentences=true&timezone=America%2FToronto&enableQuerySyntax=false&enableDuplicateFiltering=false&enableCollaborativeRating=false&debug=false&allowQueriesWithoutKeywords=true&dictionaryFieldContext=%7B%22stores_stock%22%3A%22%22%2C%22stores_inventory%22%3A%22310%22%2C%22stores_stock_combined%22%3A%22310%22%2C%22stores_low_stock_combined%22%3A%22310%22%7D`,
-              credentials: "include",
-            }
-          );
-          let data = await response.json();
-          let alcohols = data.results;
-        if (isSet(alcohols)) {
-            result.setTrue();
-            result.data = alcohols;
-        } else {
-            return NextResponse.json({ error: "Unable to connect to LCBO API." }, { status: 400 });
-        }
-    } catch (err) {
-        console.log(err);
-        return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
 
-    }
-    return NextResponse.json(result, { status: 200 })
+  }
+  return NextResponse.json(result, { status: 200 })
 
 }

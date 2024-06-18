@@ -1,30 +1,16 @@
 'use client'
-import dynamic from 'next/dynamic';
-import { Backdrop, CircularProgress } from '@mui/material';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
+import Fallback from '@/app/(components)/global/Fallback'
+import { Suspense } from 'react';
+import DefaultRecipes from './DefaultRecipes';
 
-// Define the backdrop style
-const backdropStyle = {
-  color: '#fff',
-  zIndex: 1300 // Replace with an appropriate fixed value
-};
-
-// Dynamically import the Recipe component with a preloader
-const RecipeLazyLoaded = dynamic(
-  () => import('@/app/(components)/(pageComponents)/DefaultRecipes'),
-  {
-    loading: () => (
-      <Backdrop open={true} sx={backdropStyle}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    ),
-  }
-);
-
-// Define the Recipe page component
 function RecipePage() {
-  return <RecipeLazyLoaded />;
+  return (
+    <>
+      <Suspense fallback={<Fallback />}>
+        <DefaultRecipes/>
+      </Suspense>
+    </>
+  )
 }
 
-// Wrap the component with withPageAuthRequired HOC
-export default withPageAuthRequired(RecipePage);
+export default RecipePage;
