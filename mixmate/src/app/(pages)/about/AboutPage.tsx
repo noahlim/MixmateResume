@@ -8,18 +8,20 @@ import "../../../app/globals.css";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
+import { END_POINT, MIXMATE_DOMAIN } from "@/app/_utilities/_client/constants";
+
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 function AboutPage() {
-
   const dispatch = useDispatch();
   const isTabletScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.up("md")
+    theme.breakpoints.up("lg")
   );
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(pageStateActions.setPageLoadingState(false));
-  },[])
+    console.log(END_POINT, MIXMATE_DOMAIN);
+  }, [dispatch]);
   return (
     <Box
       sx={{
@@ -34,19 +36,19 @@ function AboutPage() {
               item
               container
               xs={12}
-              md={6}
+              lg={6}
               justifyContent="center"
               alignContent="center"
               sx={{
                 direction: "flex",
                 backgroundColor: "#E4FFFE",
-                order: { xs: 1, md: 0 },
+                order: { xs: 1, lg: 0 },
               }}
             >
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", lg: "50%" }, height: {lg:"60%", xs:"100%" }}}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -54,7 +56,7 @@ function AboutPage() {
                     fontWeight="bold"
                     color="black"
                     className={spaceGrotesk.className}
-                    sx={{ paddingTop: { xs: "20px", md: "0px" } }}
+                    sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
                   >
                     MixMate: The Ultimate Cocktail Companion
                   </Typography>
@@ -63,7 +65,7 @@ function AboutPage() {
                   item
                   xs={12}
                   textAlign="left"
-                  sx={{ padding: "20px 0px" }}
+                  sx={{ padding: { sx: "20px 0px" }, margin: "20px" }}
                 >
                   <Typography
                     fontSize={isTabletScreen ? "18px" : "16px"}
@@ -84,11 +86,11 @@ function AboutPage() {
             <Grid
               item
               xs={12}
-              md={6}
+              lg={6}
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                order: { xs: 0, md: 1 },
+                order: { xs: 0, lg: 1 },
               }}
             >
               <Image
@@ -109,7 +111,7 @@ function AboutPage() {
             <Grid
               item
               xs={12}
-              md={6}
+              lg={6}
               sx={{ display: "flex", justifyContent: "center" }}
             >
               <Image
@@ -124,7 +126,7 @@ function AboutPage() {
               item
               container
               xs={12}
-              md={6}
+              lg={6}
               justifyContent="center"
               alignContent="center"
               sx={{ direction: "flex", backgroundColor: "#E4FFFE" }}
@@ -132,7 +134,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", lg: "50%" }, height: {lg:"60%", xs:"100%" } }}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -140,7 +142,7 @@ function AboutPage() {
                     fontWeight="bold"
                     color="black"
                     className={spaceGrotesk.className}
-                    sx={{ paddingTop: { xs: "20px", md: "0px" } }}
+                    sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
                   >
                     The Art of Personalized Cocktail Creation
                   </Typography>
@@ -157,14 +159,15 @@ function AboutPage() {
                     className={spaceGrotesk.className}
                   >
                     MixMate is a cutting-edge cocktail app featuring an
-                    innovative tool that suggests recipes tailored to users'
-                    available ingredients, fostering creativity and
+                    innovative tool that suggests recipes tailored to
+                    users&apos; available ingredients, fostering creativity and
                     experimentation. Users can craft and share original cocktail
                     recipes with a vibrant community, where enthusiasts connect,
                     rate recipes, and provide feedback that drives the
-                    platform's continuous evolution. This collaborative approach
-                    ensures MixMate remains a dynamic resource, adapting to the
-                    ever-changing tastes and trends of the cocktail world.
+                    platform&apos;s continuous evolution. This collaborative
+                    approach ensures MixMate remains a dynamic resource,
+                    adapting to the ever-changing tastes and trends of the
+                    cocktail world.
                   </Typography>
                   <br />
                 </Grid>
@@ -178,19 +181,19 @@ function AboutPage() {
               item
               container
               xs={12}
-              md={6}
+              lg={6}
               justifyContent="center"
               alignContent="center"
               sx={{
                 direction: "flex",
                 backgroundColor: "#E4FFFE",
-                order: { xs: 1, md: 0 },
+                order: { xs: 1, lg: 0 },
               }}
             >
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", lg: "50%" }, height: {lg:"60%", xs:"100%" } }}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -198,7 +201,7 @@ function AboutPage() {
                     fontWeight="bold"
                     color="black"
                     className={spaceGrotesk.className}
-                    sx={{ paddingTop: { xs: "20px", md: "0px" } }}
+                    sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
                   >
                     MixMate: The Ultimate Cocktail Companion
                   </Typography>
@@ -207,7 +210,7 @@ function AboutPage() {
                   item
                   xs={12}
                   textAlign="left"
-                  sx={{ padding: "20px 0px" }}
+                  sx={{ padding: "20px 0px", margin: "20px" }}
                 >
                   <Typography
                     fontSize={isTabletScreen ? "18px" : "16px"}
@@ -228,11 +231,11 @@ function AboutPage() {
             <Grid
               item
               xs={12}
-              md={6}
+              lg={6}
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                order: { xs: 0, md: 1 },
+                order: { xs: 0, lg: 1 },
               }}
             >
               <Image
@@ -245,24 +248,28 @@ function AboutPage() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid container justifyContent="center" sx={{backgroundColor:"white"}}>
+        <Grid
+          container
+          justifyContent="center"
+          sx={{ backgroundColor: "white" }}
+        >
           <MarqueeAnimation direction="left" />
           <Grid
             item
             xs={10}
-            md={6}
+            lg={6}
             sx={{ marginTop: "20px" }}
             textAlign="center"
           >
             <Typography
               variant="h4"
               className={spaceGrotesk.className}
-              sx={{ marginTop: { md: "50px" } }}
+              sx={{ marginTop: { lg: "50px" } }}
             >
               The Development Journey: A Labor of Love
             </Typography>
           </Grid>
-          <Grid item xs={10} md={7} sx={{ margin: "20px 0px" }}>
+          <Grid item xs={10} lg={7} sx={{ margin: "20px 0px" }}>
             <Typography className={spaceGrotesk.className}>
               The development of MixMate was a labor of love, combining
               cutting-edge technologies with a deep understanding of the
@@ -295,7 +302,7 @@ function AboutPage() {
             <Grid
               item
               xs={12}
-              md={6}
+              lg={6}
               sx={{ display: "flex", justifyContent: "center" }}
             >
               <Image
@@ -309,7 +316,7 @@ function AboutPage() {
             <Grid
               item
               xs={12}
-              md={6}
+              lg={6}
               sx={{ display: "flex", justifyContent: "center" }}
             >
               <Image

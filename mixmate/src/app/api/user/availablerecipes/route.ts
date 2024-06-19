@@ -43,8 +43,7 @@ export const GET = withApiAuthRequired(async function getAvailableRecipes(req: N
 
         }
 
-        let filteredRecipes = await dbRtns.findAll(db, recipeCollection, { "ingredients.ingredient": { "$in": ingredientsArray } }, {}, 0,
-            0);
+        let filteredRecipes = await dbRtns.findAll(db, recipeCollection, { "ingredients.ingredient": { "$in": ingredientsArray } }, {});
 
         filteredRecipes.sort((a, b) => {
             const drinkA = a.strDrink.toLowerCase();

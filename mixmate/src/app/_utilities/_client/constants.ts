@@ -4,7 +4,10 @@ import { endPoint, mixmate_domain } from '../_server/database/config';
 // const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
 const END_POINT = endPoint;
 const MIXMATE_DOMAIN = mixmate_domain;
-
+// const END_POINT = "http://localhost:3000/api";
+// const MIXMATE_DOMAIN = 'http://localhost:3000/';
+// const END_POINT = "http://localhost:3000/";
+// const MIXMATE_DOMAIN = "http://localhost:3000/";
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
   Success: 'success',

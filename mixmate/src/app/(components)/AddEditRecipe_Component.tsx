@@ -64,46 +64,46 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
     useState("");
 
   // Load data if recipe ID exist
-  let loadRecipeIfExist = () => {
-    if (isSet(recipeId)) {
-      dispatch(pageStateActions.setPageLoadingState(true));
-      makeRequest(
-        API_ROUTES.sharedRecipeById,
-        REQ_METHODS.get,
-        { recipeid: recipeId },
-        (response) => {
-          setCurrentRecipeRowId(response.data.idDrink);
-          setCurrentRecipeRowObjectId(response.data._id);
-          setCurrentRecipeName(response.data.strDrink);
-          setCurrentRecipeImage(response.data.strDrinkThumb);
-          setCurrentRecipeCategory(response.data.strCategory);
-          setCurrentRecipeAlcoholicType(response.data.strAlcoholic);
-          setCurrentRecipeGlass(response.data.strGlass);
-          const ingredients = [];
-          const measures = [];
-          response.data.ingredients.forEach((ing) => {
-            ingredients.push(ing.ingredient);
-            measures.push(ing.measure);
-          });
-          setCurrentRecipeIngredients(ingredients);
-          setCurrentRecipeMeasure(measures);
-          setCurrentRecipeInstructions(response.data.strInstructions);
-          dispatch(pageStateActions.setPageLoadingState(false));
-        }
-      )
-        .catch((error) => {
-          displayErrorSnackMessage(error, dispatch);
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
-    }
-
-    return recipeId;
-  };
-  //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
+  
 
   useEffect(() => {
+    let loadRecipeIfExist = () => {
+      if (isSet(recipeId)) {
+        dispatch(pageStateActions.setPageLoadingState(true));
+        makeRequest(
+          API_ROUTES.sharedRecipeById,
+          REQ_METHODS.get,
+          { recipeid: recipeId },
+          (response) => {
+            setCurrentRecipeRowId(response.data.idDrink);
+            setCurrentRecipeRowObjectId(response.data._id);
+            setCurrentRecipeName(response.data.strDrink);
+            setCurrentRecipeImage(response.data.strDrinkThumb);
+            setCurrentRecipeCategory(response.data.strCategory);
+            setCurrentRecipeAlcoholicType(response.data.strAlcoholic);
+            setCurrentRecipeGlass(response.data.strGlass);
+            const ingredients = [];
+            const measures = [];
+            response.data.ingredients.forEach((ing) => {
+              ingredients.push(ing.ingredient);
+              measures.push(ing.measure);
+            });
+            setCurrentRecipeIngredients(ingredients);
+            setCurrentRecipeMeasure(measures);
+            setCurrentRecipeInstructions(response.data.strInstructions);
+            dispatch(pageStateActions.setPageLoadingState(false));
+          }
+        )
+          .catch((error) => {
+            displayErrorSnackMessage(error, dispatch);
+          })
+          .finally(() => {
+            dispatch(pageStateActions.setPageLoadingState(false));
+          });
+      }
+  
+      return recipeId;
+    };
     loadRecipeIfExist();
   }, [openModal]);
   // Modal events
