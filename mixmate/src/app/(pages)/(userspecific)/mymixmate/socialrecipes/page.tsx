@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   displayErrorSnackMessage,
   makeRequest,
@@ -165,7 +165,7 @@ function CustomRecipes() {
     setPageIndex(newPageIndex);
     loadRecipes(newPageIndex);
   };
-  let loadSocialRecipes = (pageIndex = 1) => {
+  let loadSocialRecipes = useCallback((pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
 
     makeRequest(
@@ -183,7 +183,7 @@ function CustomRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  },[pageIndex]);
 
   let loadFilteredSocialRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -211,13 +211,13 @@ function CustomRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  }
   // Loading recipe options
 
   useEffect(() => {
     loadSocialRecipes();
     window.scrollTo(0, 0);
-  }, []);
+  }, [loadSocialRecipes]);
 
   return (
     <>

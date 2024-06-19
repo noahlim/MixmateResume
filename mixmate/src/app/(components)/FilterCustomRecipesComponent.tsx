@@ -165,42 +165,43 @@ const FilterCustomRecipesComponent = ({
     }
     loadIngredients();
   };
-  let loadCategories = () => {
-    dispatch(pageStateActions.setPageLoadingState(true));
-    if (categories.length === 0) {
-      makeRequest(
-        API_ROUTES.drinks,
-        REQ_METHODS.get,
-        { criteria: API_DRINK_ROUTES.drinkCategories },
-        (response) => {
-          if (response.isOk) {
-            dispatch(
-              recipeActions.setCategories(
-                response.data.drinks.map((x) => x.strCategory).sort()
-              )
-            );
-          }
-        }
-      )
-        .catch((error) => {
-          const toastMessageObject: ToastMessage = {
-            open: true,
-            message: error.message,
-            severity: SEVERITY.Error,
-            title: "Error",
-          };
-          dispatch(pageStateActions.setToastMessage(toastMessageObject));
-          dispatch(pageStateActions.setPageLoadingState(false));
-        })
-        .finally(() => {
-          loadGlasses();
-        });
-    } else {
-      loadGlasses();
-    }
-  };
+  
 
   useEffect(() => {
+    let loadCategories = () => {
+      dispatch(pageStateActions.setPageLoadingState(true));
+      if (categories.length === 0) {
+        makeRequest(
+          API_ROUTES.drinks,
+          REQ_METHODS.get,
+          { criteria: API_DRINK_ROUTES.drinkCategories },
+          (response) => {
+            if (response.isOk) {
+              dispatch(
+                recipeActions.setCategories(
+                  response.data.drinks.map((x) => x.strCategory).sort()
+                )
+              );
+            }
+          }
+        )
+          .catch((error) => {
+            const toastMessageObject: ToastMessage = {
+              open: true,
+              message: error.message,
+              severity: SEVERITY.Error,
+              title: "Error",
+            };
+            dispatch(pageStateActions.setToastMessage(toastMessageObject));
+            dispatch(pageStateActions.setPageLoadingState(false));
+          })
+          .finally(() => {
+            loadGlasses();
+          });
+      } else {
+        loadGlasses();
+      }
+    };
     loadCategories();
   }, []);
   return (

@@ -31,7 +31,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Image from "next/image";
-import { useRouter, notFound, usePathname } from "next/navigation";
+import { notFound, usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastMessage } from "interface/toastMessage";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
@@ -49,6 +50,7 @@ import Link from "next/link";
 import NavLink from "@/app/(components)/global/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
+import { IoMdHelpCircleOutline } from "react-icons/io";
 const pages = [
   { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },
@@ -106,7 +108,7 @@ function MenuBar() {
     );
   };
   useEffect(() => {
-    if (!userInfo) {
+    if (!userInfo && user) {
       dispatch(userInfoActions.setUserInfo(user));
 
       if (error) {
@@ -115,7 +117,7 @@ function MenuBar() {
         loginHandleMongo(user);
       }
     }
-  }, [userInfo, user, dispatch]);
+  }, []);
 
   let loginControls = null;
   let userMenu = null;
@@ -161,7 +163,7 @@ function MenuBar() {
               onClick={() => handlePageChange(APPLICATION_PAGE.about)}
             >
               <ListItemIcon>
-                <HomeIcon />
+                <IoMdHelpCircleOutline fontSize={25} fontWeight="bold"/>
               </ListItemIcon>
               <ListItemText primary="About" />
             </ListItemButton>
@@ -323,7 +325,7 @@ function MenuBar() {
             sx={{ color: "#7FE0FA", marginLeft: "20px" }}
             autoFocus
           >
-            Why not, let's go!
+            Why not, let&apos;s go!
           </Button>
         </DialogActions>
       </Dialog>

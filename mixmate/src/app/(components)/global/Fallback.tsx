@@ -19,7 +19,7 @@ const Fallback = () => {
           Our mixologists are shaking up something special for you...
         </Typography>
         <Typography variant="body1">
-          (Or maybe they're just trying to find the perfect garnish.)
+          (Or maybe they&apos;re just trying to find the perfect garnish.)
         </Typography>
       </Box>
     </Box>

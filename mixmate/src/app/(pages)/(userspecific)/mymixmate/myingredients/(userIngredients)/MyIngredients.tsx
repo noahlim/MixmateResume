@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import {
   Grid,
@@ -257,7 +257,7 @@ const MyIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(false));
   };
 
-  let loadIngredients = () => {
+  let loadIngredients = useCallback(() => {
     dispatch(pageStateActions.setPageLoadingState(true));
     //when the page has not been loaded before and the
     //ingredients are not in the redux store
@@ -323,11 +323,11 @@ const MyIngredients = () => {
       }
       loadUserIngredients();
     }
-  };
+  },[])
 
   useEffect(() => {
     loadIngredients();
-  }, []);
+  }, [loadIngredients]);
 
   return (
     <>

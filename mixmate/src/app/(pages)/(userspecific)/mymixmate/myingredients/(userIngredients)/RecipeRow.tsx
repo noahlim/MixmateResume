@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -88,7 +88,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
       });
   };
   // Functions
-  let loadDrinkInfo = () => {
+  let loadDrinkInfo = useCallback(() => {
     if (isNotSet(drinkInfo)) {
       dispatch(pageStateActions.setPageLoadingState(true));
       // Load drink info
@@ -284,7 +284,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
 
     // Done
     setRowOpen(!rowOpen);
-  };
+  },[dispatch, drink, userIngredients]);
 
   return (
     <React.Fragment>

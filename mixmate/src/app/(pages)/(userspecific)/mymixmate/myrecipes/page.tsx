@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   displayErrorSnackMessage,
   makeRequest,
@@ -79,7 +79,7 @@ function MyRecipes() {
       alert("Invalid page index");
     }
   };
-  let loadMyRecipes = (pageIndex = 1) => {
+  let loadMyRecipes = useCallback((pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
 
     makeRequest(
@@ -97,7 +97,7 @@ function MyRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  },[pageIndex]);
 
   let loadFilteredMyRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -131,7 +131,7 @@ function MyRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  }
 
   const clearFilter = () => {
     setFilter({ filter: "", criteria: "", isFilterApplied: false });
@@ -142,7 +142,7 @@ function MyRecipes() {
   useEffect(() => {
     loadMyRecipes();
     window.scrollTo(0, 0);
-  }, []);
+  }, [loadMyRecipes]);
 
   return (
     <>
