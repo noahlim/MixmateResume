@@ -36,9 +36,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       // Render the ErrorPage component with the caught error
       return (
         <ErrorPage
-          error={this.state.error}
-          reset={this.resetErrorBoundary}
-          not_Found={false}
         />
       );
     }

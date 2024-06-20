@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { rateLimit } from '@/app/_utilities/_server/rateLimiter';
-import { Result, generateRandomKey, readRequestBody } from '@/app/_utilities/_server/util';
+import { Result, generateRandomKey } from '@/app/_utilities/_server/util';
 
 import { aws_access_key, aws_secret_key, bucket_name, bucket_region } from '@/app/_utilities/_server/database/config';
 

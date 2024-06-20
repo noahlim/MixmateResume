@@ -1,9 +1,9 @@
 import { AlertColor } from '@mui/material/Alert';
-import { endPoint, mixmate_domain } from '../_server/database/config';
+import { endPoint, mixmate_domain } from '@/app/_utilities/_server/database/config';
 // const END_POINT = "https://mixmate-one.vercel.app/api";
 // const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
-const END_POINT = endPoint;
-const MIXMATE_DOMAIN = mixmate_domain;
+const END_POINT = "http://localhost:3000/api";
+const MIXMATE_DOMAIN = "http://localhost:3000/";
 
 const SEVERITY: Record<string, AlertColor> = {
   Info: 'info',
