@@ -84,7 +84,7 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
     const result = new Result(true);
 
     if (isSet(userFavouriteDocument)) {
-      let publicRecipes = userFavouriteDocument.favorites.filter(recipe => recipe.visibility === "public");
+      let publicRecipes = userFavouriteDocument.favorites;
       let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
 
       const updatedRecipes = recipes.map((recipe) => {

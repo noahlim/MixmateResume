@@ -34,10 +34,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, applicationPage }) {
 
-
+  const {user, error, isLoading} = useUser();
   const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
@@ -324,7 +325,7 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
         makeRequest(
           API_ROUTES.recipeShare,
           REQ_METHODS.put,
-          { recipe: newRecipeInfo },
+          { recipe: newRecipeInfo, userId:user.sub },
           (response) => {
               closeNewRecipeModal_onClick();
               const toastMessageObject: ToastMessage = {
