@@ -1,5 +1,5 @@
 'use client';
-import Favourites from "@/app/(pages)/(userspecific)/mymixmate/favourites/page";
+import Favourites from "@/app/(pages)/mymixmate/favourites/page";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 
 const MyMixmate = () => {

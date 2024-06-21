@@ -207,6 +207,7 @@ function FilterRecipesComponent({
 
   useEffect(() => {
     loadCategories();
+    //eslint-disable-next-line
   }, []);
   return (
     <>

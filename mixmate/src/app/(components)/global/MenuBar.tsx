@@ -91,7 +91,9 @@ function MenuBar() {
     router.push(route);
   };
 
-  //if logged in successfully using Auth0, sync with MongoDB
+ 
+  useEffect(() => {
+     //if logged in successfully using Auth0, sync with MongoDB
   const loginHandleMongo = async (userInfoData) => {
     makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
       (err) => {
@@ -105,7 +107,6 @@ function MenuBar() {
       }
     );
   };
-  useEffect(() => {
     if (!userInfo) {
       dispatch(userInfoActions.setUserInfo(user));
 
@@ -115,7 +116,7 @@ function MenuBar() {
         loginHandleMongo(user);
       }
     }
-  }, [userInfo, user, dispatch]);
+  }, [userInfo, user, dispatch, error]);
 
   let loginControls = null;
   let userMenu = null;
@@ -323,7 +324,7 @@ function MenuBar() {
             sx={{ color: "#7FE0FA", marginLeft: "20px" }}
             autoFocus
           >
-            Why not, let's go!
+            Why not, let&apos;s go!
           </Button>
         </DialogActions>
       </Dialog>

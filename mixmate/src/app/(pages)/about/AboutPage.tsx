@@ -19,7 +19,7 @@ function AboutPage() {
 
   useEffect(()=>{
     dispatch(pageStateActions.setPageLoadingState(false));
-  },[])
+  },[dispatch])
   return (
     <Box
       sx={{
@@ -157,12 +157,12 @@ function AboutPage() {
                     className={spaceGrotesk.className}
                   >
                     MixMate is a cutting-edge cocktail app featuring an
-                    innovative tool that suggests recipes tailored to users'
+                    innovative tool that suggests recipes tailored to users&apos;
                     available ingredients, fostering creativity and
                     experimentation. Users can craft and share original cocktail
                     recipes with a vibrant community, where enthusiasts connect,
                     rate recipes, and provide feedback that drives the
-                    platform's continuous evolution. This collaborative approach
+                    platform&apos;s continuous evolution. This collaborative approach
                     ensures MixMate remains a dynamic resource, adapting to the
                     ever-changing tastes and trends of the cocktail world.
                   </Typography>

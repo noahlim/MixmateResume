@@ -33,9 +33,7 @@ const APPLICATION_PAGE =
 const API_ROUTES = {
   user: '/user',
   userIngredients: '/user/ingredient',
-  password: '/user/password',
   login: '/api/auth/login',
-  tokenVerify: '/verifytoken',
   logout: '/api/auth/logout',
   userJson: '/api/auth/me',
   drinks: '/drinks',
@@ -46,7 +44,6 @@ const API_ROUTES = {
   recipeShare: '/social/recipeshare',  
   sharedRecipeById: '/social/recipeshare/recipeid',
   image: '/image',
-  sharedRecipesCount: '/social/recipeshare/recipecount',
   sharedRecipesFilter: '/social/filtered',
   drinksByFilter: '/drinks/filter',
   favouritesByFilter : '/user/favourite/filtered',

@@ -25,7 +25,7 @@ export const GET = withApiAuthRequired(async function getAllReviews(req: NextReq
         }
         let db = await dbRtns.getDBInstance();
         //get 10 documents per page
-        let recipes = await dbRtns.findAll(db, recipeReviewCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 10);
+        let recipes = await dbRtns.findAll(db, recipeReviewCollection, { sub: user.sub }, {});
 
         //deleting user Id in the recipes before returning to the server for security reason
         const updatedRecipes = recipes.map((recipe) => {
