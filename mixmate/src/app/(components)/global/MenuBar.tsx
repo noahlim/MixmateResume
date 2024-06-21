@@ -31,7 +31,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Image from "next/image";
-import { useRouter, notFound, usePathname } from "next/navigation";
+import { notFound, usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastMessage } from "interface/toastMessage";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
@@ -319,6 +320,7 @@ function MenuBar() {
             sx={{ color: "#7FE0FA", marginLeft: "20px" }}
             autoFocus
           >
+            Why not, let&apos;s go!
             Why not, let&apos;s go!
           </Button>
         </DialogActions>

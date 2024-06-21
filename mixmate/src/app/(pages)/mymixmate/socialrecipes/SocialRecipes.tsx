@@ -212,7 +212,7 @@ function CustomRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  }
   // Loading recipe options
 
   useEffect(() => {

@@ -132,7 +132,7 @@ function MyRecipes() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+  }
 
   const clearFilter = () => {
     setFilter({ filter: "", criteria: "", isFilterApplied: false });
