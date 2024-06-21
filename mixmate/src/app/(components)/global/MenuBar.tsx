@@ -49,6 +49,7 @@ import Link from "next/link";
 import NavLink from "@/app/(components)/global/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
+import { BsInfoCircleFill } from "react-icons/bs";
 const pages = [
   { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },
@@ -158,7 +159,7 @@ function MenuBar() {
               onClick={() => handlePageChange(APPLICATION_PAGE.about)}
             >
               <ListItemIcon>
-                <HomeIcon />
+                <BsInfoCircleFill fontSize={21} fontWeight="bold" />
               </ListItemIcon>
               <ListItemText primary="About" />
             </ListItemButton>
@@ -220,14 +221,12 @@ function MenuBar() {
             Logout
           </Button>
         </a>
-        <a href={API_ROUTES.userJson}>
-          <Avatar
-            src={`https://images.weserv.nl/?url=${encodeURIComponent(
-              user.picture
-            )}`}
-            sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
-          />
-        </a>
+        <Avatar
+          src={`https://images.weserv.nl/?url=${encodeURIComponent(
+            user.picture
+          )}`}
+          sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
+        />
       </Box>
     );
   } else {

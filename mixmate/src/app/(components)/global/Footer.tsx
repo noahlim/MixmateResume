@@ -18,7 +18,7 @@ const Footer = () => {
       </Box>
       <Box bgcolor="white" sx={{ direction: "flex" }}>
         <Grid container justifyContent="center" style={{ padding: "30px 0px" }}>
-          <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
+          <Grid item container lg={2} xs={10} style={{ padding: "30px 0px" }}>
             <Grid xs={12} item>
               <Typography
                 variant="h6"
@@ -41,7 +41,7 @@ const Footer = () => {
               <a href="#">Careers</a>
             </Grid>
           </Grid>
-          <Grid item container md={2} xs={10} style={{ padding: "30px 0px" }}>
+          <Grid item container lg={2} xs={10} style={{ padding: "30px 0px" }}>
             <Grid xs={12} item>
               <Typography
                 variant="h6"
@@ -67,7 +67,7 @@ const Footer = () => {
           <Grid
             item
             container
-            md={2}
+            lg={2}
             xs={10}
             style={{ padding: "30px 0px" }}
             spacing={1}
@@ -96,7 +96,7 @@ const Footer = () => {
           </Grid>
         </Grid>
         <Grid container justifyContent="center">
-          <Grid item xs={9} md={6}>
+          <Grid item xs={9} lg={6}>
             <Divider />
           </Grid>
         </Grid>
@@ -109,7 +109,7 @@ const Footer = () => {
             item
             container
             justifyContent="space-around"
-            md={4}
+            lg={4}
             xs={10}
             style={{ padding: "30px 0px" }}
           >

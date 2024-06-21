@@ -426,12 +426,12 @@ const MyIngredients = () => {
           variant="contained"
           onClick={handleAvailableRecipesModalOpen}
           sx={{
-            backgroundColor: "#4BF4FF !important",
+            backgroundColor: "#FFFFFF !important",
             "&:hover": {
-              backgroundColor: "#00CBD8 !important",
+              backgroundColor: "#E8E8E8 !important",
             },
             "&:focus": {
-              backgroundColor: "#00A3AD !important",
+              backgroundColor: "#CDCDCD !important",
             },
           }}
         >

@@ -81,7 +81,7 @@ const ShoppingItemCardGridDialog = ({ open, onClose, products, ing }) => {
               ?.filter((product) => product !== undefined && product !== null)
               .slice(0, 20)
               .map((product, index) => (
-                <Grid item xs={12} sm={6} key={index}>
+                <Grid item xs={12} lg={6} key={index}>
                   {ing.strAlcoholic ? (
                     <LCBOShoppingItemCard product={product} />
                   ) : (
