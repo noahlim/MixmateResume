@@ -75,7 +75,7 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     const { user } = await getSession();
     const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-    console.log(pageNumber);
+  
     let db = await dbRtns.getDBInstance();
 
 

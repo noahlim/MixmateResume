@@ -17,7 +17,6 @@ import Recipe_Component from "@/app/(components)/Recipe_Component";
 import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import { ToastMessage } from "interface/toastMessage";
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
@@ -94,6 +93,7 @@ function CustomRecipes() {
   };
 
   const loadRecipes = (newPageIndex) => {
+    setPageIndex(newPageIndex);
     if (!filter.isFilterApplied) {
       if (filter.isMyRecipes) loadMyRecipes(newPageIndex);
       else loadSocialRecipes(newPageIndex);
@@ -120,13 +120,6 @@ function CustomRecipes() {
         setPageIndexCount(Math.ceil(response.data.length / 5));
         setPageIndex(pageIndex);
         setFilter({ ...filter, isFilterApplied: true });
-        const toastMessageObject: ToastMessage = {
-          title: "Recipes found",
-          message: response.message,
-          severity: SEVERITY.success,
-          open: true,
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
       }
     )
       .catch((error) => {
@@ -165,7 +158,7 @@ function CustomRecipes() {
     setPageIndex(newPageIndex);
     loadRecipes(newPageIndex);
   };
-  let loadSocialRecipes = useCallback((pageIndex = 1) => {
+  let loadSocialRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
 
     makeRequest(
@@ -185,7 +178,7 @@ function CustomRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
     //eslint-disable-next-line
-  },[]);
+  };
 
   let loadFilteredSocialRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -199,13 +192,6 @@ function CustomRecipes() {
         setRecipesFiltered(response.data.recipes);
         setPageIndexCount(Math.ceil(response.data.length / 5));
         setFilter({ ...filter, isFilterApplied: true });
-        const toastMessageObject: ToastMessage = {
-          title: "Recipes found",
-          message: response.message,
-          severity: SEVERITY.success,
-          open: true,
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
       }
     )
       .catch((error) => {
@@ -221,7 +207,7 @@ function CustomRecipes() {
     
     loadSocialRecipes();
     window.scrollTo(0, 0);
-  }, [loadSocialRecipes]);
+  }, []);
 
   return (
     <>

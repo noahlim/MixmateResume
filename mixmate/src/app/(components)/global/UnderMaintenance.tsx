@@ -32,10 +32,10 @@ const UnderMaintenance = () => {
         >
           <BuildIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
           <Typography variant="h3" component="h1" gutterBottom>
-            We're Under Maintenance
+            We&apos;re Under Maintenance
           </Typography>
           <Typography variant="h6" align="center" paragraph>
-            We're working hard to improve our website and will be back soon.
+            We&apos;re working hard to improve our website and will be back soon.
           </Typography>
           <Typography variant="body1" color="text.secondary">
             We apologize for any inconvenience this may cause.

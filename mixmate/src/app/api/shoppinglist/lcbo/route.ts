@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get('query');
 
   let result = new Result(true);
-  console.log(query);
   try {
 
     let response = await fetch(

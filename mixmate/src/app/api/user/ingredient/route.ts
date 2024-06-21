@@ -133,7 +133,6 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
       return NextResponse.json(result, { status: 200 });
     }
   } catch (err) {
-    console.log('here')
     return NextResponse.json({ error: "err" }, { status: 400 });
 
   }

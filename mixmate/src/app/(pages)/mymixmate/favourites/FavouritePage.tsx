@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import {
   displayErrorSnackMessage,
@@ -26,7 +26,8 @@ function Favourites() {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [pageIndex, setPageIndex] = useState(1);
-  const [isAllFavoriteRecipesLoaded, setIsAllFavoriteRecipesLoaded] = useState(false);
+  const [isAllFavoriteRecipesLoaded, setIsAllFavoriteRecipesLoaded] =
+    useState(false);
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
@@ -36,45 +37,42 @@ function Favourites() {
     setPageIndexCount(Math.ceil(allFavoriteRecipes.length / 5));
   };
   // Loading recipe options
-  let loadFavoriteRecipes = useCallback(
-    (pageIndex = 1) => {
-      if(isAllFavoriteRecipesLoaded) return;
-      dispatch(pageStateActions.setPageLoadingState(true));
-      makeRequest(
-        API_ROUTES.favourite,
-        REQ_METHODS.get,
-        { index: pageIndex },
-        (response) => {
-          setIsFilterApplied(false);
-          if (response.data.recipes.length > 0) {
-            setRecipesFilteredToBeDisplayed(response.data.allRecipes.slice(pageIndex - 1, pageIndex * 5));
-            setRecipesFiltered(response.data.allRecipes);
-            setAllFavouriteRecipes(response.data.allRecipes);
-            setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
-            setIsAllFavoriteRecipesLoaded(true);
-          }
+  let loadFavoriteRecipes = (pageIndex = 1) => {
+    if (isAllFavoriteRecipesLoaded) return;
+    dispatch(pageStateActions.setPageLoadingState(true));
+    makeRequest(
+      API_ROUTES.favourite,
+      REQ_METHODS.get,
+      { index: pageIndex },
+      (response) => {
+        setIsFilterApplied(false);
+        if (response.data.recipes.length > 0) {
+          setRecipesFilteredToBeDisplayed(
+            response.data.allRecipes.slice(pageIndex - 1, pageIndex * 5)
+          );
+          setRecipesFiltered(response.data.allRecipes);
+          setAllFavouriteRecipes(response.data.allRecipes);
+          setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
+          setIsAllFavoriteRecipesLoaded(true);
         }
-      )
-        .catch((error) => {
-          //displayErrorSnackMessage(error, dispatch);
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
-      //eslint-disable-next-line
-    },
-    [pageIndex]
-  );
+      }
+    )
+      .catch((error) => {
+        //displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
+    //eslint-disable-next-line
+  };
 
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
-    console.log(newPageIndex);
     if (isFilterApplied)
       setRecipesFilteredToBeDisplayed(
         recipesFiltered.slice((newPageIndex - 1) * 5, newPageIndex * 5)
       );
     else
-      console.log(allFavoriteRecipes.slice((newPageIndex - 1) * 5, newPageIndex * 5));
       setRecipesFilteredToBeDisplayed(
         allFavoriteRecipes.slice((newPageIndex - 1) * 5, newPageIndex * 5)
       );
@@ -82,7 +80,7 @@ function Favourites() {
 
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-    
+
     if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
@@ -135,7 +133,7 @@ function Favourites() {
   };
   useEffect(() => {
     loadFavoriteRecipes();
-  }, [loadFavoriteRecipes]);
+  }, []);
   return (
     <>
       <Box
@@ -164,7 +162,7 @@ function Favourites() {
             <Typography className={spaceGrotesk.className}>
               The Favorites page is your personal collection where you can store
               and access your most beloved recipes with ease, ensuring that your
-              culinary treasures are always within reach whenever the craving
+              mixes are always within reach whenever the craving
               strikes.
             </Typography>
           </Grid>

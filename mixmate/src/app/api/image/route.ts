@@ -72,7 +72,6 @@ export async function GET(req: NextRequest) {
         const response = await s3.send(command);
         const data = await response.Body.transformToString();
         if (response) {
-            console.log(data);
             const result = new Result(true);
             result.message = "Image fetched!";
             result.data = URL.createObjectURL(new Blob([data], { type: "image/*" }));

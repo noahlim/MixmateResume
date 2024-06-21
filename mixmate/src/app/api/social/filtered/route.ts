@@ -26,7 +26,6 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
     if (!validFilters.includes(filterType)) {
         return NextResponse.json({ error: "Invalid filter passed in" }, { status: 400 });
     }
-    console.log(filterType, filterCriteria);
     let query : QueryType = userId ? {sub: userId} : {};
 
     try {

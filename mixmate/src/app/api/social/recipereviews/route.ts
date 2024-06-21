@@ -156,7 +156,7 @@ export const DELETE = withApiAuthRequired(async function deleteReview(req: NextR
     try {
         let db = await dbRtns.getDBInstance();
         let response = await dbRtns.findOne(db, recipeReviewCollection, { _id: new ObjectId(reviewId) });
-        console.log(response);
+        
         if (!response) {
             return NextResponse.json({ error: 'Selected review does not exist.' }, { status: 404 })
         }

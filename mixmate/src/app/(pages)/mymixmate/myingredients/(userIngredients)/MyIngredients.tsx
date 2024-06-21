@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import {
   Grid,
@@ -247,7 +247,7 @@ const MyIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(false));
   };
 
-  let loadIngredients = useCallback(() => {
+  let loadIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
     //when the page has not been loaded before and the
     //ingredients are not in the redux store
@@ -314,11 +314,11 @@ const MyIngredients = () => {
       loadUserIngredients();
     }
     //eslint-disable-next-line
-  },[]);
+  };
 
   useEffect(() => {
     loadIngredients();
-  }, [loadIngredients]);
+  }, []);
 
   return (
     <>
@@ -330,8 +330,8 @@ const MyIngredients = () => {
       />
       {/* Page body */}
       <MyMixMateHeader title="My Ingredients">
-        Unlock a world of personalized culinary possibilities by curating your
-        own inventory of ingredients, unveiling a tailored selection of
+        Unlock a world of personalized possibilities by curating your
+        own inventory of ingredients and mixtures, unveiling a tailored selection of
         tantalizing cocktail creations that harmoniously blend the flavors you
         have on hand, empowering you to craft libations that perfectly align
         with your unique tastes and preferences.

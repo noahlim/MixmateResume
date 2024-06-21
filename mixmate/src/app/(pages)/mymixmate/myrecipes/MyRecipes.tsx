@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   displayErrorSnackMessage,
   makeRequest,
@@ -11,19 +11,17 @@ import Button from "@mui/material/Button";
 
 import {
   APPLICATION_PAGE,
-  SEVERITY,
   API_ROUTES,
   REQ_METHODS,
 } from "@/app/_utilities/_client/constants";
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
-import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import FilterCustomRecipesComponent from "@/app/(components)/FilterCustomRecipesComponent";
 import { useDispatch, useSelector } from "react-redux";
 import AddEditRecipe_Component from "@/app/(components)/AddEditRecipe_Component";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
-import { ToastMessage } from "interface/toastMessage";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 
 function MyRecipes() {
@@ -79,7 +77,7 @@ function MyRecipes() {
       alert("Invalid page index");
     }
   };
-  let loadMyRecipes = useCallback((pageIndex = 1) => {
+  let loadMyRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
 
     makeRequest(
@@ -98,7 +96,7 @@ function MyRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
     //eslint-disable-next-line
-  },[user, pageIndex]);
+  };
 
   let loadFilteredMyRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -117,13 +115,6 @@ function MyRecipes() {
         setPageIndexCount(Math.ceil(response.data.length / 5));
         setPageIndex(pageIndex);
         setFilter({ ...filter, isFilterApplied: true });
-        const toastMessageObject: ToastMessage = {
-          title: "Recipes found",
-          message: response.message,
-          severity: SEVERITY.success,
-          open: true,
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
       }
     )
       .catch((error) => {
@@ -144,7 +135,7 @@ function MyRecipes() {
     loadMyRecipes();
     window.scrollTo(0, 0);
     //eslint-disable-next-line
-  }, [loadMyRecipes]);
+  }, []);
 
   return (
     <>
@@ -159,10 +150,10 @@ function MyRecipes() {
 
       {/* Page body */}
       <MyMixMateHeader title="My Recipes">
-        Explore your very own culinary canvas, a sanctuary where your inspired
+        Explore your very own mixing canvas, a sanctuary where your inspired
         creations take center stage, allowing you to meticulously refine and
         perfect each recipe before unveiling your masterpieces to the world,
-        leaving an indelible mark on the palates of fellow epicureans
+        leaving an indelible mark on the palates of fellow epicureans.
       </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} lg={3}>

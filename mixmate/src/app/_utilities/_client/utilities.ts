@@ -158,16 +158,21 @@ function getCallerLine() {
 // Loading recipe options
 
 function formatDateTime(dateTimeString: string): string {
-  const date = new Date(dateTimeString);
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false
-  };
-  return new Intl.DateTimeFormat('en-EN', options).format(date);
+  try {
+    const date = new Date(dateTimeString);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false
+    };
+    const newDate = new Intl.DateTimeFormat('en-EN', options).format(date);
+    return newDate;
+  }catch (error) {
+    return 'N/A';
+  }
 }
 
 
