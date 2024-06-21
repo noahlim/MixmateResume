@@ -26,7 +26,7 @@ function Favourites() {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [pageIndex, setPageIndex] = useState(1);
-
+  const [isAllFavoriteRecipesLoaded, setIsAllFavoriteRecipesLoaded] = useState(false);
   const [filter, setFilter] = useState<{
     filter: string;
     criteria: string;
@@ -38,18 +38,20 @@ function Favourites() {
   // Loading recipe options
   let loadFavoriteRecipes = useCallback(
     (pageIndex = 1) => {
+      if(isAllFavoriteRecipesLoaded) return;
       dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.get,
-        { index: [pageIndex] },
+        { index: pageIndex },
         (response) => {
           setIsFilterApplied(false);
           if (response.data.recipes.length > 0) {
-            setRecipesFilteredToBeDisplayed(response.data.recipes);
+            setRecipesFilteredToBeDisplayed(response.data.allRecipes.slice(pageIndex - 1, pageIndex * 5));
             setRecipesFiltered(response.data.allRecipes);
             setAllFavouriteRecipes(response.data.allRecipes);
             setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
+            setIsAllFavoriteRecipesLoaded(true);
           }
         }
       )
@@ -66,11 +68,13 @@ function Favourites() {
 
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
+    console.log(newPageIndex);
     if (isFilterApplied)
       setRecipesFilteredToBeDisplayed(
         recipesFiltered.slice((newPageIndex - 1) * 5, newPageIndex * 5)
       );
     else
+      console.log(allFavoriteRecipes.slice((newPageIndex - 1) * 5, newPageIndex * 5));
       setRecipesFilteredToBeDisplayed(
         allFavoriteRecipes.slice((newPageIndex - 1) * 5, newPageIndex * 5)
       );
@@ -78,7 +82,7 @@ function Favourites() {
 
   let onPageIndexChange = (e) => {
     const buttonLabel = e.currentTarget.getAttribute("aria-label");
-
+    
     if (buttonLabel === "Go to next page" && pageIndex < pageIndexCount) {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {

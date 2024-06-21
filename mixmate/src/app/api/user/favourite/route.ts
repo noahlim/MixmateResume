@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readRequestBody, Result, isSet, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection, userFavouriteCollection } from "@/app/_utilities/_server/database/config";
+import { recipeCollection, sharedRecipeCollection, userCollection, userFavouriteCollection } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
@@ -75,7 +75,7 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     const { user } = await getSession();
     const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-
+    console.log(pageNumber);
     let db = await dbRtns.getDBInstance();
 
 
@@ -84,27 +84,32 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
     const result = new Result(true);
 
     if (isSet(userFavouriteDocument)) {
-      let publicRecipes = userFavouriteDocument.favorites;
+      let publicRecipes = await Promise.all(userFavouriteDocument.favorites.map(async (recipe) => {
+        //check if the recipe is in the shared collection, 
+        //only recipes in the shared collection has an author
+        let collection = isSet(recipe.strAuthor) ? sharedRecipeCollection : recipeCollection;
+        const foundRecipe = await dbRtns.findOne(db, collection, { _id: new ObjectId(recipe._id) });
+        return foundRecipe;
+      }));
+
+
       let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
 
-      const updatedRecipes = recipes.map((recipe) => {
-        delete recipe.sub;
-        return recipe;
-      })
-      const data = { recipes: updatedRecipes, allRecipes: userFavouriteDocument.favorites, length: userFavouriteDocument.favorites.length };
+
+      const data = { recipes, allRecipes: publicRecipes, length: publicRecipes.length };
 
       //response is the object deleted
       result.data = data;
       result.message = userFavouriteDocument.favorites.length > 0 ? `${userFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
       return NextResponse.json(result, { status: 200 })
     } else {
-        const tempFavouriteDocument = {
-          sub: user.sub, favorites: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
-        };
-        await dbRtns.addOne(db, userFavouriteCollection, tempFavouriteDocument);
-        result.data = tempFavouriteDocument.favorites;
-        result.message = tempFavouriteDocument.favorites.length > 0 ? `${tempFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
-        return NextResponse.json(result, { status: 200 })
+      const tempFavouriteDocument = {
+        sub: user.sub, favorites: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+      };
+      await dbRtns.addOne(db, userFavouriteCollection, tempFavouriteDocument);
+      result.data = tempFavouriteDocument.favorites;
+      result.message = tempFavouriteDocument.favorites.length > 0 ? `${tempFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
+      return NextResponse.json(result, { status: 200 })
     }
   } catch (err) {
     console.log(err);

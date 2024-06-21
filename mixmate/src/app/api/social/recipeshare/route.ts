@@ -171,9 +171,10 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
 
+            const tempId = body.recipe._id;
             delete body.recipe._id;
             body.recipe.updated_at = new Date().toISOString();
-            await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);
+            await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(tempId) }, body.recipe);
 
             result.setTrue(`The recipe has updated.`);
 

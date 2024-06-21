@@ -239,7 +239,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
               Recipe Created At:
             </Typography>
             <Typography className={vollkorn.className} fontSize="18px">
-              {formatDateTime(drink?.created_at)}
+              {(drink?.created_at)}
             </Typography>
           </Grid>
         </Grid>

@@ -175,6 +175,7 @@ function CustomRecipes() {
       (response) => {
         setRecipesFiltered(response.data.recipes);
         setPageIndexCount(Math.ceil(response.data.length / 5));
+        setPageIndex(pageIndex);
       }
     )
       .catch((error) => {
@@ -184,10 +185,11 @@ function CustomRecipes() {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
     //eslint-disable-next-line
-  },[ pageIndex]);
+  },[]);
 
   let loadFilteredSocialRecipes = (pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
+    setPageIndex(pageIndex);
 
     makeRequest(
       API_ROUTES.sharedRecipesFilter,
@@ -216,6 +218,7 @@ function CustomRecipes() {
   // Loading recipe options
 
   useEffect(() => {
+    
     loadSocialRecipes();
     window.scrollTo(0, 0);
   }, [loadSocialRecipes]);

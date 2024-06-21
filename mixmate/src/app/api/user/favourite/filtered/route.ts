@@ -33,6 +33,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
 
             const session = await getSession();
             const user = session.user;
+
             switch (filterType) {
                 case "Ingredient": {
                     const query = {
@@ -66,6 +67,7 @@ export const GET = withApiAuthRequired(async function getFilteredFavourites(req:
 
                     let recipesByName = await dbRtns.findAllWithPagination(db, userFavouriteCollection, query, {}, index, 5);
                     let length = await dbRtns.count(db, userFavouriteCollection, query);
+                    console.log(recipesByName);
                     result.data = recipesByName;
                     if (recipesByName.length === 0) {
                         result.message = "No recipes found!";
