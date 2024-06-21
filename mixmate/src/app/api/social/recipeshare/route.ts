@@ -16,7 +16,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
         const userId = req.nextUrl.searchParams.get('userid');
 
         const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
-        const isVisible =  req.nextUrl.searchParams.get('publicflag') === 'true';
+        const isVisible = req.nextUrl.searchParams.get('publicflag') === 'true';
         const { user } = await getSession();
         if (userId) {
             if (!user || user.sub !== userId) {
@@ -53,20 +53,26 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
             let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 5);
             const totalCount = await dbRtns.count(db, sharedRecipeCollection, { visibility: "public" });
 
-            const updatedRecipes = await Promise.all(
-                recipes.map(async (recipe) => {
-                    const updatedRecipe = { ...recipe };
+            if (recipes.length > 0) {
+                const updatedRecipes = await Promise.all(
+                    recipes.map(async (recipe) => {
+                        const updatedRecipe = { ...recipe };
 
-                    const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
-                    updatedRecipe.reviews = reviews;
+                        const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
+                        updatedRecipe.reviews = reviews;
 
-                    return updatedRecipe;
-                })
-            );
+                        return updatedRecipe;
+                    })
+                );
 
-            const data = { recipes: updatedRecipes, length: totalCount };
-            result.data = data;
-            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
+                const data = { recipes: updatedRecipes, length: totalCount };
+                result.data = data;
+                result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
+            } else {
+                result.message = "No recipes found.";
+                const data = { recipes: [], length: 0 };
+                result.data = data;
+            }
             return NextResponse.json(result, { status: 200 });
         }
     } catch (err) {
@@ -144,7 +150,7 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
         else {
             if (!body.recipe)
                 return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
-            if(!body.userId)
+            if (!body.userId)
                 return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
         }
         let result = new Result(true);
@@ -152,7 +158,7 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
         if (!user) {
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
         }
-        if(user.sub !== body.userId){
+        if (user.sub !== body.userId) {
             return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
         }
         try {
@@ -164,9 +170,9 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             if (isNotSet(userExist)) {
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
-         
+
             delete body.recipe._id;
-            body.recipe.updated_at = new Date().toISOString();  
+            body.recipe.updated_at = new Date().toISOString();
             await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);
 
             result.setTrue(`The recipe has updated.`);

@@ -37,7 +37,6 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
       favouriteRecipe.created_at = new Date().toISOString();
 
       if (isNotSet(userFavoriteDocument)) {
-        console.log("hi");
         const tempFavouriteDocument = {
           sub: user.sub, favorites: [favouriteRecipe], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
         };
@@ -82,20 +81,31 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
 
     //let recipes = await dbRtns.findAllWithPagination(db, userFavouriteCollection, { sub: user.sub }, {}, pageNumber ? pageNumber : 1, 5);
     let userFavouriteDocument = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
-    let publicRecipes = userFavouriteDocument.favorites.filter(recipe => recipe.visibility === "public");
-    let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
-
-    const updatedRecipes = recipes.map((recipe) => {
-      delete recipe.sub;
-      return recipe;
-    })
-    const data = { recipes: updatedRecipes, allRecipes: userFavouriteDocument.favorites, length: userFavouriteDocument.favorites.length };
-
-    //response is the object deleted
     const result = new Result(true);
-    result.data = data;
-    result.message = userFavouriteDocument.favorites.length > 0 ? `${userFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
-    return NextResponse.json(result, { status: 200 })
+
+    if (isSet(userFavouriteDocument)) {
+      let publicRecipes = userFavouriteDocument.favorites.filter(recipe => recipe.visibility === "public");
+      let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
+
+      const updatedRecipes = recipes.map((recipe) => {
+        delete recipe.sub;
+        return recipe;
+      })
+      const data = { recipes: updatedRecipes, allRecipes: userFavouriteDocument.favorites, length: userFavouriteDocument.favorites.length };
+
+      //response is the object deleted
+      result.data = data;
+      result.message = userFavouriteDocument.favorites.length > 0 ? `${userFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
+      return NextResponse.json(result, { status: 200 })
+    } else {
+        const tempFavouriteDocument = {
+          sub: user.sub, favorites: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        };
+        await dbRtns.addOne(db, userFavouriteCollection, tempFavouriteDocument);
+        result.data = tempFavouriteDocument.favorites;
+        result.message = tempFavouriteDocument.favorites.length > 0 ? `${tempFavouriteDocument.favorites.length} recipes found!` : "No reciped found."
+        return NextResponse.json(result, { status: 200 })
+    }
   } catch (err) {
     console.log(err);
     return NextResponse.json({ error: err.message }, { status: 400 });

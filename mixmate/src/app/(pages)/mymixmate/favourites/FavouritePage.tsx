@@ -9,7 +9,7 @@ import Grid from "@mui/material/Grid";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import Recipe_Component from "@/app/(components)/Recipe_Component";
 import FilterRecipesComponent from "@/app/(components)/FilterRecipesComponent";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { Box, Pagination, Typography } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
@@ -36,29 +36,33 @@ function Favourites() {
     setPageIndexCount(Math.ceil(allFavoriteRecipes.length / 5));
   };
   // Loading recipe options
-  let loadFavoriteRecipes = useCallback((pageIndex = 1) => {
-    dispatch(pageStateActions.setPageLoadingState(true));
-    makeRequest(
-      API_ROUTES.favourite,
-      REQ_METHODS.get,
-      { index: [pageIndex] },
-      (response) => {
-        setIsFilterApplied(false);
-
-        setRecipesFilteredToBeDisplayed(response.data.recipes);
-        setRecipesFiltered(response.data.allRecipes);
-        setAllFavouriteRecipes(response.data.allRecipes);
-        setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
-      }
-    )
-      .catch((error) => {
-        displayErrorSnackMessage(error, dispatch);
-      })
-      .finally(() => {
-        dispatch(pageStateActions.setPageLoadingState(false));
-      });
-//eslint-disable-next-line
-  },[pageIndex]);
+  let loadFavoriteRecipes = useCallback(
+    (pageIndex = 1) => {
+      dispatch(pageStateActions.setPageLoadingState(true));
+      makeRequest(
+        API_ROUTES.favourite,
+        REQ_METHODS.get,
+        { index: [pageIndex] },
+        (response) => {
+          setIsFilterApplied(false);
+          if (response.data.recipes.length > 0) {
+            setRecipesFilteredToBeDisplayed(response.data.recipes);
+            setRecipesFiltered(response.data.allRecipes);
+            setAllFavouriteRecipes(response.data.allRecipes);
+            setPageIndexCount(Math.ceil(response.data.allRecipes.length / 5));
+          }
+        }
+      )
+        .catch((error) => {
+          //displayErrorSnackMessage(error, dispatch);
+        })
+        .finally(() => {
+          dispatch(pageStateActions.setPageLoadingState(false));
+        });
+      //eslint-disable-next-line
+    },
+    [pageIndex]
+  );
 
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
@@ -79,9 +83,12 @@ function Favourites() {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       handlePageChange(pageIndex - 1);
-    }else if(buttonLabel === "Go to first page" && pageIndex > 1){
+    } else if (buttonLabel === "Go to first page" && pageIndex > 1) {
       handlePageChange(1);
-    } else if(buttonLabel === "Go to last page" && pageIndex < pageIndexCount){
+    } else if (
+      buttonLabel === "Go to last page" &&
+      pageIndex < pageIndexCount
+    ) {
       handlePageChange(pageIndexCount);
     } else if (e.target.innerText) {
       const index = parseInt(e.target.innerText);
@@ -107,9 +114,8 @@ function Favourites() {
       } else if (filter.filter === "Glass") {
         return recipe.strGlass === filter.criteria;
       } else if (filter.filter === "Ingredient") {
-        return recipe.ingredients.some(
-          (ing) =>
-            ing.ingredient.toLowerCase().includes(filter.criteria.toLowerCase()) 
+        return recipe.ingredients.some((ing) =>
+          ing.ingredient.toLowerCase().includes(filter.criteria.toLowerCase())
         );
       } else {
         return recipe.strDrink
@@ -121,7 +127,7 @@ function Favourites() {
     setPageIndex(1);
     setPageIndexCount(Math.ceil(filteredRecipes.length / 5));
     setRecipesFilteredToBeDisplayed(filteredRecipes.slice(0, 5));
-    dispatch(pageStateActions.setPageLoadingState(false));    
+    dispatch(pageStateActions.setPageLoadingState(false));
   };
   useEffect(() => {
     loadFavoriteRecipes();
@@ -203,8 +209,8 @@ function Favourites() {
           onChange={onPageIndexChange}
           sx={{
             "& .MuiPaginationItem-root": {
-              backgroundColor:"#FFFFFF",
-              marginBottom: 1
+              backgroundColor: "#FFFFFF",
+              marginBottom: 1,
             },
           }}
         />

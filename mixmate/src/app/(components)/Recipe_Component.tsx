@@ -186,9 +186,9 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
   };
 
   const renderRecipes = () => {
-    return recipes?.map((drink) => {
+    return recipes?.map((drink, index) => {
       // Format ingredients
-      const ingredientsList = drink.ingredients?.map((ing, index) => (
+      const ingredientsList = drink?.ingredients?.map((ing, index) => (
         <Typography className={vollkorn.className} fontSize="17px" key={index}>
           {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
         </Typography>
@@ -215,7 +215,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
               Preparing Instructions
             </Typography>
             <Typography className={sarabun.className} fontSize="18px">
-              {drink.strInstructions}
+              {drink?.strInstructions}
             </Typography>
           </Grid>
           <Grid item xs={12} sx={{ marginTop: "30px" }}>
@@ -227,7 +227,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
               Author:
             </Typography>
             <Typography className={vollkorn.className} fontSize="18px">
-              {isSet(drink.strAuthor) ? drink.strAuthor : "www.cocktailDB.com"}
+              {isSet(drink?.strAuthor) ? drink?.strAuthor : "www.cocktailDB.com"}
             </Typography>
           </Grid>
           <Grid item xs={12} sx={{ marginTop: "30px" }}>
@@ -239,7 +239,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
               Recipe Created At:
             </Typography>
             <Typography className={vollkorn.className} fontSize="18px">
-              {formatDateTime(drink.created_at)}
+              {formatDateTime(drink?.created_at)}
             </Typography>
           </Grid>
         </Grid>
@@ -249,7 +249,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       let reviewComments = null;
 
       if (isSet(applicationPage === APPLICATION_PAGE.social))
-        if (drink.reviews && drink.reviews.length > 0) {
+        if (drink?.reviews && drink?.reviews.length > 0) {
           reviewComments = (
             <>
               <Grid item xs={12}>
@@ -275,7 +275,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
                 <Grid item xs={12} sx={{ marginTop: "30px" }}>
-                  {drink.reviews.map((review, index) => {
+                  {drink?.reviews.map((review, index) => {
                     const createdAt = moment(review.created_at);
                     const now = moment();
                     const daysDiff = now.diff(createdAt, "days");
@@ -409,10 +409,10 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
           );
         }
       return (
-        <React.Fragment key={drink.idDrink}>
+        <React.Fragment key={index}>
           <TableRow
             sx={{ "& > *": { borderTop: 0 }, paddingTop: "20px" }}
-            key={drink.idDrink}
+            key={drink?.idDrink}
           >
             <TableCell colSpan={2}>
               <Paper
@@ -432,8 +432,8 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                   >
                     <Image
                       src={
-                        drink.strDrinkThumb
-                          ? drink.strDrinkThumb
+                        drink?.strDrinkThumb
+                          ? drink?.strDrinkThumb
                           : "/not-found-icon.png"
                       }
                       alt="Drink"
@@ -453,7 +453,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                       }}
                       className={vollkorn.className}
                     >
-                      {drink.strDrink}
+                      {drink?.strDrink}
                     </Typography>
 
                     {/* Category */}
@@ -468,7 +468,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                             <ClassIcon />
                           </InputAdornment>
                         }
-                        value={drink.strCategory}
+                        value={drink?.strCategory}
                       />
                     </FormControl>
                     <br />
@@ -486,7 +486,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                             <LocalBarIcon />
                           </InputAdornment>
                         }
-                        value={drink.strAlcoholic}
+                        value={drink?.strAlcoholic}
                       />
                     </FormControl>
                     <br />
@@ -504,7 +504,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                             <LocalDrinkIcon />
                           </InputAdornment>
                         }
-                        value={drink.strGlass}
+                        value={drink?.strGlass}
                       />
                     </FormControl>
                     <br />
@@ -529,7 +529,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         <IconButton
                           color="error"
                           onClick={() =>
-                            messageBoxDeleteRecipe(drink._id, drink.recipeName)
+                            messageBoxDeleteRecipe(drink?._id, drink?.recipeName)
                           }
                         >
                           <DeleteForeverIcon />
@@ -549,7 +549,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         <Tooltip title="Edit the Recipe" placement="top">
                           <IconButton
                             color="primary"
-                            onClick={() => modalAddEditRecipe_onOpen(drink._id)}
+                            onClick={() => modalAddEditRecipe_onOpen(drink?._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -617,7 +617,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                       <Stack direction={{ xs: "column", lg: "row" }}>
                         {(applicationPage === APPLICATION_PAGE.social ||
                           applicationPage === APPLICATION_PAGE.myRecipes) &&
-                          drink.sub === user.sub && (
+                          drink?.sub === user.sub && (
                             <Button
                               onClick={() => handleSetRecipeVisibility(drink)}
                               variant="contained"
@@ -786,7 +786,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
     let newReview = {
       userId: user.sub,
       userNickname: user.nickname,
-      recipeId: drink._id,
+      recipeId: drink?._id,
       comment: reviewValue,
       rating: ratingValue,
     };
