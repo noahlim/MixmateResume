@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { API_ROUTES, REQ_METHODS } from "@/app/_utilities/_client/constants";
 import {
   displayErrorSnackMessage,
@@ -36,7 +36,7 @@ function Favourites() {
     setPageIndexCount(Math.ceil(allFavoriteRecipes.length / 5));
   };
   // Loading recipe options
-  let loadFavoriteRecipes = (pageIndex = 1) => {
+  let loadFavoriteRecipes = useCallback((pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
       API_ROUTES.favourite,
@@ -57,7 +57,8 @@ function Favourites() {
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-  };
+//eslint-disable-next-line
+  },[pageIndex]);
 
   const handlePageChange = (newPageIndex) => {
     setPageIndex(newPageIndex);
@@ -90,7 +91,7 @@ function Favourites() {
     }
   };
 
-  let loadFilteredFavouriteRecipes = (pageIndex) => {
+  let loadFilteredFavouriteRecipes = () => {
     setIsFilterApplied(true);
     dispatch(pageStateActions.setPageLoadingState(true));
     if (!allFavoriteRecipes || allFavoriteRecipes.length === 0) {
@@ -124,7 +125,7 @@ function Favourites() {
   };
   useEffect(() => {
     loadFavoriteRecipes();
-  }, []);
+  }, [loadFavoriteRecipes]);
   return (
     <>
       <Box
@@ -161,7 +162,7 @@ function Favourites() {
       </Box>
       <MarqueeAnimation direction="right" />
       <Grid container spacing={2} style={{ marginTop: 10 }}>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} lg={3}>
           <FilterRecipesComponent
             recipeAllRecipes={allFavoriteRecipes}
             loadFilteredRecipes={loadFilteredFavouriteRecipes}
@@ -172,7 +173,7 @@ function Favourites() {
             applicationPage={APPLICATION_PAGE.favourites}
           />
         </Grid>
-        <Grid item xs={12} sm={9}>
+        <Grid item xs={12} lg={9}>
           <Recipe_Component
             applicationPage={APPLICATION_PAGE.favourites}
             title="My Favourite Recipes"

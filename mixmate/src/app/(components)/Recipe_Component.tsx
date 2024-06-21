@@ -26,17 +26,12 @@ import {
   isNotSet,
   isSet,
   makeRequest,
-  formatDateTime
+  formatDateTime,
 } from "@/app/_utilities/_client/utilities";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import {
-  Typography,
-  TextField,
-  Divider,
-  Stack,
-} from "@mui/material";
+import { Typography, TextField, Divider, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
@@ -52,7 +47,6 @@ import clipboard from "clipboard-copy";
 import Paper from "@mui/material/Paper";
 import Avatar from "@mui/material/Avatar";
 import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import AddEditRecipe_Component from "./AddEditRecipe_Component";
 import {
   FacebookIcon,
@@ -98,7 +92,6 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
   const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
 
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   let modalAddEditRecipe_onOpen = (selectedRecipeId) => {
     dispatch(pageStateActions.setPageLoadingState(true));
@@ -137,7 +130,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       });
   };
   let handleRemoveRecipeClick = () => {
-    if (title === "My Favourite Recipes") {
+    if (applicationPage === APPLICATION_PAGE.favourites) {
       dispatch(pageStateActions.setPageLoadingState(true));
 
       makeRequest(
@@ -163,7 +156,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
         .finally(() => {
           dispatch(pageStateActions.setPageLoadingState(false));
         });
-    } else if (title === "My MixMate Recipes") {
+    } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
       dispatch(pageStateActions.setPageLoadingState(true));
       makeRequest(
         API_ROUTES.recipeShare,
@@ -309,7 +302,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         alignItems="right"
                         sx={{
                           marginBottom: 2,
-                          width: { xs: "100%", md: "70%" },
+                          width: { xs: "100%", lg: "70%" },
                         }}
                       >
                         {/**Delete review button */}
@@ -433,8 +426,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                   <Grid
                     item
                     xs={12}
-                    md={6}
-                    lg={4}
+                    lg={6}
                     display="flex"
                     justifyContent="center"
                   >
@@ -573,7 +565,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                           <Paper
                             sx={{
                               display: "grid",
-                              width: isSmallScreen ? "100%" : "70%",
+                              width: {xs:"100%", lg:"70%"},
                             }}
                           >
                             <TextField
@@ -622,7 +614,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         alignContent: "center",
                       }}
                     >
-                      <Stack direction={{ xs: "column", sm: "row" }}>
+                      <Stack direction={{ xs: "column", lg: "row" }}>
                         {(applicationPage === APPLICATION_PAGE.social ||
                           applicationPage === APPLICATION_PAGE.myRecipes) &&
                           drink.sub === user.sub && (
@@ -861,131 +853,131 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       )}
 
       {/* Share recipes */}
-      {applicationPage === APPLICATION_PAGE.myRecipes ||
-        (applicationPage === APPLICATION_PAGE.social && (
-          <Dialog
-            onClose={() => setModalShareRecipeOpen(false)}
-            open={modalShareRecipeOpen}
-          >
-            <DialogTitle>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
+      {(applicationPage === APPLICATION_PAGE.myRecipes ||
+        applicationPage === APPLICATION_PAGE.social) && (
+        <Dialog
+          onClose={() => setModalShareRecipeOpen(false)}
+          open={modalShareRecipeOpen}
+        >
+          <DialogTitle>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              Share
+              <IconButton
+                aria-label="Close"
+                onClick={() => setModalShareRecipeOpen(false)}
               >
-                Share
-                <IconButton
-                  aria-label="Close"
-                  onClick={() => setModalShareRecipeOpen(false)}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-            </DialogTitle>
-            <Box>
-              <DialogActions>
-                <Grid
-                  container
-                  justifyContent="center"
-                  spacing={3}
-                  sx={{ padding: "0px 20px" }}
-                >
-                  <Grid
-                    item
-                    xs={3}
-                    sx={{ display: "flex" }}
-                    justifyContent="center"
-                    alignContent="center"
-                  >
-                    <WhatsappShareButton
-                      url={sharingUrl}
-                      title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
-                      className="Demo__some-network__share-button"
-                    >
-                      <WhatsappIcon size={60} round />
-                    </WhatsappShareButton>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    sx={{ display: "flex" }}
-                    justifyContent="center"
-                    alignContent="center"
-                  >
-                    <TwitterShareButton
-                      url={sharingUrl}
-                      title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
-                      className="Demo__some-network__share-button"
-                    >
-                      <XIcon size={60} round />
-                    </TwitterShareButton>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    sx={{ display: "flex" }}
-                    justifyContent="center"
-                    alignContent="center"
-                  >
-                    <FacebookShareButton
-                      url={sharingUrl}
-                      className="Demo__some-network__share-button"
-                    >
-                      <FacebookIcon size={60} round />
-                    </FacebookShareButton>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    sx={{ display: "flex" }}
-                    justifyContent="center"
-                    alignContent="center"
-                  >
-                    <EmailShareButton
-                      url={sharingUrl}
-                      subject={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
-                      body={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
-                      className="Demo__some-network__share-button"
-                    >
-                      <EmailIcon size={60} round />
-                    </EmailShareButton>
-                  </Grid>
-                </Grid>
-
-                {/*Error "Parameter 'href' should represent a valid URL" will be thrown when ran on localhost. will work well when deployed */}
-              </DialogActions>
-              <DialogContent>
-                <Divider sx={{ width: "100%" }} />
-              </DialogContent>{" "}
-              <DialogActions>
-                <Grid container>
-                  <Grid item xs={12}>
-                    <TextField
-                      id="outlined-read-only-input"
-                      defaultValue={`${MIXMATE_DOMAIN}recipes/${selectedRecipeToShare?._id}`}
-                      InputProps={{
-                        readOnly: true,
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <Tooltip title="Copy to clipboard" placement="top">
-                              <IconButton
-                                color="primary"
-                                onClick={copySharedToClipboard}
-                              >
-                                <ContentCopyIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{ width: "100%" }}
-                    />
-                  </Grid>
-                </Grid>
-              </DialogActions>
+                <CloseIcon />
+              </IconButton>
             </Box>
-          </Dialog>
-        ))}
+          </DialogTitle>
+          <Box>
+            <DialogActions>
+              <Grid
+                container
+                justifyContent="center"
+                spacing={3}
+                sx={{ padding: "0px 20px" }}
+              >
+                <Grid
+                  item
+                  xs={3}
+                  sx={{ display: "flex" }}
+                  justifyContent="center"
+                  alignContent="center"
+                >
+                  <WhatsappShareButton
+                    url={sharingUrl}
+                    title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                    className="Demo__some-network__share-button"
+                  >
+                    <WhatsappIcon size={60} round />
+                  </WhatsappShareButton>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  sx={{ display: "flex" }}
+                  justifyContent="center"
+                  alignContent="center"
+                >
+                  <TwitterShareButton
+                    url={sharingUrl}
+                    title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                    className="Demo__some-network__share-button"
+                  >
+                    <XIcon size={60} round />
+                  </TwitterShareButton>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  sx={{ display: "flex" }}
+                  justifyContent="center"
+                  alignContent="center"
+                >
+                  <FacebookShareButton
+                    url={sharingUrl}
+                    className="Demo__some-network__share-button"
+                  >
+                    <FacebookIcon size={60} round />
+                  </FacebookShareButton>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  sx={{ display: "flex" }}
+                  justifyContent="center"
+                  alignContent="center"
+                >
+                  <EmailShareButton
+                    url={sharingUrl}
+                    subject={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                    body={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                    className="Demo__some-network__share-button"
+                  >
+                    <EmailIcon size={60} round />
+                  </EmailShareButton>
+                </Grid>
+              </Grid>
+
+              {/*Error "Parameter 'href' should represent a valid URL" will be thrown when ran on localhost. will work well when deployed */}
+            </DialogActions>
+            <DialogContent>
+              <Divider sx={{ width: "100%" }} />
+            </DialogContent>{" "}
+            <DialogActions>
+              <Grid container>
+                <Grid item xs={12}>
+                  <TextField
+                    id="outlined-read-only-input"
+                    defaultValue={`${MIXMATE_DOMAIN}recipes/${selectedRecipeToShare?._id}`}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Copy to clipboard" placement="top">
+                            <IconButton
+                              color="primary"
+                              onClick={copySharedToClipboard}
+                            >
+                              <ContentCopyIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+              </Grid>
+            </DialogActions>
+          </Box>
+        </Dialog>
+      )}
 
       <Table aria-label="collapsible table">
         <TableBody>

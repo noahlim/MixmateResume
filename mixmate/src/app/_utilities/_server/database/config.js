@@ -20,5 +20,3 @@ export const recipeReviewCollection = process.env.RECIPES_REVIEWS_COLLECTION;
 export const walmart_api_key = process.env.WALMART_API_KEY;
 export const walmart_api_host = process.env.WALMART_API_HOST;
 export const ingredientCollection = process.env.INGREDIENTCOLLECTION;
-export const endPoint = process.env.END_POINT;
-export const mixmate_domain = process.env.MIXMATE_DOMAIN;

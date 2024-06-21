@@ -46,7 +46,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%" }}}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -54,7 +54,7 @@ function AboutPage() {
                     fontWeight="bold"
                     color="black"
                     className={spaceGrotesk.className}
-                    sx={{ paddingTop: { xs: "20px", md: "0px" } }}
+                    sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
                   >
                     MixMate: The Ultimate Cocktail Companion
                   </Typography>
@@ -132,7 +132,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%"},borderColor: "#FFFFFF"}}                
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -140,9 +140,8 @@ function AboutPage() {
                     fontWeight="bold"
                     color="black"
                     className={spaceGrotesk.className}
-                    sx={{ paddingTop: { xs: "20px", md: "0px" } }}
                   >
-                    The Art of Personalized Cocktail Creation
+                    Damne Art of Personalized Cocktail Creation
                   </Typography>
                 </Grid>
                 <Grid
@@ -190,7 +189,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: "60%" }}
+                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%" }}}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography

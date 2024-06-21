@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import "@fontsource/dela-gothic-one";
-import { API_ROUTES, APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
+import { API_ROUTES, APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
 import { useMediaQuery } from "@mui/material";
 import StarShape from "@/app/(components)/(shapeComponents)/StarShape";
 import FloatingBoxWrapper from "@/app/(components)/(shapeComponents)/FloatingBox";
@@ -18,6 +18,8 @@ import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
+import { endPoint, mixmate_domain, ingredientCollection } from "./_utilities/_server/database/config";
+import { ToastMessage } from "interface/toastMessage";
 
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
@@ -36,6 +38,7 @@ function HomePage() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(pageStateActions.setPageLoadingState(false));
+
   })
   return (
     <>
@@ -125,7 +128,7 @@ function HomePage() {
               >
                 Get Your Own Mixes
               </Box>
-            </Grid>           
+            </Grid>                          
           </Grid>
         </Grid>
         <Grid

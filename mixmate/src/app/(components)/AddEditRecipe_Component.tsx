@@ -63,7 +63,11 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
   const [currentRecipeInstructions, setCurrentRecipeInstructions] =
     useState("");
 
-  // Load data if recipe ID exist
+ 
+  //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
+
+  useEffect(() => {
+     // Load data if recipe ID exist
   let loadRecipeIfExist = () => {
     if (isSet(recipeId)) {
       dispatch(pageStateActions.setPageLoadingState(true));
@@ -101,11 +105,9 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
 
     return recipeId;
   };
-  //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
-
-  useEffect(() => {
     loadRecipeIfExist();
-  }, [openModal]);
+    //eslint-disable-next-line
+  }, [openModal, recipeId]);
   // Modal events
   let closeNewRecipeModal_onClick = () => {
     setNewIngredient("");

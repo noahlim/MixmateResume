@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   API_ROUTES,
   APPLICATION_PAGE,
@@ -22,21 +22,26 @@ import ClassIcon from "@mui/icons-material/Class";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-
 import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
+import { Lilita_One, Sarabun } from "next/font/google";
+
+const lilitaOne = Lilita_One({
+  subsets: ["latin"],
+  weight: "400",
+});
+const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const RecipeById = ({ params }) => {
   const recipeId = params.recipeid;
   const router = useRouter();
   const [recipe, setRecipe] = useState(null);
   const [ingredients, setIngredients] = useState([]);
-  const fetchRecipeDetails = async () => {
+  const fetchRecipeDetails = useCallback(() => {
     makeRequest(
       API_ROUTES.sharedRecipeById,
       REQ_METHODS.get,
       { recipeid: recipeId },
       (response) => {
-
         if (response.message === "Recipe not found") {
           makeRequest(
             API_ROUTES.drinkbyid,
@@ -54,7 +59,7 @@ const RecipeById = ({ params }) => {
         }
       }
     );
-  };
+  }, [recipeId]);
   const setRecipeAndIngredients = (drinkData) => {
     setRecipe(drinkData);
     if (drinkData.ingredients.length > 0) {
@@ -75,7 +80,7 @@ const RecipeById = ({ params }) => {
 
   useEffect(() => {
     fetchRecipeDetails();
-  }, []);
+  }, [fetchRecipeDetails]);
   if (!recipe) {
     return (
       <Backdrop sx={{ color: "#fff", zIndex: (theme) => 9999 }} open={!recipe}>
@@ -88,7 +93,7 @@ const RecipeById = ({ params }) => {
       <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
         <Box sx={{ margin: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
+            <Grid item xs={12} sm={9} lg={4}>
               <Image
                 style={{ borderRadius: "7%" }}
                 src={
@@ -101,7 +106,7 @@ const RecipeById = ({ params }) => {
                 width={700}
               />
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={8}>
+            <Grid item xs={12} sm={12} lg={8}>
               <div className="text-tangerine text-55px margin-left-35px">
                 {recipe.strDrink}
               </div>
@@ -112,7 +117,7 @@ const RecipeById = ({ params }) => {
                   Category
                 </InputLabel>
                 <Input
-                  id="input-with-icon-adornment"
+                  className={sarabun.className}
                   startAdornment={
                     <InputAdornment position="start">
                       <ClassIcon />
@@ -130,7 +135,7 @@ const RecipeById = ({ params }) => {
                   Alcoholic type
                 </InputLabel>
                 <Input
-                  id="input-with-icon-adornment"
+                  className={sarabun.className}
                   startAdornment={
                     <InputAdornment position="start">
                       <LocalBarIcon />
@@ -148,7 +153,7 @@ const RecipeById = ({ params }) => {
                   Glass
                 </InputLabel>
                 <Input
-                  id="input-with-icon-adornment"
+                  className={sarabun.className}
                   startAdornment={
                     <InputAdornment position="start">
                       <LocalDrinkIcon />
@@ -160,22 +165,25 @@ const RecipeById = ({ params }) => {
               <br />
               <br />
             </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <Grid item xs={12}>
               <InputLabel>Ingredients:</InputLabel>
               {ingredients}
               <br></br>
               <InputLabel>How to prepare:</InputLabel>
-              <Typography>
+              <Typography className={sarabun.className} fontSize="18px">
                 {recipe.strInstructions}
               </Typography>
             </Grid>
-            <Grid
-              xs
+            
+          </Grid>
+          <Grid
               item
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              sx={{ padding: 4 }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 4,
+              }}
             >
               <Button
                 onClick={() => router.push(APPLICATION_PAGE.home)}
@@ -186,12 +194,10 @@ const RecipeById = ({ params }) => {
                 Find More Exciting Recipes in MixMate!
               </Button>
             </Grid>
-          </Grid>
         </Box>
       </TableCell>
     </TableRow>
   );
-  //return <h1>{params.recipeid}</h1>;
 };
 
 export default RecipeById;

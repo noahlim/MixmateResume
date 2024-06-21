@@ -239,16 +239,6 @@ const MyIngredients = () => {
             userInfoActions.setUserIngredients(response.data.ingredients)
           );
 
-          const toastMessageObject: ToastMessage = {
-            open: true,
-            message:
-              response.data.ingredients.length > 0
-                ? response.data.ingredients.length + " ingredient(s) found."
-                : "No ingredient(s) found.",
-            severity: SEVERITY.Success,
-            title: "Ingredients",
-          };
-          dispatch(pageStateActions.setToastMessage(toastMessageObject));
         }
       ).catch((error) => {
         displayErrorSnackMessage(error, dispatch);
@@ -257,7 +247,7 @@ const MyIngredients = () => {
     dispatch(pageStateActions.setPageLoadingState(false));
   };
 
-  let loadIngredients = () => {
+  let loadIngredients = useCallback(() => {
     dispatch(pageStateActions.setPageLoadingState(true));
     //when the page has not been loaded before and the
     //ingredients are not in the redux store
@@ -323,11 +313,12 @@ const MyIngredients = () => {
       }
       loadUserIngredients();
     }
-  };
+    //eslint-disable-next-line
+  },[]);
 
   useEffect(() => {
     loadIngredients();
-  }, []);
+  }, [loadIngredients]);
 
   return (
     <>

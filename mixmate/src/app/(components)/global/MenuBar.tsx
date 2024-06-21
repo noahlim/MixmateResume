@@ -79,34 +79,30 @@ function MenuBar() {
         route === APPLICATION_PAGE.social
       )
         dispatch(pageStateActions.setAuthenticatedModalOpen(true));
-        router.push(route);
+      router.push(route);
       return;
     }
-    if (
-      route !== APPLICATION_PAGE.root &&
-      route !== APPLICATION_PAGE.about
-    )
+    if (route !== APPLICATION_PAGE.root && route !== APPLICATION_PAGE.about)
       dispatch(pageStateActions.setPageLoadingState(true));
 
     router.push(route);
   };
 
- 
   useEffect(() => {
-     //if logged in successfully using Auth0, sync with MongoDB
-  const loginHandleMongo = async (userInfoData) => {
-    makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
-      (err) => {
-        const toastMessageObject: ToastMessage = {
-          open: true,
-          message: err.message,
-          severity: SEVERITY.Error,
-          title: "Error",
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      }
-    );
-  };
+    //if logged in successfully using Auth0, sync with MongoDB
+    const loginHandleMongo = async (userInfoData) => {
+      makeRequest(API_ROUTES.mongoLogin, REQ_METHODS.post, userInfoData).catch(
+        (err) => {
+          const toastMessageObject: ToastMessage = {
+            open: true,
+            message: err.message,
+            severity: SEVERITY.Error,
+            title: "Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        }
+      );
+    };
     if (!userInfo) {
       dispatch(userInfoActions.setUserInfo(user));
 
@@ -257,11 +253,11 @@ function MenuBar() {
           zIndex: 9999,
           backgroundColor: "#00C1F5",
           borderRadius: "50%",
-          width: "50px", 
+          width: "50px",
           height: "50px",
           display: "flex",
-          justifyContent: "center", 
-          alignItems: "center", 
+          justifyContent: "center",
+          alignItems: "center",
           boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)",
         }}
         onClick={() => {
@@ -363,14 +359,16 @@ function MenuBar() {
             </Box>
             {/*logo in xs breakpoint*/}
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <Image
-                src="/mixmatelogomini.png"
-                alt="MixMate Logo"
-                decoding="async"
-                width={686}
-                height={364}
-                style={{ width: "100px" }}
-              />
+              <Link href={APPLICATION_PAGE.home}>
+                <Image
+                  src="/mixmatelogomini.png"
+                  alt="MixMate Logo"
+                  decoding="async"
+                  width={686}
+                  height={364}
+                  style={{ width: "100px" }}
+                />
+              </Link>
             </Box>
             {/*navigation menu in md breakpoint*/}
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>

@@ -110,6 +110,7 @@ function DefaultRecipesComponent() {
 
   useEffect(() => {
     loadAllRecipes();
+    //eslint-disable-next-line
   }, []);
 
   // Recipe actions
