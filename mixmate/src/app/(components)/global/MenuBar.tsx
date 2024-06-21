@@ -51,6 +51,7 @@ import NavLink from "@/app/(components)/global/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { BsInfoCircleFill } from "react-icons/bs";
+import path from "path";
 const pages = [
   { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },
@@ -72,6 +73,8 @@ function MenuBar() {
   const { user, isLoading, error } = useUser();
 
   const handlePageChange = (route: string) => {
+    if (pathName === route) return;
+    console.log(pathName, route);
     if (!user) {
       if (
         route === APPLICATION_PAGE.myMixMate ||

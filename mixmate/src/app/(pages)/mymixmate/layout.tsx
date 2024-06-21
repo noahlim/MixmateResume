@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { usePathname, useRouter} from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -66,35 +66,41 @@ const MyMixMate = ({ children }) => {
             scrollButtons={true}
           >
             <Tab
-              icon={<FavoriteIcon/>}
+              icon={<FavoriteIcon />}
               label="Favorites"
-              onClick={() =>
-                dispatch(pageStateActions.setPageLoadingState(true))
-              }
+              onClick={() => {
+                if (pathname !== APPLICATION_PAGE.favourites) {
+                  dispatch(pageStateActions.setPageLoadingState(true));
+                }
+              }}
             />
 
             <Tab
-              icon={<LiaCocktailSolid size={23}/>}
+              icon={<LiaCocktailSolid size={23} />}
               label="My Recipes"
-              onClick={() =>
-                dispatch(pageStateActions.setPageLoadingState(true))
-              }
+              onClick={() => {
+                if (pathname !== APPLICATION_PAGE.myRecipes) {
+                  dispatch(pageStateActions.setPageLoadingState(true));
+                }
+              }}
             />
 
             <Tab
-              icon={<FaEarthAmericas  size={23} />}
+              icon={<FaEarthAmericas size={23} />}
               label="Community Recipes"
-              onClick={() =>
-                dispatch(pageStateActions.setPageLoadingState(true))
-              }
+              onClick={() => {
+                if (pathname !== APPLICATION_PAGE.social)
+                  dispatch(pageStateActions.setPageLoadingState(true));
+              }}
             />
 
             <Tab
               icon={<WineBarIcon />}
               label="My Ingredients"
-              onClick={() =>
-                dispatch(pageStateActions.setPageLoadingState(true))
-              }
+              onClick={() => {
+                if (pathname !== APPLICATION_PAGE.social)
+                  dispatch(pageStateActions.setPageLoadingState(true));
+              }}
             />
           </Tabs>
         </Box>
