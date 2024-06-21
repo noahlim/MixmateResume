@@ -1,5 +1,4 @@
 import { AlertColor } from '@mui/material/Alert';
-import { endPoint, mixmate_domain } from '@/app/_utilities/_server/database/config';
 // const END_POINT = "https://mixmate-one.vercel.app/api";
 // const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
 // const END_POINT = "http://localhost:3000/api";

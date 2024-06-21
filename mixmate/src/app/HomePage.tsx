@@ -18,8 +18,6 @@ import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
-import { endPoint, mixmate_domain, ingredientCollection } from "./_utilities/_server/database/config";
-import { ToastMessage } from "interface/toastMessage";
 
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
