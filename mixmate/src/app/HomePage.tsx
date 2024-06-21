@@ -13,7 +13,7 @@ import FloatingBoxWrapper from "@/app/(components)/(shapeComponents)/FloatingBox
 import Image from "next/image";
 import HoverTypography from "@/app/(components)/(shapeComponents)/HoverTypography";
 import BlogSection from "@/app/(components)/(shapeComponents)/BlogSection";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";

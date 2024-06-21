@@ -1,4 +1,3 @@
-import { Inter, Roboto, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { API_ROUTES } from "./_utilities/_client/constants";

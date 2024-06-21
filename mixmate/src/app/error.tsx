@@ -3,7 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import {notFound } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface ErrorProps {
   error: Error;
