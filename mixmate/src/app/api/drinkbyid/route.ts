@@ -24,7 +24,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     let recipeInfo = await dbRtns.findOne(db, recipeCollection, {
         _id: new ObjectId(drinkId),
     });
-    console.log(drinkId);
     if (isSet(recipeInfo)) {
         result.setTrue("Drink found!");
         result.data = recipeInfo;

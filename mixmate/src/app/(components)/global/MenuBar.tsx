@@ -74,7 +74,6 @@ function MenuBar() {
 
   const handlePageChange = (route: string) => {
     if (pathName === route) return;
-    console.log(pathName, route);
     if (!user) {
       if (
         route === APPLICATION_PAGE.myMixMate ||
@@ -189,23 +188,27 @@ function MenuBar() {
             </ListItemButton>
           </ListItem>
         </List>
-        <Divider />
-        <List>
-          <ListItem disablePadding>
-            <a href={API_ROUTES.logout}>
-              <ListItemButton
-                onClick={() => {
-                  dispatch(userInfoActions.setUserInfo(null));
-                }}
-              >
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary={"Log Out"} />
-              </ListItemButton>
-            </a>
-          </ListItem>
-        </List>
+        {user && (
+          <>
+            <Divider />
+            <List>
+              <ListItem disablePadding>
+                <a href={API_ROUTES.logout}>
+                  <ListItemButton
+                    onClick={() => {
+                      dispatch(userInfoActions.setUserInfo(null));
+                    }}
+                  >
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={"Log Out"} />
+                  </ListItemButton>
+                </a>
+              </ListItem>
+            </List>
+          </>
+        )}
       </Box>
     </Drawer>
   );
@@ -323,8 +326,7 @@ function MenuBar() {
             sx={{ color: "#7FE0FA", marginLeft: "20px" }}
             autoFocus
           >
-            Why not, let&apos;s go!
-            Why not, let&apos;s go!
+            Why not, let&apos;s go! Why not, let&apos;s go!
           </Button>
         </DialogActions>
       </Dialog>
