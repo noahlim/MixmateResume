@@ -118,8 +118,8 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             body.recipe.created_at = new Date().toISOString();
             body.recipe.updated_at = new Date().toISOString();
             body.recipe.reviews = [];
-            body.recipe.nickname = user.nickname;
-            body.recipe.strAuthor = user.nickname;
+            body.recipe.nickname = user.email_verified ? user.name : user.nickname;
+            body.recipe.strAuthor = user.email_verified ? user.name : user.nickname;
             body.recipe.strDrinkThumb = fileName;
 
             await dbRtns.addOne(db, sharedRecipeCollection, body.recipe);

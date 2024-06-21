@@ -785,7 +785,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
     dispatch(pageStateActions.setPageLoadingState(true));
     let newReview = {
       userId: user.sub,
-      userNickname: user.nickname,
+      userNickname: user.email_verified ? user.name : user.nickname,
       recipeId: drink?._id,
       comment: reviewValue,
       rating: ratingValue,
@@ -796,8 +796,6 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       REQ_METHODS.post,
       { newReview },
       (response) => {
-        setRatingValue(1);
-        reloadRecipes();
       }
     )
       .catch((err) => {
@@ -805,6 +803,9 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       })
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
+        setReviewValue("");        
+        setRatingValue(1);
+        reloadRecipes();
       });
   };
 
