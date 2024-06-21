@@ -56,7 +56,6 @@ function AboutPage() {
                     color="black"
                     className={spaceGrotesk.className}
                     sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
-                    sx={{ paddingTop: { xs: "20px", lg: "0px" } }}
                   >
                     MixMate: The Ultimate Cocktail Companion
                   </Typography>

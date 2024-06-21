@@ -248,7 +248,6 @@ const MyIngredients = () => {
   };
 
   let loadIngredients = useCallback(() => {
-  let loadIngredients = useCallback(() => {
     dispatch(pageStateActions.setPageLoadingState(true));
     //when the page has not been loaded before and the
     //ingredients are not in the redux store
@@ -319,7 +318,6 @@ const MyIngredients = () => {
 
   useEffect(() => {
     loadIngredients();
-  }, [loadIngredients]);
   }, [loadIngredients]);
 
   return (

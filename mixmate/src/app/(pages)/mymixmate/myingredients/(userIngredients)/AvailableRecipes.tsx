@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import React, { useState, useEffect, useCallback } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -160,7 +159,6 @@ const AvailableRecipes = ({
     setFilteredByIngredientsRecipes(filteredRecipesByIndex);
     dispatch(pageStateActions.setPageLoadingState(false));
   };
-  let loadAllAvailableRecipes = useCallback((pageIndex = 1) => {
   let loadAllAvailableRecipes = useCallback((pageIndex = 1) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     const criteria = isSingleIngredient

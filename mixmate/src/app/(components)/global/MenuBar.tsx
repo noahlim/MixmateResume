@@ -32,7 +32,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Image from "next/image";
 import { notFound, usePathname } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastMessage } from "interface/toastMessage";
 import { userInfoActions } from "@lib/redux/userInfoSlice";

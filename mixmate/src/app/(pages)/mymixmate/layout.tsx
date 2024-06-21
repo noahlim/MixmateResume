@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { usePathname} from "next/navigation";
-import { useRouter } from "next/router";
+import { usePathname, useRouter} from "next/navigation";
 import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
