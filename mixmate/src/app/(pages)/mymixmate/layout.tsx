@@ -64,6 +64,7 @@ const MyMixMate = ({ children }) => {
             value={selectedTab}
             onChange={handleTabChange}
             scrollButtons={true}
+            variant="scrollable"
           >
             <Tab
               icon={<FavoriteIcon />}
