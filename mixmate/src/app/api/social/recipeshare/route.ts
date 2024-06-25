@@ -121,14 +121,15 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             body.recipe.nickname = user.email_verified ? user.name : user.nickname;
             body.recipe.strAuthor = user.email_verified ? user.name : user.nickname;
             body.recipe.strDrinkThumb = fileName;
+            body.recipe.label = body.recipe.strDrink
 
             await dbRtns.addOne(db, sharedRecipeCollection, body.recipe);
 
-            result.setTrue(`The recipe has been added to your favourite!`);
+            result.setTrue(`The recipe has been added!`);
 
         } catch (error) {
             console.log(error);
-            return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
+            return NextResponse.json({ error: 'Error saving the recipe' }, { status: 400 });
         }
         return NextResponse.json(result, { status: 201 });
 
@@ -180,7 +181,7 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
 
         } catch (error) {
             console.log(error);
-            return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
+            return NextResponse.json({ error: 'Error saving the recipe' }, { status: 400 });
         }
         return NextResponse.json(result, { status: 201 });
 

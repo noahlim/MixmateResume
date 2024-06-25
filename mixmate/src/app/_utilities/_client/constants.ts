@@ -59,7 +59,16 @@ const API_DRINK_ROUTES = {
   ingredients: 'ingredients',
   allRecipes: 'allRecipes',
   drinkCategories: 'drinkCategories',
-  filteredDrinks: 'filteredDrinks'
+  filteredDrinks: 'filteredDrinks',
+  recipeName: 'recipeName',
+}
+
+const FILTER_CRITERIA = {
+  category: "Category",
+  alcoholic: "Alcoholic",
+  glass: "Glass",
+  ingredient: "Ingredient",
+  recipeName : "Recipe Name"
 }
 const REQ_METHODS = {
   get: "GET" as "GET",
@@ -174,4 +183,4 @@ const ingredientsByAlcoholic = {
     "7-Up",
   ],
 };
-export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES, API_DRINK_ROUTES, S3_BUCKET_URL }
+export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES, API_DRINK_ROUTES, S3_BUCKET_URL, FILTER_CRITERIA }
