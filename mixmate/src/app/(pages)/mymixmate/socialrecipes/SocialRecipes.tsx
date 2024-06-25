@@ -220,10 +220,10 @@ function CustomRecipes() {
         applicationPage={APPLICATION_PAGE.social}
       />
       <MyMixMateHeader title="Community Recipes">
-        Embark on a culinary voyage of discovery through our vibrant community,
+        Embark on a mixing voyage of discovery through our vibrant community,
         where creative minds converge to share their inspired recipes, fostering
         a dynamic exchange of gastronomic artistry that transcends boundaries
-        and ignites a passion for culinary innovation.
+        and ignites a passion for cocktail innovation.
       </MyMixMateHeader>
       <Grid container spacing={2} style={{ marginTop: 10 }}>
         <Grid item xs={12} lg={3}>
