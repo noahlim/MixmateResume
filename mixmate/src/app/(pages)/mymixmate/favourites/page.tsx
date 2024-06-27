@@ -1,11 +1,13 @@
 import Fallback from '@/app/(components)/global/Fallback'
-import Favourites from './FavouritePage';
 import { Suspense } from 'react';
+import PreloadedRecipes from "@/app/(components)/(pageComponents)/PreloadedRecipesPage"
+import { APPLICATION_PAGE } from '@/app/_utilities/_client/constants';
+
 const FavouritesPage = () => {
   return (
     <>
       <Suspense fallback={<Fallback />}>
-        <Favourites/>
+        <PreloadedRecipes applicationPage={APPLICATION_PAGE.favourites}/>
       </Suspense>
     </>
   );

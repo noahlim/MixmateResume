@@ -1,12 +1,13 @@
 'use client';
-import Favourites from "./favourites/FavouritePage";
+import PreloadedRecipespage from "@/app/(components)/(pageComponents)/PreloadedRecipesPage";
+import { APPLICATION_PAGE } from "@/app/_utilities/_client/constants";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 
 const MyMixmate = () => {
 
   return (
     <>
-      <Favourites/>
+      <PreloadedRecipespage applicationPage={APPLICATION_PAGE.favourites}/>
     </>
   );
 }

@@ -74,7 +74,7 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 }
 
 function FilterComponent({
-  recipeAllRecipes,
+  allRecipes,
   setFilterAndCriteria,
   filterAndCriteria,
   onFilterClear,
@@ -96,7 +96,23 @@ function FilterComponent({
   setIsIngredientStringValid,
   filteringLogic,
   setFilteringLogic,
+  myRecipesFilterOnSocial,
+  loadMyRecipes = null
 }) {
+
+  const alphabeticallySortedRecipes = allRecipes.sort(
+    (a,b)=>{
+      const recipeA = a.strDrink.toLowerCase();
+      const recipeB = b.strDrink.toLowerCase();
+      if(recipeA < recipeB){
+        return -1;
+      }
+      if(recipeA>recipeB){
+        return 1;
+      }
+      return 0;
+    }
+  )
   const dispatch = useDispatch();
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
@@ -153,7 +169,7 @@ function FilterComponent({
     const newValue = event.target.value;
 
     // Regular expression to match allowed characters (including spaces, -, ., and ')
-    const allowedChars = /^[a-zA-Z0-9 ,-]*$/;
+    const allowedChars = /^[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF ,.''-]*$/;
 
     // Check for consecutive commas
     const hasConsecutiveCommas = /,,/.test(newValue);
@@ -356,7 +372,7 @@ function FilterComponent({
   }, []);
 
   return (
-    <Box>
+    <Box padding={2}>
       <Accordion defaultExpanded sx={{ b: 2 }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -393,10 +409,10 @@ function FilterComponent({
           <FormControl fullWidth sx={{ mb: 3 }}>
             <Autocomplete
               disablePortal
-              options={recipeAllRecipes}
+              options={alphabeticallySortedRecipes}
               value={
                 recipeName
-                  ? recipeAllRecipes.find(
+                  ? alphabeticallySortedRecipes.find(
                       (recipe) =>
                         recipe.strDrink.toLowerCase() ===
                         recipeName.toLowerCase()
@@ -432,8 +448,8 @@ function FilterComponent({
             {!isIngredientStringValid && (
               <FormHelperText sx={{ color: "red" }}>
                 Ingredient can only Latin alphabets, numbers, and commas -
-                separate them with commas when adding multiple. (e.g. "Vodka,
-                Gin")
+                separate them with commas when adding multiple. (e.g. &quot;Vodka,
+                Gin&quot;)
               </FormHelperText>
             )}
           </FormControl>
@@ -547,6 +563,27 @@ function FilterComponent({
             Clear
           </Button>
         </CardContent>
+        {applicationPage === APPLICATION_PAGE.social && (
+          <CardContent style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}>
+            <Button
+              onClick={loadMyRecipes}
+              variant="outlined"
+              startIcon={<EditIcon />}              
+              sx={{
+                marginRight: 0.7,
+                color: "#81E500",
+                backgroundColor: "#81E500",
+                "&:hover": {
+                  backgroundColor: "#F4FFE6",
+                  borderColor: "#81E500",
+                },
+                borderColor: "#81E500",
+              }}
+            >
+              {myRecipesFilterOnSocial ? "Check All Recipes" : "Curate My Recipes" }
+            </Button>
+          </CardContent>
+        )}
       </Accordion>
     </Box>
   );

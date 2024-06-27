@@ -36,9 +36,14 @@ import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
 import { useUser } from "@auth0/nextjs-auth0/client";
 
-function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, applicationPage }) {
-
-  const {user, error, isLoading} = useUser();
+function AddEditRecipe_Component({
+  openModal,
+  closeModal,
+  recipeId,
+  reloadPage,
+  applicationPage,
+}) {
+  const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
@@ -55,57 +60,56 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
   const [currentRecipeImage, setCurrentRecipeImage] = useState(null);
-  const [currentRecipeCategory, setCurrentRecipeCategory] = useState("");
+  const [currentRecipeCategory, setCurrentRecipeCategory] = useState(null);
   const [currentRecipeAlcoholicType, setCurrentRecipeAlcoholicType] =
-    useState("");
-  const [currentRecipeGlass, setCurrentRecipeGlass] = useState("");
+    useState(null);
+  const [currentRecipeGlass, setCurrentRecipeGlass] = useState(null);
   const [currentRecipeIngredients, setCurrentRecipeIngredients] = useState([]);
   const [currentRecipeMeasure, setCurrentRecipeMeasure] = useState([]);
   const [currentRecipeInstructions, setCurrentRecipeInstructions] =
     useState("");
 
- 
   //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
 
   useEffect(() => {
-     // Load data if recipe ID exist
-  let loadRecipeIfExist = () => {
-    if (isSet(recipeId)) {
-      dispatch(pageStateActions.setPageLoadingState(true));
-      makeRequest(
-        API_ROUTES.sharedRecipeById,
-        REQ_METHODS.get,
-        { recipeid: recipeId },
-        (response) => {
-          setCurrentRecipeRowId(response.data.idDrink);
-          setCurrentRecipeRowObjectId(response.data._id);
-          setCurrentRecipeName(response.data.strDrink);
-          setCurrentRecipeImage(response.data.strDrinkThumb);
-          setCurrentRecipeCategory(response.data.strCategory);
-          setCurrentRecipeAlcoholicType(response.data.strAlcoholic);
-          setCurrentRecipeGlass(response.data.strGlass);
-          const ingredients = [];
-          const measures = [];
-          response.data.ingredients.forEach((ing) => {
-            ingredients.push(ing.ingredient);
-            measures.push(ing.measure);
+    // Load data if recipe ID exist
+    let loadRecipeIfExist = () => {
+      if (isSet(recipeId)) {
+        dispatch(pageStateActions.setPageLoadingState(true));
+        makeRequest(
+          API_ROUTES.sharedRecipeById,
+          REQ_METHODS.get,
+          { recipeid: recipeId },
+          (response) => {
+            setCurrentRecipeRowId(response.data.idDrink);
+            setCurrentRecipeRowObjectId(response.data._id);
+            setCurrentRecipeName(response.data.strDrink);
+            setCurrentRecipeImage(response.data.strDrinkThumb);
+            setCurrentRecipeCategory(response.data.strCategory);
+            setCurrentRecipeAlcoholicType(response.data.strAlcoholic);
+            setCurrentRecipeGlass(response.data.strGlass);
+            const ingredients = [];
+            const measures = [];
+            response.data.ingredients.forEach((ing) => {
+              ingredients.push(ing.ingredient);
+              measures.push(ing.measure);
+            });
+            setCurrentRecipeIngredients(ingredients);
+            setCurrentRecipeMeasure(measures);
+            setCurrentRecipeInstructions(response.data.strInstructions);
+            dispatch(pageStateActions.setPageLoadingState(false));
+          }
+        )
+          .catch((error) => {
+            displayErrorSnackMessage(error, dispatch);
+          })
+          .finally(() => {
+            dispatch(pageStateActions.setPageLoadingState(false));
           });
-          setCurrentRecipeIngredients(ingredients);
-          setCurrentRecipeMeasure(measures);
-          setCurrentRecipeInstructions(response.data.strInstructions);
-          dispatch(pageStateActions.setPageLoadingState(false));
-        }
-      )
-        .catch((error) => {
-          displayErrorSnackMessage(error, dispatch);
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
-    }
+      }
 
-    return recipeId;
-  };
+      return recipeId;
+    };
     loadRecipeIfExist();
     //eslint-disable-next-line
   }, [openModal, recipeId]);
@@ -132,9 +136,10 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
   let fileSelectImage_onChange = (file) => {
     setCurrentRecipeImage(file);
   };
+
   let handleAddNewIngredientButtonClick = () => {
     // Validations
-    let toastMessageObject : ToastMessage;
+    let toastMessageObject: ToastMessage;
     if (isNotSet(newIngredient)) {
       toastMessageObject = {
         open: true,
@@ -174,7 +179,7 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
       i !== index ? newMeasureList.push(x) : null
     );
     setCurrentRecipeMeasure(newMeasureList);
-    
+
     const toastMessageObject: ToastMessage = {
       open: true,
       message: "Ingredient removed.",
@@ -184,50 +189,48 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
     dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
   let handleAddNewOrEditRecipeButtonClick = async () => {
-    let toastMessageObject : ToastMessage;
+    let toastMessageObject: ToastMessage;
 
     // Validate data
     if (isNotSet(currentRecipeName))
-      toastMessageObject={
+      toastMessageObject = {
         open: true,
         message: "Recipe name is required",
         severity: SEVERITY.Warning,
         title: "New Recipe",
-      }
+      };
     else if (
       isNotSet(currentRecipeIngredients) ||
       currentRecipeIngredients.length === 0
-    ){
-      toastMessageObject={
+    ) {
+      toastMessageObject = {
         open: true,
         message: "Add at least one ingredient",
         severity: SEVERITY.Warning,
         title: "New Recipe",
-      }
+      };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
-    }
-    else if (isNotSet(currentRecipeInstructions)){
-      toastMessageObject={
+    } else if (isNotSet(currentRecipeInstructions)) {
+      toastMessageObject = {
         open: true,
         message: "Write the instructions to prepare your recipe",
         severity: SEVERITY.Warning,
         title: "New Recipe",
-      }
+      };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
-    }
-    else if (
+    } else if (
       currentRecipeType === "Favorite" &&
       JSON.stringify(currentRecipeIngredients) ===
         JSON.stringify(originalListIngredients) &&
       JSON.stringify(currentRecipeMeasure) ===
         JSON.stringify(originalListMueasure)
-    ){
-      toastMessageObject={
+    ) {
+      toastMessageObject = {
         open: true,
         message: "List of ingredients cannot be the same",
         severity: SEVERITY.Warning,
         title: "New Recipe",
-      }
+      };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
     }
     //validated!
@@ -253,7 +256,7 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
             REQ_METHODS.post,
             formData,
             (response) => {
-              if (response.message === "File has been added to the storage.") {              
+              if (response.message === "File has been added to the storage.") {
                 fileName = response.data;
               }
             }
@@ -269,7 +272,8 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
-          visibility: applicationPage === APPLICATION_PAGE.social ? "public" : "private",
+          visibility:
+            applicationPage === APPLICATION_PAGE.social ? "public" : "private",
         };
 
         //if image is not included, only send {recipe:newRecipeInfo}
@@ -282,23 +286,25 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
             filename: fileName,
           },
           (response) => {
-              closeNewRecipeModal_onClick();
-              const toastMessageObject: ToastMessage = {
-                open: true,
-                message: newRecipeInfo.strDrink + " added!",
-                severity: SEVERITY.Success,
-                title: "New Recipe",
-              };
-              dispatch(pageStateActions.setToastMessage(toastMessageObject));               
+            closeNewRecipeModal_onClick();
+            const toastMessageObject: ToastMessage = {
+              open: true,
+              message: newRecipeInfo.strDrink + " added!",
+              severity: SEVERITY.Success,
+              title: "New Recipe",
+            };
+            dispatch(pageStateActions.setToastMessage(toastMessageObject));
 
-              // Reload recipes list
-              reloadPage();            
+            // Reload recipes list
+            reloadPage();
           }
-        ).catch((error) => {
-          displayErrorSnackMessage(error, dispatch);
-        }).finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
+        )
+          .catch((error) => {
+            displayErrorSnackMessage(error, dispatch);
+          })
+          .finally(() => {
+            dispatch(pageStateActions.setPageLoadingState(false));
+          });
       } else {
         // Update recipe info
         const ingredientsArray = [];
@@ -325,26 +331,26 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
         makeRequest(
           API_ROUTES.recipeShare,
           REQ_METHODS.put,
-          { recipe: newRecipeInfo, userId:user.sub },
+          { recipe: newRecipeInfo, userId: user.sub },
           (response) => {
-              closeNewRecipeModal_onClick();
-              const toastMessageObject: ToastMessage = {
-                open: true,
-                message: newRecipeInfo.strDrink + " updated!",
-                severity: SEVERITY.Success,
-                title: "New Recipe",
-              };
-              dispatch(pageStateActions.setToastMessage(toastMessageObject));
-              
-              reloadPage();
-            } 
-          
-        ).catch((error) => {
-          displayErrorSnackMessage(error, dispatch);
-        }).finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
-      
+            closeNewRecipeModal_onClick();
+            const toastMessageObject: ToastMessage = {
+              open: true,
+              message: newRecipeInfo.strDrink + " updated!",
+              severity: SEVERITY.Success,
+              title: "New Recipe",
+            };
+            dispatch(pageStateActions.setToastMessage(toastMessageObject));
+
+            reloadPage();
+          }
+        )
+          .catch((error) => {
+            displayErrorSnackMessage(error, dispatch);
+          })
+          .finally(() => {
+            dispatch(pageStateActions.setPageLoadingState(false));
+          });
       }
     }
   };
@@ -373,10 +379,12 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
               label="Category"
               onChange={(e) => setCurrentRecipeCategory(e.target.value)}
             >
-              {categories?.map((cat) => {
+              {categories?.map((cat, index) => {
+                const label =
+                typeof cat === "string" ? cat : cat?.toString() || "";
                 return (
-                  <MenuItem key={cat} value={cat}>
-                    {cat}
+                  <MenuItem key={index} value={label}>
+                    {label}
                   </MenuItem>
                 );
               })}
@@ -394,10 +402,13 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
               label="Alcoholic type"
               onChange={(e) => setCurrentRecipeAlcoholicType(e.target.value)}
             >
-              {alcoholicTypes?.map((cat) => {
+              {alcoholicTypes?.map((alc, index) => {
+                const label =
+                  typeof alc === "string" ? alc : alc?.toString() || "";
+
                 return (
-                  <MenuItem key={cat} value={cat}>
-                    {cat}
+                  <MenuItem key={index} value={label}>
+                    {label}
                   </MenuItem>
                 );
               })}
@@ -413,10 +424,12 @@ function AddEditRecipe_Component({ openModal, closeModal, recipeId, reloadPage, 
               label="Glass"
               onChange={(e) => setCurrentRecipeGlass(e.target.value)}
             >
-              {glasses?.map((cat) => {
+              {glasses?.map((glass, index) => {
+                const label =
+                typeof glass === "string" ? glass : glass?.toString() || "";
                 return (
-                  <MenuItem key={cat} value={cat}>
-                    {cat}
+                  <MenuItem key={index} value={label}>
+                    {label}
                   </MenuItem>
                 );
               })}

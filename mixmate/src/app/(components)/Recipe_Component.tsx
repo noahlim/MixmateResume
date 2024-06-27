@@ -67,11 +67,12 @@ import { FaEarthAmericas } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { Sarabun, Vollkorn } from "next/font/google";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { pages } from "next/dist/build/templates/app-page";
 
 const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
-function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
+function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
   const dispatch = useDispatch();
 
   const isEditablePage =
@@ -227,7 +228,9 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
               Author:
             </Typography>
             <Typography className={vollkorn.className} fontSize="18px">
-              {isSet(drink?.strAuthor) ? drink?.strAuthor : "www.cocktailDB.com"}
+              {isSet(drink?.strAuthor)
+                ? drink?.strAuthor
+                : "www.cocktailDB.com"}
             </Typography>
           </Grid>
           <Grid item xs={12} sx={{ marginTop: "30px" }}>
@@ -305,15 +308,22 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                           width: { xs: "100%", lg: "70%" },
                         }}
                       >
-                        {/**Delete review button */}
-
-                        <Avatar
-                          src={`https://images.weserv.nl/?url=${encodeURIComponent(
-                            review.userPictureUrl
-                          )}`}
-                          alt={review.userNickname}
-                          sx={{ width: 40, height: 40, marginRight: 2 }}
-                        />
+                        {/* user avatar */}
+                        <Box
+                          sx={{
+                            pr: 1,
+                            pt: 1,
+                          }}               
+                        >
+                          <Image
+                            src={review.userPictureUrl ? review.userPictureUrl : "/not-found-icon.png"}
+                            alt={review.userNickname}
+                            width={40}
+                            height={40}
+                            style={{ borderRadius: "50%" }}
+                            loading="lazy"
+                          />
+                        </Box>
                         <Box display="flex" flexDirection="column" flexGrow={1}>
                           <Box
                             display="flex"
@@ -529,7 +539,10 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         <IconButton
                           color="error"
                           onClick={() =>
-                            messageBoxDeleteRecipe(drink?._id, drink?.recipeName)
+                            messageBoxDeleteRecipe(
+                              drink?._id,
+                              drink?.recipeName
+                            )
                           }
                         >
                           <DeleteForeverIcon />
@@ -549,7 +562,9 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                         <Tooltip title="Edit the Recipe" placement="top">
                           <IconButton
                             color="primary"
-                            onClick={() => modalAddEditRecipe_onOpen(drink?._id)}
+                            onClick={() =>
+                              modalAddEditRecipe_onOpen(drink?._id)
+                            }
                           >
                             <EditIcon />
                           </IconButton>
@@ -565,7 +580,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                           <Paper
                             sx={{
                               display: "grid",
-                              width: {xs:"100%", lg:"70%"},
+                              width: { xs: "100%", lg: "70%" },
                             }}
                           >
                             <TextField
@@ -619,7 +634,7 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
                           applicationPage === APPLICATION_PAGE.myRecipes) &&
                           drink?.sub === user.sub && (
                             <Button
-                              onClick={() => handleSetRecipeVisibility(drink)}
+                              onClick={() => handleRecipeVisibility(drink)}
                               variant="contained"
                               startIcon={
                                 drink?.visibility === "private" ? (
@@ -699,7 +714,8 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
     dispatch(pageStateActions.setToastMessage(toastMessageObject));
   };
 
-  let handleSetRecipeVisibility = (drink) => {
+  let handleRecipeVisibility = (drink) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
     const newRecipeObject = JSON.parse(JSON.stringify(drink));
     newRecipeObject.visibility =
       newRecipeObject.visibility === "public" ? "private" : "public";
@@ -795,15 +811,14 @@ function Recipe_Component({ applicationPage, title, recipes, reloadRecipes }) {
       API_ROUTES.recipeReviews,
       REQ_METHODS.post,
       { newReview },
-      (response) => {
-      }
+      (response) => {}
     )
       .catch((err) => {
         displayErrorSnackMessage(err, dispatch);
       })
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
-        setReviewValue("");        
+        setReviewValue("");
         setRatingValue(1);
         reloadRecipes();
       });

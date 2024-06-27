@@ -36,7 +36,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
                         }
                         return 0;
                     });
-                    result.data = sortedRecipes;
+                    const data = {allRecipes:sortedRecipes, length:sortedRecipes.length}
+                    result.data = data;
                     break;
                 }
                 case API_DRINK_ROUTES.drinkCategories: {
