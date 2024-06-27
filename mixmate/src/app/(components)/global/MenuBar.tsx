@@ -5,7 +5,6 @@ import {
   Toolbar,
   IconButton,
   Container,
-  Avatar,
   Button,
   ListItemIcon,
   ListItemText,
@@ -51,7 +50,6 @@ import NavLink from "@/app/(components)/global/NavLink";
 import { IoMdCloseCircle } from "react-icons/io";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { BsInfoCircleFill } from "react-icons/bs";
-import path from "path";
 const pages = [
   { route: APPLICATION_PAGE.home, page: "Home" },
   { route: APPLICATION_PAGE.about, page: "About" },

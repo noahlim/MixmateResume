@@ -1,23 +1,6 @@
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { END_POINT, SEVERITY } from "./constants";
 import { Dispatch } from "redux";
-const doPost = (api, data, funOk, funErr = null) => {
-  let query =
-    'query {server(api: "' +
-    api +
-    '", payload: "' +
-    window.btoa(JSON.stringify(data)) +
-    '")}';
-  let requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ query }),
-  };
-  fetch(END_POINT, requestOptions)
-    .then((response) => response.json())
-    .then((data) => funOk(JSON.parse(window.atob(data.data.server))))
-    .catch((error) => (funErr ? funErr(error) : alert(error.message)));
-};
 
 type FetchOptions = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -142,20 +125,20 @@ function capitalizeWords(str) {
   return words.join(" ");
 }
 
-function getCallerLine() {
-  const err = new Error();
-  const stack = err.stack.split("\n");
-  // Depending on the environment, you may need to adjust the line index
-  const callerLine = stack[3]; // This might be the line where the function was called
-  return callerLine.match(/:(\d+):\d+\)?$/)?.[1]; // Extracts line number
-}// a function used to determine where is the function be called from
-// const filterSetter = (data) => {
-//   const callerLine = getCallerLine();
-//   console.log(`filterSetter was called from line: ${callerLine}`);
-//   console.log(data[0]);
-//   setRecipesFiltered(data);
-// };
-// Loading recipe options
+// function getCallerLine() {
+//   const err = new Error();
+//   const stack = err.stack.split("\n");
+//   // Depending on the environment, you may need to adjust the line index
+//   const callerLine = stack[3]; // This might be the line where the function was called
+//   return callerLine.match(/:(\d+):\d+\)?$/)?.[1]; // Extracts line number
+// }// a function used to determine where is the function be called from
+// // const filterSetter = (data) => {
+// //   const callerLine = getCallerLine();
+// //   console.log(`filterSetter was called from line: ${callerLine}`);
+// //   console.log(data[0]);
+// //   setRecipesFiltered(data);
+// // };
+// // Loading recipe options
 
 function formatDateTime(dateTimeString: string): string {
   try {
@@ -176,4 +159,4 @@ function formatDateTime(dateTimeString: string): string {
 }
 
 
-export { displayErrorSnackMessage, doPost, isSet, isNotSet, makeRequest, capitalizeWords, getCallerLine, formatDateTime };
+export { displayErrorSnackMessage, isSet, isNotSet, makeRequest, capitalizeWords, formatDateTime };

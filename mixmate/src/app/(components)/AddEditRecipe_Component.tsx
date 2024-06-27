@@ -11,7 +11,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { TableBody, Typography } from "@mui/material";
+import { Divider, TableBody, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
@@ -68,7 +68,6 @@ function AddEditRecipe_Component({
   const [currentRecipeMeasure, setCurrentRecipeMeasure] = useState([]);
   const [currentRecipeInstructions, setCurrentRecipeInstructions] =
     useState("");
-
   //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
 
   useEffect(() => {
@@ -371,70 +370,74 @@ function AddEditRecipe_Component({
           />
           <br />
           <br />
-          <FormControl variant="standard" fullWidth>
-            <InputLabel id="new-category-select-label">Category</InputLabel>
-            <Select
-              value={currentRecipeCategory}
-              labelId="new-category-select-label"
-              label="Category"
-              onChange={(e) => setCurrentRecipeCategory(e.target.value)}
-            >
-              {categories?.map((cat, index) => {
-                const label =
-                typeof cat === "string" ? cat : cat?.toString() || "";
-                return (
-                  <MenuItem key={index} value={label}>
-                    {label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-          <br />
-          <br />
-          <FormControl variant="standard" fullWidth>
-            <InputLabel id="new-alcoholic-type-select-label">
-              Alcoholic type
-            </InputLabel>
-            <Select
-              value={currentRecipeAlcoholicType}
-              labelId="new-alcoholic-type-select-label"
-              label="Alcoholic type"
-              onChange={(e) => setCurrentRecipeAlcoholicType(e.target.value)}
-            >
-              {alcoholicTypes?.map((alc, index) => {
-                const label =
-                  typeof alc === "string" ? alc : alc?.toString() || "";
-
-                return (
-                  <MenuItem key={index} value={label}>
-                    {label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-          <br />
-          <br />
-          <FormControl variant="standard" fullWidth>
-            <InputLabel id="new-glass-select-label">Glass</InputLabel>
-            <Select
-              value={currentRecipeGlass}
-              labelId="new-glass-select-label"
-              label="Glass"
-              onChange={(e) => setCurrentRecipeGlass(e.target.value)}
-            >
-              {glasses?.map((glass, index) => {
-                const label =
-                typeof glass === "string" ? glass : glass?.toString() || "";
-                return (
-                  <MenuItem key={index} value={label}>
-                    {label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
+          {
+            isSet(currentRecipeRowId) &&(
+            <>
+              <FormControl variant="standard" fullWidth>
+                <InputLabel id="new-category-select-label">Category</InputLabel>
+                <Select
+                  value={currentRecipeCategory}
+                  labelId="new-category-select-label"
+                  label="Category"
+                  onChange={(e) => setCurrentRecipeCategory(e.target.value)}
+                >
+                  {categories?.map((cat, index) => {
+                    // const label =
+                    // typeof cat === "string" ? cat : cat?.toString() || "";
+                    return (
+                      <MenuItem key={index} value={cat}>
+                        {cat}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+              <br />
+              <br />
+              <FormControl variant="standard" fullWidth>
+                <InputLabel id="new-alcoholic-type-select-label">
+                  Alcoholic type
+                </InputLabel>
+                <Select
+                  value={currentRecipeAlcoholicType}
+                  labelId="new-alcoholic-type-select-label"
+                  label="Alcoholic type"
+                  onChange={(e) =>
+                    setCurrentRecipeAlcoholicType(e.target.value)
+                  }
+                >
+                  {alcoholicTypes?.map((alc, index) => {
+                    return (
+                      <MenuItem key={index} value={alc.strAlcoholic}>
+                        {alc.strAlcoholic}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+              <br />
+              <br />
+              <FormControl variant="standard" fullWidth>
+                <InputLabel id="new-glass-select-label">Glass</InputLabel>
+                <Select
+                  value={currentRecipeGlass}
+                  labelId="new-glass-select-label"
+                  label="Glass"
+                  onChange={(e) => setCurrentRecipeGlass(e.target.value)}
+                >
+                  {glasses?.map((glass, index) => {
+                    // const label =
+                    // typeof glass === "string" ? glass : glass?.toString() || "";
+                    return (
+                      <MenuItem key={index} value={glass}>
+                        {glass}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </>)
+          }
           <br />
           <br />
           <label className="file-input-label">
@@ -445,9 +448,8 @@ function AddEditRecipe_Component({
               onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
             />
           </label>
-        </DialogContent>
+          <Divider sx={{m:"30px 10px 0px 0px"}}/>
         <DialogTitle>Preparation</DialogTitle>
-        <DialogContent>
           <Table>
             <TableBody>
               <TableRow>

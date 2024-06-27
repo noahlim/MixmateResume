@@ -29,7 +29,7 @@ import FilterComponent from "@/app/(components)/FilterComponent";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 import { Space_Grotesk } from "next/font/google";
-import Recipe_Component from "../Recipe_Component";
+import Recipe_Component from "./RecipeComponent";
 import AddEditRecipe_Component from "../AddEditRecipe_Component";
 import { ToastMessage } from "interface/toastMessage";
 
@@ -126,7 +126,6 @@ function DefaultRecipesComponent({ applicationPage }) {
 
   let loadAllRecipes = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
-    if (!allRecipes || allRecipes.length === 0) {
       let apiRoute;
       let query;
       if (applicationPage === APPLICATION_PAGE.recipes) {
@@ -154,11 +153,11 @@ function DefaultRecipesComponent({ applicationPage }) {
         .finally(() => {
           dispatch(pageStateActions.setPageLoadingState(false));
         });
-    } else {
-      dispatch(pageStateActions.setPageLoadingState(false));
-      setRecipesFiltered(allRecipes);
-      setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
-    }
+    // } else {
+    //   dispatch(pageStateActions.setPageLoadingState(false));
+    //   setRecipesFiltered(allRecipes);
+    //   setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
+    // }
   };
 
   const loadMyRecipes = () => {

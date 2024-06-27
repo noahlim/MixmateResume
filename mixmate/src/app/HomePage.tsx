@@ -5,8 +5,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import "@fontsource/dela-gothic-one";
-import { API_ROUTES, APPLICATION_PAGE, SEVERITY } from "@/app/_utilities/_client/constants";
+import { API_ROUTES, APPLICATION_PAGE} from "@/app/_utilities/_client/constants";
 import { useMediaQuery } from "@mui/material";
 import StarShape from "@/app/(components)/(shapeComponents)/StarShape";
 import FloatingBoxWrapper from "@/app/(components)/(shapeComponents)/FloatingBox";
