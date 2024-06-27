@@ -83,7 +83,6 @@ function MenuBar() {
         route === APPLICATION_PAGE.social
       )
         dispatch(pageStateActions.setAuthenticatedModalOpen(true));
-      router.push(route);
       return;
     }
     if (route !== APPLICATION_PAGE.root && route !== APPLICATION_PAGE.about)
@@ -338,7 +337,7 @@ function MenuBar() {
             sx={{ color: "#7FE0FA", marginLeft: "20px" }}
             autoFocus
           >
-            Why not, let&apos;s go! Why not, let&apos;s go!
+            Why not, let&apos;s go!
           </Button>
         </DialogActions>
       </Dialog>
