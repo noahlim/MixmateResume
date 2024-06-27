@@ -228,12 +228,24 @@ function MenuBar() {
             Logout
           </Button>
         </a>
-        <Avatar
+        <Box></Box>
+        <Image
+          src={user.picture ? user.picture : "/not-found-icon.png"}
+          alt={user.email_verified ? user.name : user.nickname}
+          width={40}
+          height={40}
+          style={{
+            borderRadius: "50%",
+            boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)",
+          }}
+          loading="lazy"
+        />
+        {/* <Avatar
           src={`https://images.weserv.nl/?url=${encodeURIComponent(
             user.picture
           )}`}
           sx={{ boxShadow: "5px 3px 5px rgba(1, 1, 1, 0.2)" }}
-        />
+        /> */}
       </Box>
     );
   } else {

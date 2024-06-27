@@ -15,68 +15,48 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
     try {
         const userId = req.nextUrl.searchParams.get('userid');
 
-        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
         const isVisible = req.nextUrl.searchParams.get('publicflag') === 'true';
         const { user } = await getSession();
+        if (!user) {
+            return NextResponse.json({ error: "Invalid session." }, { status: 400 });
+        }
+
+        if (userId && user.sub !== userId) {
+            return NextResponse.json({ error: "Invalid session." }, { status: 400 });
+        }
+
+        let db = await dbRtns.getDBInstance();
+
+        let criteria;
         if (userId) {
-            if (!user || user.sub !== userId) {
-                return NextResponse.json({ error: "Invalid session." }, { status: 400 });
-            }
-            let db = await dbRtns.getDBInstance();
-            const criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
+            criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
+        } else {
+            criteria = { visibility: "public" };
+        }
 
-            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, criteria, {}, pageNumber ? pageNumber : 0, 5);
-
-            let totalCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
-
-
-            const updatedRecipes = await Promise.all(
-                recipes.map(async (recipe) => {
+        let allRecipes = await dbRtns.findAll(db, sharedRecipeCollection, criteria, {});
+        let totalCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
+        
+        let updatedRecipes = [];
+        if (allRecipes.length > 0) {
+            allRecipes.sort((a, b) => b.created_at.localeCompare(a.created_at));
+            updatedRecipes = await Promise.all(
+                allRecipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
-
                     const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
-
                     return updatedRecipe;
                 })
             );
-
-            const data = { recipes: updatedRecipes, length: totalCount };
-            result.data = data;
-            result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
-            return NextResponse.json(result, { status: 200 });
-        } else {
-            if (!user) {
-                return NextResponse.json({ error: "Invalid session." }, { status: 400 });
-            }
-            let db = await dbRtns.getDBInstance();
-            let recipes = await dbRtns.findAllWithPagination(db, sharedRecipeCollection, { visibility: "public" }, {}, pageNumber ? pageNumber : 0, 5);
-            const totalCount = await dbRtns.count(db, sharedRecipeCollection, { visibility: "public" });
-
-            if (recipes.length > 0) {
-                const updatedRecipes = await Promise.all(
-                    recipes.map(async (recipe) => {
-                        const updatedRecipe = { ...recipe };
-
-                        const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
-                        updatedRecipe.reviews = reviews;
-
-                        return updatedRecipe;
-                    })
-                );
-
-                const data = { recipes: updatedRecipes, length: totalCount };
-                result.data = data;
-                result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
-            } else {
-                result.message = "No recipes found.";
-                const data = { recipes: [], length: 0 };
-                result.data = data;
-            }
-            return NextResponse.json(result, { status: 200 });
         }
+
+
+        const data = { allRecipes: updatedRecipes, length: totalCount };
+        result.data = data;
+        result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
+
+        return NextResponse.json(result, { status: 200 });
     } catch (err) {
-        console.log(err);
         return NextResponse.json({ error: 'Error fetching the recipes from the custom recipes collection.' }, { status: 400 });
     }
 });
@@ -121,14 +101,14 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             body.recipe.nickname = user.email_verified ? user.name : user.nickname;
             body.recipe.strAuthor = user.email_verified ? user.name : user.nickname;
             body.recipe.strDrinkThumb = fileName;
+            body.recipe.label = body.recipe.strDrink
 
             await dbRtns.addOne(db, sharedRecipeCollection, body.recipe);
 
-            result.setTrue(`The recipe has been added to your favourite!`);
+            result.setTrue(`The recipe has been added!`);
 
         } catch (error) {
-            console.log(error);
-            return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
+            return NextResponse.json({ error: 'Error saving the recipe' }, { status: 400 });
         }
         return NextResponse.json(result, { status: 201 });
 
@@ -179,8 +159,7 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             result.setTrue(`The recipe has updated.`);
 
         } catch (error) {
-            console.log(error);
-            return NextResponse.json({ error: 'Error saving the recipe to the favourite list' }, { status: 400 });
+            return NextResponse.json({ error: 'Error saving the recipe' }, { status: 400 });
         }
         return NextResponse.json(result, { status: 201 });
 

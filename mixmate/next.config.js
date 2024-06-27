@@ -39,6 +39,18 @@ const nextConfig = {
         port: "",
         pathname: "/*",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/*",
+      },
+      {
+        protocol: "https",
+        hostname: "pub.highlight.io",
+        port: "",
+        pathname: "/*",
+      }
     ],
     domains: [
       "www.thecocktaildb.com",
@@ -46,7 +58,9 @@ const nextConfig = {
       "s.gravatar.com",
       "aem.lcbo.com",
       "i0.wp.com",
-      "images.weserv.nl"
+      "images.weserv.nl",
+      "lh3.googleusercontent.com",
+      "pub.highlight.io"
     ],
   },
   async rewrites() {
