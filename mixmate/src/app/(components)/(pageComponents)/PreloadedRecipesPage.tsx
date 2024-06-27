@@ -29,7 +29,7 @@ import FilterComponent from "@/app/(components)/FilterComponent";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
 import { Space_Grotesk } from "next/font/google";
-import Recipe_Component from "../RecipeComponent";
+import Recipe_Component from "./RecipeComponent";
 import AddEditRecipe_Component from "../AddEditRecipe_Component";
 import { ToastMessage } from "interface/toastMessage";
 

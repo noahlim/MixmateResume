@@ -22,7 +22,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { useTheme } from "@mui/material/styles";
-import AddEditRecipe_Component from "./AddEditRecipe_Component";
+import AddEditRecipe_Component from "../AddEditRecipe_Component";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";

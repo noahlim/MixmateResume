@@ -9,7 +9,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Tooltip from "@mui/material/Tooltip";
 import clipboard from "clipboard-copy";
 import Grid from "@mui/material/Grid";
-import { TextField, Divider, Stack } from "@mui/material";
+import { TextField, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 
