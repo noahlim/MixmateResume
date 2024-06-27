@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import Rating from "@mui/material/Rating";
-import moment from "moment";
-import CloseIcon from "@mui/icons-material/Close";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   APPLICATION_PAGE,
-  MIXMATE_DOMAIN,
   SEVERITY,
   API_ROUTES,
   REQ_METHODS,
@@ -17,36 +12,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import Tooltip from "@mui/material/Tooltip";
 import {
-  capitalizeWords,
   displayErrorSnackMessage,
-  isNotSet,
-  isSet,
   makeRequest,
-  formatDateTime,
 } from "@/app/_utilities/_client/utilities";
-import Grid from "@mui/material/Grid";
-import { Typography, TextField, Divider, Stack } from "@mui/material";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
+import { Typography } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import InputAdornment from "@mui/material/InputAdornment";
 import { useTheme } from "@mui/material/styles";
 import AddEditRecipe_Component from "./AddEditRecipe_Component";
-import {
-  FacebookIcon,
-  FacebookShareButton,
-  TwitterShareButton,
-  WhatsappIcon,
-  WhatsappShareButton,
-  EmailIcon,
-  EmailShareButton,
-  XIcon,
-} from "react-share";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";

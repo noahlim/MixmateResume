@@ -2,57 +2,17 @@ import React, { useState } from "react";
 import Rating from "@mui/material/Rating";
 import moment from "moment";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  APPLICATION_PAGE,
-  SEVERITY,
-  API_ROUTES,
-  REQ_METHODS,
-} from "@/app/_utilities/_client/constants";
 import Button from "@mui/material/Button";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import Tooltip from "@mui/material/Tooltip";
-import ShareIcon from "@mui/icons-material/Share";
-import {
-  capitalizeWords,
-  displayErrorSnackMessage,
-  isNotSet,
-  isSet,
-  makeRequest,
-  formatDateTime,
-} from "@/app/_utilities/_client/utilities";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import {
   Typography,
-  TextField,
   Divider,
-  Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import TableCell from "@mui/material/TableCell";
-import TableRow from "@mui/material/TableRow";
-import Input from "@mui/material/Input";
-import InputAdornment from "@mui/material/InputAdornment";
-import ClassIcon from "@mui/icons-material/Class";
-import LocalBarIcon from "@mui/icons-material/LocalBar";
-import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
-import Paper from "@mui/material/Paper";
-import { useDispatch } from "react-redux";
-import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
-import { ToastMessage } from "interface/toastMessage";
-import { FaEarthAmericas } from "react-icons/fa6";
-import { FaEye } from "react-icons/fa";
-import { Sarabun, Vollkorn } from "next/font/google";
+import { Sarabun } from "next/font/google";
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
 const CommentSection = ({ reviews, handleReviewRemoveClick }) => {

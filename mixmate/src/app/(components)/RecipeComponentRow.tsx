@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import Rating from "@mui/material/Rating";
-import moment from "moment";
-import CloseIcon from "@mui/icons-material/Close";
+import Rating from "@mui/material/Rating"; 
 import {
   APPLICATION_PAGE,
   SEVERITY,
@@ -27,7 +25,6 @@ import Grid from "@mui/material/Grid";
 import {
   Typography,
   TextField,
-  Divider,
   Stack,
   Dialog,
   DialogTitle,

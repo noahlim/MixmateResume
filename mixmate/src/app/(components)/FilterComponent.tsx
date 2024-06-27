@@ -2,35 +2,24 @@ import {
   Box,
   Typography,
   TextField,
-  Paper,
   CardContent,
   Autocomplete,
   OutlinedInput,
   Chip,
   FormHelperText,
-  Stack,
-  FormLabel,
   RadioGroup,
   Radio,
   FormControlLabel,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-
 import Button from "@mui/material/Button";
-import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
-import Input from "@mui/material/Input";
-import InputAdornment from "@mui/material/InputAdornment";
-import LocalBarIcon from "@mui/icons-material/LocalBar";
 import {
-  capitalizeWords,
-  isNotSet,
-  isSet,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import {
@@ -45,7 +34,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { recipeActions } from "lib/redux/recipeSlice";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
-import { FaLemon } from "react-icons/fa";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { Theme, useTheme } from "@mui/material/styles";
 import { Space_Grotesk } from "next/font/google";
