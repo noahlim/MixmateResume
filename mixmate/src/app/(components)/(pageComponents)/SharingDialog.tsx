@@ -81,7 +81,7 @@ const SharingDialog = ({
             >
               <WhatsappShareButton
                 url={sharingUrl}
-                title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                title={`MixMate - Check our recipe : ${selectedRecipeToShare?.strDrink}!`}
                 className="Demo__some-network__share-button"
               >
                 <WhatsappIcon size={60} round />
@@ -96,7 +96,7 @@ const SharingDialog = ({
             >
               <TwitterShareButton
                 url={sharingUrl}
-                title={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                title={`MixMate - Check our recipe : ${selectedRecipeToShare?.strDrink}!`}
                 className="Demo__some-network__share-button"
               >
                 <XIcon size={60} round />
@@ -125,8 +125,8 @@ const SharingDialog = ({
             >
               <EmailShareButton
                 url={sharingUrl}
-                subject={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
-                body={`MixMate - Check our ${selectedRecipeToShare?.strDrink}!`}
+                subject={`MixMate - Check our recipe : ${selectedRecipeToShare?.strDrink}!`}
+                body={`MixMate - Check our recipe : ${selectedRecipeToShare?.strDrink}!`}
                 className="Demo__some-network__share-button"
               >
                 <EmailIcon size={60} round />

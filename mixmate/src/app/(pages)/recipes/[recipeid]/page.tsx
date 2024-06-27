@@ -12,7 +12,13 @@ import {
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, Button, Backdrop, CircularProgress } from "@mui/material";
+import {
+  Typography,
+  Button,
+  Backdrop,
+  CircularProgress,
+  Paper,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
@@ -24,12 +30,8 @@ import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Lilita_One, Sarabun } from "next/font/google";
-
-const lilitaOne = Lilita_One({
-  subsets: ["latin"],
-  weight: "400",
-});
+import { Lilita_One, Sarabun, Vollkorn } from "next/font/google";
+const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const RecipeById = ({ params }) => {
   const recipeId = params.recipeid;
@@ -67,7 +69,15 @@ const RecipeById = ({ params }) => {
         drinkData.ingredients.map((ing, index) => {
           if (ing.ingredient && ing.measure) {
             return (
-              <Typography key={index}>
+              <Typography
+                key={index}
+                sx={{
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  whiteSpace: "normal",
+                  maxWidth: "100%",
+                }}
+              >
                 {capitalizeWords(ing.ingredient)} <i>({ing.measure})</i>
               </Typography>
             );
@@ -89,10 +99,50 @@ const RecipeById = ({ params }) => {
     );
   }
   return (
-    <TableRow sx={{ "& > *": { borderTop: 0 } }}>
-      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
-        <Box sx={{ margin: 3 }}>
-          <Grid container spacing={2}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignContent: "center",
+        m: 5,
+      }}
+    >
+      <Paper sx={{ width: { xs: "90%", md: "80%" }, p: 3 }}>
+        <Box>
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              display: "flex",
+              justifyContent: { xs: "center", lg: "start" },
+              alignContent: { xs: "center", lg: "start" },
+            }}
+          >
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 4,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "30px",
+                  textShadow: "3px 3px 3px #F8F8F8",
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  whiteSpace: "normal",
+                  maxWidth: "100%",
+                }}
+                className={vollkorn.className}
+              >
+                {recipe.strDrink}
+                
+              </Typography>
+            </Grid>
             <Grid item xs={12} sm={9} lg={4}>
               <Image
                 style={{ borderRadius: "7%" }}
@@ -106,97 +156,140 @@ const RecipeById = ({ params }) => {
                 width={700}
               />
             </Grid>
-            <Grid item xs={12} sm={12} lg={8}>
-              <div className="text-tangerine text-55px margin-left-35px">
-                {recipe.strDrink}
-              </div>
-
+            <Grid item xs={12} sm={12} lg={4}>
               {/* Category */}
-              <FormControl variant="standard">
-                <InputLabel htmlFor="input-with-icon-adornment">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: {xs:"200px", md:"250px"},
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mb: 0.5 }}
+                >
                   Category
-                </InputLabel>
-                <Input
-                  className={sarabun.className}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <ClassIcon />
-                    </InputAdornment>
-                  }
-                  value={recipe.strCategory}
-                />
-              </FormControl>
-              <br />
-              <br />
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    borderBottom: "2px solid #e0e0e0",
+                    pb: 0.5,
+                  }}
+                >
+                  <ClassIcon
+                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                  />
+                  <Typography variant="body1">{recipe.strCategory}</Typography>
+                </Box>
+              </Box>
 
               {/* Alcoholic type */}
-              <FormControl variant="standard">
-                <InputLabel htmlFor="input-with-icon-adornment">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: {xs:"200px", md:"250px"},
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mb: 0.5 }}
+                >
                   Alcoholic type
-                </InputLabel>
-                <Input
-                  className={sarabun.className}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <LocalBarIcon />
-                    </InputAdornment>
-                  }
-                  value={recipe.strAlcoholic}
-                />
-              </FormControl>
-              <br />
-              <br />
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    borderBottom: "2px solid #e0e0e0",
+                    pb: 0.5,
+                  }}
+                >
+                  <LocalBarIcon
+                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                  />
+                  <Typography variant="body1">{recipe.strAlcoholic}</Typography>
+                </Box>
+              </Box>
 
               {/* Glass type */}
-              <FormControl variant="standard">
-                <InputLabel htmlFor="input-with-icon-adornment">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: {xs:"200px", md:"250px"},
+                  mb: 5 
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mb: 0.5 }}
+                >
                   Glass
-                </InputLabel>
-                <Input
-                  className={sarabun.className}
-                  startAdornment={
-                    <InputAdornment position="start">
-                      <LocalDrinkIcon />
-                    </InputAdornment>
-                  }
-                  value={recipe.strGlass}
-                />
-              </FormControl>
-              <br />
-              <br />
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    borderBottom: "2px solid #e0e0e0",
+                    pb: 0.5,
+                  }}
+                >
+                  <LocalDrinkIcon
+                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                  />
+                  <Typography variant="body1">{recipe.strGlass}</Typography>
+                </Box>
+              </Box>
             </Grid>
             <Grid item xs={12}>
               <InputLabel>Ingredients:</InputLabel>
               {ingredients}
               <br></br>
               <InputLabel>How to prepare:</InputLabel>
-              <Typography className={sarabun.className} fontSize="18px">
+              <Typography
+                className={sarabun.className}
+                fontSize="18px"
+                sx={{
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  whiteSpace: "normal",
+                  maxWidth: "100%",
+                }}
+              >
                 {recipe.strInstructions}
               </Typography>
             </Grid>
-            
           </Grid>
           <Grid
-              item
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 4,
-              }}
+            item
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 4,
+            }}
+          >
+            <Button
+              onClick={() => router.push(APPLICATION_PAGE.home)}
+              color="primary"
+              variant="outlined"
+              startIcon={<FavoriteIcon />}
             >
-              <Button
-                onClick={() => router.push(APPLICATION_PAGE.home)}
-                color="primary"
-                variant="outlined"
-                startIcon={<FavoriteIcon />}
-              >
-                Find More Exciting Recipes in MixMate!
-              </Button>
-            </Grid>
+              Find More Exciting Recipes in MixMate!
+            </Button>
+          </Grid>
         </Box>
-      </TableCell>
-    </TableRow>
+      </Paper>
+    </Box>
   );
 };
 
