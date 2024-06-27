@@ -93,7 +93,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
             let drinkDetails = null;
             if (isSet(response.data)) {
               let drink = response.data;
-  
+
               // Format ingredients
               let drinkIngredients = [];
               drink.ingredients.forEach((ingredient) => {
@@ -103,7 +103,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                 let txtMesurement = ingredient.measure
                   ? ingredient.measure
                   : "N/A";
-  
+
                 let ingredientTypography = isIngredientInList(txtIngredient) ? (
                   <Typography
                     className={vollkorn.className}
@@ -116,10 +116,10 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                     {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
                   </Typography>
                 );
-  
+
                 drinkIngredients.push(ingredientTypography);
               });
-  
+
               drinkDetails = (
                 <Box marginTop={2}>
                   <Grid container spacing={2}>
@@ -146,43 +146,80 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                       >
                         {drink.strDrink}
                       </Typography>
-  
+
                       {/* Category */}
-                      <FormControl variant="standard">
-                        <InputLabel htmlFor="input-with-icon-adornment">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          width: "250px",
+                          mb: 3,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mb: 0.5 }}
+                        >
                           Category
-                        </InputLabel>
-                        <Input
-                          className={vollkorn.className}
-                          startAdornment={
-                            <InputAdornment position="start">
-                              <ClassIcon />
-                            </InputAdornment>
-                          }
-                          value={drink.strCategory}
-                        />
-                      </FormControl>
-                      <br />
-                      <br />
-  
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            borderBottom: "2px solid #e0e0e0",
+                          }}
+                        >
+                          <ClassIcon
+                            sx={{
+                              mr: 1,
+                              color: "text.secondary",
+                              fontSize: 20,
+                            }}
+                          />
+                          <Typography variant="body1">
+                            {drink.strCategory}
+                          </Typography>
+                        </Box>
+                      </Box>
+
                       {/* Alcoholic type */}
-                      <FormControl variant="standard">
-                        <InputLabel htmlFor="input-with-icon-adornment">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          width: "250px",
+                          mb: 3,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mb: 0.5 }}
+                        >
                           Alcoholic type
-                        </InputLabel>
-                        <Input
-                          className={vollkorn.className}
-                          startAdornment={
-                            <InputAdornment position="start">
-                              <LocalBarIcon />
-                            </InputAdornment>
-                          }
-                          value={drink.strAlcoholic}
-                        />
-                      </FormControl>
-                      <br />
-                      <br />
-  
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            borderBottom: "2px solid #e0e0e0",
+                            pb: 0.5,
+                          }}
+                        >
+                          <LocalBarIcon
+                            sx={{
+                              mr: 1,
+                              color: "text.secondary",
+                              fontSize: 20,
+                            }}
+                          />
+                          <Typography variant="body1">
+                            {drink.strAlcoholic}
+                          </Typography>
+                        </Box>
+                      </Box>
+
                       {/* Glass type */}
                       <FormControl variant="standard">
                         <InputLabel htmlFor="input-with-icon-adornment">
@@ -238,7 +275,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                         variant="outlined"
                         startIcon={<FavoriteIcon />}
                         sx={{
-                          color:"black",
+                          color: "black",
                           backgroundColor: "#FFA1A1 !important",
                           "&:hover": {
                             backgroundColor: "#FF5F5F !important",
@@ -274,19 +311,13 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
             dispatch(pageStateActions.setPageLoadingState(false));
           });
       }
-  
+
       // Done
       setRowOpen(!rowOpen);
     };
-    if (isOpen && !drinkInfo) {
-      loadDrinkInfo();
-    }
-    // eslint-disable-next-line 
-  }, [isOpen, drinkInfo, rowOpen, handleAddToFavourites, isIngredientInList, rowOpen, drink._id]);
-
- 
-  // Functions
-  
+    loadDrinkInfo();
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <React.Fragment>

@@ -14,6 +14,11 @@ import {
   Checkbox,
   Button,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { userInfoActions } from "@/app/../lib/redux/userInfoSlice";
@@ -59,6 +64,7 @@ const MyIngredients = () => {
 
   const { user, error, isLoading } = useUser();
 
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const [filteredDisplayedIngredients, setFilteredDisplayedIngredients] =
     useState<Ingredient[]>([]);
@@ -71,21 +77,10 @@ const MyIngredients = () => {
     if (userIngredients.length > 0) {
       setAvailableRecipesModalOpen(true);
     } else {
-      if (availableRecipesModalOpen) {
-        const toastMessageObject: ToastMessage = {
-          open: true,
-          message:
-            "Please add ingredients to your list to view available recipes.",
-          severity: SEVERITY.Warning,
-          title: "Ingredients",
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      }else{
-        setAvailableRecipesModalOpen(false);
-      }
+      setIsWarningModalOpen(true);
     }
   };
-  
+
   const handleAlcoholCheckboxChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -140,9 +135,12 @@ const MyIngredients = () => {
       handlePageChange(pageIndex + 1);
     } else if (buttonLabel === "Go to previous page" && pageIndex > 1) {
       handlePageChange(pageIndex - 1);
-    }else if(buttonLabel === "Go to first page" && pageIndex > 1){
+    } else if (buttonLabel === "Go to first page" && pageIndex > 1) {
       handlePageChange(1);
-    } else if(buttonLabel === "Go to last page" && pageIndex < pageIndexCount){
+    } else if (
+      buttonLabel === "Go to last page" &&
+      pageIndex < pageIndexCount
+    ) {
       handlePageChange(pageIndexCount);
     } else if (e.target.innerText) {
       const index = parseInt(e.target.innerText);
@@ -238,7 +236,6 @@ const MyIngredients = () => {
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)
           );
-
         }
       ).catch((error) => {
         displayErrorSnackMessage(error, dispatch);
@@ -326,12 +323,33 @@ const MyIngredients = () => {
         isSingleIngredient={false}
         open={availableRecipesModalOpen}
         setOpen={handleAvailableRecipesModalOpen}
-        setClose={()=>setAvailableRecipesModalOpen(false)}
+        setClose={() => setAvailableRecipesModalOpen(false)}
       />
+      <Dialog
+        open={isWarningModalOpen}
+        onClose={() => setIsWarningModalOpen(false)}
+      >
+        <DialogContent>
+          <DialogContentText
+            id="sign-in-dialog-description"
+            style={{ fontSize: "1.1rem" }}
+          >
+            Please add some ingredients to your list to view available recipes.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsWarningModalOpen(false)}
+            color="primary"
+          >
+            Ok!
+          </Button>
+        </DialogActions>
+      </Dialog>
       {/* Page body */}
       <MyMixMateHeader title="My Ingredients">
-        Unlock a world of personalized possibilities by curating your
-        own inventory of ingredients and mixtures, unveiling a tailored selection of
+        Unlock a world of personalized possibilities by curating your own
+        inventory of ingredients and mixtures, unveiling a tailored selection of
         tantalizing cocktail creations that harmoniously blend the flavors you
         have on hand, empowering you to craft libations that perfectly align
         with your unique tastes and preferences.
@@ -461,8 +479,8 @@ const MyIngredients = () => {
           showLastButton
           sx={{
             "& .MuiPaginationItem-root": {
-              backgroundColor:"#FFFFFF",
-              marginBottom: 1
+              backgroundColor: "#FFFFFF",
+              marginBottom: 1,
             },
           }}
         />

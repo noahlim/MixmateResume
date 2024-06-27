@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Rating from "@mui/material/Rating"; 
+import Rating from "@mui/material/Rating";
 import {
   APPLICATION_PAGE,
   SEVERITY,
@@ -294,58 +294,98 @@ const RecipeComponentRow = ({
                 </Typography>
 
                 {/* Category */}
-                <FormControl variant="standard">
-                  <InputLabel htmlFor="input-with-icon-adornment">
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "250px",
+                    m: "30px 0px",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mb: 0.5 }}
+                  >
                     Category
-                  </InputLabel>
-                  <Input
-                    className={vollkorn.className}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <ClassIcon />
-                      </InputAdornment>
-                    }
-                    value={drink?.strCategory}
-                  />
-                </FormControl>
-                <br />
-                <br />
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      borderBottom: "2px solid #e0e0e0",
+                      pb: 0.5,
+                    }}
+                  >
+                    <ClassIcon
+                      sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                    />
+                    <Typography variant="body1">{drink.strCategory}</Typography>
+                  </Box>
+                </Box>
 
                 {/* Alcoholic type */}
-                <FormControl variant="standard">
-                  <InputLabel htmlFor="input-with-icon-adornment">
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "250px",
+                    mb: 3,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mb: 0.5 }}
+                  >
                     Alcoholic type
-                  </InputLabel>
-                  <Input
-                    className={vollkorn.className}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <LocalBarIcon />
-                      </InputAdornment>
-                    }
-                    value={drink?.strAlcoholic}
-                  />
-                </FormControl>
-                <br />
-                <br />
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      borderBottom: "2px solid #e0e0e0",
+                      pb: 0.5,
+                    }}
+                  >
+                    <LocalBarIcon
+                      sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                    />
+                    <Typography variant="body1">
+                      {drink.strAlcoholic}
+                    </Typography>
+                  </Box>
+                </Box>
 
-                {/* Glass type */}
-                <FormControl variant="standard">
-                  <InputLabel htmlFor="input-with-icon-adornment">
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "250px",
+                    mb: 5,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mb: 0.5 }}
+                  >
                     Glass
-                  </InputLabel>
-                  <Input
-                    className={vollkorn.className}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <LocalDrinkIcon />
-                      </InputAdornment>
-                    }
-                    value={drink?.strGlass}
-                  />
-                </FormControl>
-                <br />
-                <br />
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      borderBottom: "2px solid #e0e0e0",
+                      pb: 0.5,
+                    }}
+                  >
+                    <LocalDrinkIcon
+                      sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                    />
+                    <Typography variant="body1">{drink.strGlass}</Typography>
+                  </Box>
+                </Box>
               </Grid>
 
               {recipeComplementaryInfo}
