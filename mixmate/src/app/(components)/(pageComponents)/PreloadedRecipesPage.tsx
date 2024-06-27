@@ -216,8 +216,8 @@ function DefaultRecipesComponent({ applicationPage }) {
               case FILTER_CRITERIA.ingredient:
                 return recipe.ingredients.some(
                   (ing) =>
-                    ing.ingredient.toLowerCase() ===
-                    filter.criteria.toLowerCase()
+                    ing.ingredient.toLowerCase().includes(
+                    filter.criteria.toLowerCase())
                 );
               case FILTER_CRITERIA.recipeName:
                 return recipe.strDrink
