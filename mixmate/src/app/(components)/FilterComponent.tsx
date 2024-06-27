@@ -9,6 +9,10 @@ import {
   Chip,
   FormHelperText,
   Stack,
+  FormLabel,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import InputLabel from "@mui/material/InputLabel";
@@ -45,6 +49,9 @@ import { FaLemon } from "react-icons/fa";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { Theme, useTheme } from "@mui/material/styles";
 import { Space_Grotesk } from "next/font/google";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -66,21 +73,30 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
   };
 }
 
-function FilterForm({
+function FilterComponent({
   recipeAllRecipes,
-  setRecipesFiltered,
-  filterCriteriaSetter,
-  filterCriteria,
-  loadFilteredRecipes,
+  setFilterAndCriteria,
+  filterAndCriteria,
   onFilterClear,
   applicationPage,
-  loadMyRecipes = null,
+  filterUpdate,
+  selectedCategories,
+  setSelectedCategories,
+  selectedGlasses,
+  setSelectedGlasses,
+  selectedAlcoholic,
+  setSelectedAlcohlic,
+  setSelectedIngredientList,
+  selectedIngredientsList,
+  selectedIngredientsInput,
+  setSelectedIngredientsInput,
+  recipeName,
+  setRecipeName,
+  isIngredientStringValid,
+  setIsIngredientStringValid,
+  filteringLogic,
+  setFilteringLogic,
 }) {
-  const capitalizedRecipes = recipeAllRecipes.map((recipe) => ({
-    ...recipe, // Preserve other properties
-    label: capitalizeWords(recipe.label), // Capitalize the label property
-  }));
-
   const dispatch = useDispatch();
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
@@ -88,27 +104,7 @@ function FilterForm({
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
   );
-
-  const [filterAndCriteria, setFilterAndCriteria] = useState<
-    Array<{ filter: string; criteria: string }>
-  >([]);
   const theme = useTheme();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedGlasses, setSelectedGlasses] = useState<string[]>([]);
-  const [selectedAlcoholic, setSelectedAlcohlic] = useState<string[]>([]);
-  //   const [ingredientFilters, setIngredientFilters] = useState<Array<{ filter: string; criteria: string }>>(null);
-  //   const [alcoholicFilters, setAlcoholicFilters] = useState<Array<{ filter: string; criteria: string }>>(null);
-  //   const [glassFilters, setGlassFilters] = useState<Array<{ filter: string; criteria: string }>>(null);
-  //   const [categoryFilters, setCategoryFilters] = useState<Array<{ filter: string; criteria: string }>>(null);
-
-  const [recipeName, setRecipeName] = useState<string>("");
-  const [selectedIngredientsList, setSelectedIngredientList] = useState<
-    string[]
-  >([]);
-  const [selectedIngredientsInput, setSelectedIngredientsInput] =
-    useState<string>();
-  const [isIngredientStringValid, setIsIngredientStringValid] =
-    useState<boolean>(true);
 
   const onFilterChange = (event: any, filter: string) => {
     switch (filter) {
@@ -129,144 +125,25 @@ function FilterForm({
         break;
     }
   };
-  const filterUpdate = (
-    filterInput: any,
-    filterType: string,
-    isDelete: boolean = false
-  ) => {
-    console.log(filterInput, filterType, isDelete);
-    const newfilterAndCriteria = [];
 
-    //adding recipe name filter to the filter list
-    if (isDelete && filterType === FILTER_CRITERIA.recipeName) {
-      setRecipeName("");
-    } else if (!isDelete && filterType === FILTER_CRITERIA.recipeName) {
-      newfilterAndCriteria.push(filterInput);
-      setRecipeName(filterInput.criteria);
-    } else if (recipeName.length > 0) {
-      newfilterAndCriteria.push({
-        filter: filterType,
-        criteria: recipeName,
-      });
-    }
-
-    //updating ingredient filters
-    //
-    let ingredientFilterList;
-
-    //handling delete case
-    if (isDelete && filterType === FILTER_CRITERIA.ingredient) {
-      ingredientFilterList = [...selectedIngredientsList];
-      ingredientFilterList = ingredientFilterList.filter(
-        (ingredient) => ingredient.toLowerCase() !== filterInput.toLowerCase()
-      );
-      setSelectedIngredientList(ingredientFilterList);
-      setSelectedIngredientsInput(ingredientFilterList.join(","));
-
-      //handling add case
-    } else if (!isDelete && filterType === FILTER_CRITERIA.ingredient) {
-      ingredientFilterList = filterInput;
-      setSelectedIngredientList(filterInput);
-    } else ingredientFilterList = selectedIngredientsList;
-
-    if (ingredientFilterList.length > 0)
-      ingredientFilterList.forEach((ingredient) => {
-        newfilterAndCriteria.push({
-          filter: FILTER_CRITERIA.ingredient,
-          criteria: ingredient,
-        });
-      });
-
-    //updating category filters
-    //
-    let categoryFilterList;
-
-    //handling delete case
-    if (isDelete && filterType === FILTER_CRITERIA.category) {
-      categoryFilterList = [...selectedCategories];
-      categoryFilterList = categoryFilterList.filter(
-        (cat) => cat.toLowerCase() !== filterInput.toLowerCase()
-      );
-      setSelectedCategories(categoryFilterList);
-
-      //handling add case
-    } else if (!isDelete && filterType === FILTER_CRITERIA.category) {
-      categoryFilterList = filterInput;
-      setSelectedCategories(filterInput);
-    } else categoryFilterList = selectedCategories;
-
-    if (categoryFilterList.length > 0)
-      categoryFilterList.forEach((cat) => {
-        newfilterAndCriteria.push({
-          filter: FILTER_CRITERIA.category,
-          criteria: cat,
-        });
-      });
-
-    //updating glass filters
-    //
-    let glassFilterList;
-
-    //handling delete case
-    if (isDelete && filterType === FILTER_CRITERIA.glass) {
-      glassFilterList = [...selectedGlasses];
-      glassFilterList = glassFilterList.filter(
-        (glass) => glass.toLowerCase() !== filterInput.toLowerCase()
-      );
-      setSelectedGlasses(glassFilterList);
-
-      //handling add case
-    } else if (!isDelete && filterType === FILTER_CRITERIA.glass) {
-      glassFilterList = filterInput;
-      setSelectedGlasses(filterInput);
-    } else glassFilterList = selectedGlasses;
-
-    if (glassFilterList.length > 0)
-      glassFilterList.forEach((glass) => {
-        newfilterAndCriteria.push({
-          filter: FILTER_CRITERIA.glass,
-          criteria: glass,
-        });
-      });
-
-    //updating alcoholic filters
-    //
-    let alcoholicFilterList;
-
-    //handling delete case
-    if (isDelete && filterType === FILTER_CRITERIA.alcoholic) {
-      alcoholicFilterList = [...selectedAlcoholic];
-      alcoholicFilterList = alcoholicFilterList.filter(
-        (alc) => alc.toLowerCase() !== filterInput.toLowerCase()
-      );
-      setSelectedAlcohlic(alcoholicFilterList);
-
-      //handling add case
-    } else if (!isDelete && filterType === FILTER_CRITERIA.alcoholic) {
-      alcoholicFilterList = filterInput;
-      setSelectedAlcohlic(filterInput);
-    } else alcoholicFilterList = selectedAlcoholic;
-
-    if (alcoholicFilterList.length > 0)
-      alcoholicFilterList.forEach((alc) => {
-        newfilterAndCriteria.push({
-          filter: FILTER_CRITERIA.alcoholic,
-          criteria: alc,
-        });
-      });
-
-    //finally adding the new filter to the filter list
-    setFilterAndCriteria(newfilterAndCriteria);
+  const handleClearFilter = () => {
+    setSelectedCategories([]);
+    setSelectedGlasses([]);
+    setSelectedAlcohlic([]);
+    setSelectedIngredientList([]);
+    setSelectedIngredientsInput("");
+    setRecipeName(null);
+    onFilterClear();
   };
 
   const handleRecipeNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRecipeName(event.target.innerText);
+    setRecipeName(event);
 
     const newFilterCriteria = {
       filter: FILTER_CRITERIA.recipeName,
-      criteria: event.target.innerText,
+      criteria: event,
     };
     filterUpdate(newFilterCriteria, FILTER_CRITERIA.recipeName);
   };
@@ -284,7 +161,6 @@ function FilterForm({
     let isValid = allowedChars.test(newValue) && !hasConsecutiveCommas;
     setIsIngredientStringValid(isValid);
 
-    // Always update the input value
     setSelectedIngredientsInput(newValue);
 
     let ingredients = [];
@@ -481,46 +357,66 @@ function FilterForm({
 
   return (
     <Box>
-      <>
-        {filterAndCriteria.map((filter, index) => {
-          return (
-            <Chip
-              onDelete={() => {
-                filterUpdate(filter.criteria, filter.filter, true);
-              }}
-              sx={{
-                backgroundColor: "#FFFFFF",
-                m: 0.3,
-                "& .MuiChip-label": {
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                },
-              }}
-              variant="outlined"
-              key={index}
-              label={`${capitalizeWords(filter.filter)} : ${capitalizeWords(filter.criteria)}`}
-              className={spaceGrotesk.className}
-            />
-          );
-        })}
-      </>
-      <Paper elevation={3} style={{ margin: 15 }}>
-        <CardContent
-          style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
+      <Accordion defaultExpanded sx={{ b: 2 }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            "& .MuiAccordionSummary-content": {
+              display: "flex",
+              justifyContent: "center",
+              flex: "1 0 auto",
+              marginLeft: "24px",
+            },
+          }}
         >
-          <Typography variant="h6">Search By...</Typography>
-        </CardContent>
+          <Typography
+            className={spaceGrotesk.className}
+            sx={{ textAlign: "center", fontWeight: "bold" }}
+          >
+            Search By..
+          </Typography>
+        </AccordionSummary>
+
         <Box sx={{ p: 2.5 }}>
+          <FormControl>
+            <RadioGroup
+              row
+              onChange={setFilteringLogic}
+              value={filteringLogic}
+            >
+              <FormControlLabel value="Or" control={<Radio />} label="Or" />
+              <FormControlLabel value="And" control={<Radio />} label="And" />
+            </RadioGroup>
+          </FormControl>
           <FormControl fullWidth sx={{ mb: 3 }}>
             <Autocomplete
               disablePortal
               options={recipeAllRecipes}
+              value={
+                recipeName
+                  ? recipeAllRecipes.find(
+                      (recipe) =>
+                        recipe.strDrink.toLowerCase() ===
+                        recipeName.toLowerCase()
+                    ) || null
+                  : null
+              }
+              getOptionLabel={(option) => option.strDrink}
               renderInput={(params) => (
                 <TextField {...params} label="Recipe Name" />
               )}
-              onChange={(event) => {
-                onFilterChange(event, FILTER_CRITERIA.recipeName);
+              onChange={(event, newValue) => {
+                onFilterChange(
+                  newValue ? newValue.strDrink : null,
+                  FILTER_CRITERIA.recipeName
+                );
               }}
+              isOptionEqualToValue={(option, value) =>
+                option.strDrink.toLowerCase() ===
+                (value?.strDrink || value).toLowerCase()
+              }
             />
           </FormControl>
           <FormControl fullWidth sx={{ mb: 3 }}>
@@ -639,9 +535,21 @@ function FilterForm({
             </Select>
           </FormControl>
         </Box>
-      </Paper>
+        <CardContent
+          style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
+        >
+          <Button
+            onClick={handleClearFilter}
+            color="error"
+            variant="outlined"
+            startIcon={<ClearIcon />}
+          >
+            Clear
+          </Button>
+        </CardContent>
+      </Accordion>
     </Box>
   );
 }
 
-export default FilterForm;
+export default FilterComponent;

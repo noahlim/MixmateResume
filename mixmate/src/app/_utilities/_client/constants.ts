@@ -68,7 +68,8 @@ const FILTER_CRITERIA = {
   alcoholic: "Alcoholic",
   glass: "Glass",
   ingredient: "Ingredient",
-  recipeName : "Recipe Name"
+  recipeName : "Recipe Name",
+  filterLogic: "Filter Logic",
 }
 const REQ_METHODS = {
   get: "GET" as "GET",
