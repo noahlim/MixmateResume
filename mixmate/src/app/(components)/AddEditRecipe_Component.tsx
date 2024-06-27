@@ -448,7 +448,7 @@ function AddEditRecipe_Component({
               onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
             />
           </label>
-          <Divider sx={{width:"80%"}}/>
+          <Divider sx={{m:"30px 10px 0px 0px"}}/>
         <DialogTitle>Preparation</DialogTitle>
           <Table>
             <TableBody>

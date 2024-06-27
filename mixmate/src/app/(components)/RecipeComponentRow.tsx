@@ -24,7 +24,17 @@ import {
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import { Typography, TextField, Divider, Stack } from "@mui/material";
+import {
+  Typography,
+  TextField,
+  Divider,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
@@ -43,7 +53,8 @@ import { ToastMessage } from "interface/toastMessage";
 import { FaEarthAmericas } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { Sarabun, Vollkorn } from "next/font/google";
-import FavoriteIcon from "@mui/icons-material/Favorite";;
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import CommentSection from "./CommentSection";
 const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
@@ -60,15 +71,21 @@ const RecipeComponentRow = ({
   const { user, error, isLoading } = useUser();
   const [ratingValue, setRatingValue] = useState(1);
   const [reviewValue, setReviewValue] = useState("");
+  const [isReivewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedReviewId, setSelectedReviewId] = useState(null);
   const dispatch = useDispatch();
 
-  let btnRemoveReview_onClick = (reviewid) => {
+  let handleReviewRemoveClick = (reviewid) => {
+    setSelectedReviewId(reviewid);
+    setIsReviewModalOpen(true);
+  };
+  const removeReview = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
 
     makeRequest(
       API_ROUTES.recipeReviews,
       REQ_METHODS.delete,
-      { _id: reviewid },
+      { _id: selectedReviewId },
       (response) => {
         const toastMessageObject: ToastMessage = {
           title: "Reviews",
@@ -85,6 +102,7 @@ const RecipeComponentRow = ({
       })
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
+        setIsReviewModalOpen(false);
       });
   };
 
@@ -189,170 +207,55 @@ const RecipeComponentRow = ({
   // Comments and reviews
   let reviewComments = null;
 
-  if (isSet(applicationPage === APPLICATION_PAGE.social))
-    if (drink?.reviews && drink?.reviews.length > 0) {
-      reviewComments = (
-        <>
-          <Grid item xs={12}>
-            <Typography
-              fontWeight="bold"
-              sx={{ color: "black", fontSize: "25px" }}
-              className={sarabun.className}
-            >
-              Leave a Review
-            </Typography>
-          </Grid>
-          <Grid
-            xs={12}
-            item
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          ></Grid>
-          <Grid
-            xs={12}
-            item
-            sx={{ display: "flex", justifyContent: "flex-end" }}
-          >
-            <Grid item xs={12} sx={{ marginTop: "30px" }}>
-              {drink?.reviews.map((review, index) => {
-                const createdAt = moment(review.created_at);
-                const now = moment();
-                const daysDiff = now.diff(createdAt, "days");
-                const hoursDiff = now.diff(createdAt, "hours");
-                const minutesDiff = now.diff(createdAt, "minutes");
-
-                let displayDate;
-                if (daysDiff < 1) {
-                  if (hoursDiff < 1) {
-                    displayDate = `${minutesDiff} minutes ago`;
-                  } else {
-                    displayDate = `${hoursDiff} hours ago`;
-                  }
-                } else if (daysDiff < 30) {
-                  displayDate = `${daysDiff} days ago`;
-                } else {
-                  displayDate = createdAt.format("YYYY-MM-DD");
-                }
-
-                return (
-                  <Box
-                    key={index}
-                    display="flex"
-                    alignItems="right"
-                    sx={{
-                      marginBottom: 2,
-                      width: { xs: "100%", lg: "70%" },
-                    }}
-                  >
-                    {/* user avatar */}
-                    <Box
-                      sx={{
-                        pr: 1,
-                        pt: 1,
-                      }}
-                    >
-                      <Image
-                        src={
-                          review.userPictureUrl
-                            ? review.userPictureUrl
-                            : "/not-found-icon.png"
-                        }
-                        alt={review.userNickname}
-                        width={40}
-                        height={40}
-                        style={{ borderRadius: "50%" }}
-                        loading="lazy"
-                      />
-                    </Box>
-                    <Box display="flex" flexDirection="column" flexGrow={1}>
-                      <Box display="flex" alignItems="center" marginBottom={-1}>
-                        <Typography
-                          className={sarabun.className}
-                          sx={{
-                            marginRight: 1,
-                            fontSize: "18px",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          {review.userNickname}
-                        </Typography>
-                        <Rating
-                          value={review.rating}
-                          readOnly
-                          size="small"
-                          sx={{ marginRight: 1 }}
-                        />
-
-                        {review.userId === user.sub && (
-                          <IconButton
-                            color="error"
-                            onClick={() => btnRemoveReview_onClick(review._id)}
-                            sx={{ marginRight: "10px" }}
-                          >
-                            <CloseIcon />
-                          </IconButton>
-                        )}
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        marginBottom={1}
-                      >
-                        {displayDate}
-                      </Typography>
-                      <Typography
-                        className={sarabun.className}
-                        color="text.primary"
-                        sx={{ whiteSpace: "pre-line", fontSize: "16px" }}
-                      >
-                        {review.comment}
-                      </Typography>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Grid>
-          </Grid>
-        </>
-      );
-    } else {
-      reviewComments = (
-        <>
-          <Grid item xs={12}>
-            <Divider sx={{ margin: "20px 0px", width: "80%" }} />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography
-              fontWeight="bold"
-              sx={{ color: "black", fontSize: "25px" }}
-              className={sarabun.className}
-            >
-              Leave a Review
-            </Typography>
-          </Grid>
-          <Grid
-            xs={12}
-            item
-            sx={{ display: "flex", justifyContent: "flex-end" }}
-          ></Grid>
-          <Grid item xs={12} sx={{ marginTop: "30px" }}>
-            <Typography className={sarabun.className} sx={{ fontSize: "18px" }}>
-              There are no reviews available for this recipe yet :(
-            </Typography>
-            <Typography
-              className={sarabun.className}
-              sx={{ fontSize: "18px", marginBottom: "20px" }}
-            >
-              Be the first one to review this drink!
-            </Typography>
-          </Grid>
-        </>
-      );
-    }
+  if (
+    applicationPage === APPLICATION_PAGE.social ||
+    applicationPage === APPLICATION_PAGE.myRecipes
+  )
+    reviewComments = (
+      <CommentSection
+        reviews={drink?.reviews}
+        handleReviewRemoveClick={handleReviewRemoveClick}
+      />
+    );
   return (
     <React.Fragment>
+      <Dialog
+        open={isReivewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        aria-labelledby="sign-in-dialog-title"
+        aria-describedby="sign-in-dialog-description"
+      >
+        <DialogTitle id="sign-in-dialog-title" style={{ fontWeight: "bold" }}>
+          Deleting the Review
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            id="sign-in-dialog-description"
+            style={{ fontSize: "1.1rem" }}
+          >
+            Are you sure you want to delete this review?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setIsReviewModalOpen(false);
+            }}
+            color="primary"
+          >
+            No
+          </Button>
+          <Button
+            onClick={() => {
+              removeReview();
+            }}
+            sx={{ color: "#7FE0FA", marginLeft: "20px" }}
+            autoFocus
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
       <TableRow
         sx={{ "& > *": { borderTop: 0 }, paddingTop: "20px" }}
         key={drink?.idDrink}
@@ -516,6 +419,7 @@ const RecipeComponentRow = ({
                           label="Write a review"
                           sx={{ margin: "20px" }}
                           multiline
+                          value={reviewValue}
                           onChange={(event) =>
                             setReviewValue(event.target.value)
                           }

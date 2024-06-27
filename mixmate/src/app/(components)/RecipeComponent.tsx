@@ -86,31 +86,6 @@ function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
     setOpenAddEditRecipemodal(false);
   };
 
-  let btnRemoveReview_onClick = (reviewid) => {
-    dispatch(pageStateActions.setPageLoadingState(true));
-
-    makeRequest(
-      API_ROUTES.recipeReviews,
-      REQ_METHODS.delete,
-      { _id: reviewid },
-      (response) => {
-        const toastMessageObject: ToastMessage = {
-          title: "Reviews",
-          message: response.message,
-          severity: SEVERITY.Success,
-          open: true,
-        };
-        dispatch(pageStateActions.setToastMessage(toastMessageObject));
-        reloadRecipes();
-      }
-    )
-      .catch((err) => {
-        displayErrorSnackMessage(err, dispatch);
-      })
-      .finally(() => {
-        dispatch(pageStateActions.setPageLoadingState(false));
-      });
-  };
   let handleRemoveRecipeClick = () => {
     if (applicationPage === APPLICATION_PAGE.favourites) {
       dispatch(pageStateActions.setPageLoadingState(true));
