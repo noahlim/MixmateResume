@@ -126,7 +126,6 @@ function DefaultRecipesComponent({ applicationPage }) {
 
   let loadAllRecipes = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
-    if (!allRecipes || allRecipes.length === 0) {
       let apiRoute;
       let query;
       if (applicationPage === APPLICATION_PAGE.recipes) {
@@ -154,11 +153,11 @@ function DefaultRecipesComponent({ applicationPage }) {
         .finally(() => {
           dispatch(pageStateActions.setPageLoadingState(false));
         });
-    } else {
-      dispatch(pageStateActions.setPageLoadingState(false));
-      setRecipesFiltered(allRecipes);
-      setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
-    }
+    // } else {
+    //   dispatch(pageStateActions.setPageLoadingState(false));
+    //   setRecipesFiltered(allRecipes);
+    //   setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
+    // }
   };
 
   const loadMyRecipes = () => {
