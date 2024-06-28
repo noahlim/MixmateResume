@@ -86,6 +86,7 @@ const isNotSet = (value) => {
 
 function capitalizeWords(str) {
   // List of words to exclude from capitalization
+  if(!str || str === "") return str;
   if (str === "Añejo rum" || str === "Aï¿½ejo rum" || str === "Aï¿½ejo Rum") {
     return "Añejo Rum";
   }

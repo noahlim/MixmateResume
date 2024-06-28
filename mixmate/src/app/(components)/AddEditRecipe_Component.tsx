@@ -371,7 +371,7 @@ function AddEditRecipe_Component({
           <br />
           <br />
           {
-            isSet(currentRecipeRowId) &&(
+            (
             <>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="new-category-select-label">Category</InputLabel>

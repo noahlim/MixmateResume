@@ -6,6 +6,30 @@ import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
 
+function isValidAvatarUrl(url) {
+    try {
+        // Create a URL object to parse the input
+        const parsedUrl = new URL(url);
+
+        // Check if the protocol is http or https
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            return false;
+        }
+
+        // Check if the hostname matches the required domain
+        if (parsedUrl.hostname !== 's.gravatar.com') {
+            return false;
+        }
+
+        // If all checks pass, return true
+        return true;
+    } catch (error) {
+        // If URL parsing fails, it's not a valid URL
+        return false;
+    }
+}
+
+
 export const GET = withApiAuthRequired(async function getAllReviews(req: NextRequest) {
     if (!rateLimit(req, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
@@ -24,17 +48,26 @@ export const GET = withApiAuthRequired(async function getAllReviews(req: NextReq
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
         }
         let db = await dbRtns.getDBInstance();
-        //get 10 documents per page
-        let recipes = await dbRtns.findAll(db, recipeReviewCollection, { sub: user.sub }, {});
+
+        let reviews = await dbRtns.findAll(db, recipeReviewCollection, { sub: user.sub }, {});
 
         //deleting user Id in the recipes before returning to the server for security reason
-        const updatedRecipes = recipes.map((recipe) => {
-            delete recipe.sub;
-            return recipe;
-        })
+        let updatedReviews = [];
+        try {
+            reviews.forEach((review) => {
+                const rating = parseInt(review.rating);
+                if (isNaN(rating) || rating < 1 || rating > 5) {
+                    throw new Error('Rating must be a number or be value between 1 and 5');
+                }
+                delete review.sub;
+                updatedReviews.push(review);
+            });
+        } catch (err) {
+            return NextResponse.json({ error: err.message }, { status: 404 });
+        }
         result.setTrue("Reviews Fetched.");
-        result.data = updatedRecipes;
-        result.message = updatedRecipes.length > 0 ? `${updatedRecipes.length} reviews found.` : "No reviews found."
+        result.data = updatedReviews;
+        result.message = updatedReviews.length > 0 ? `${updatedReviews.length} reviews found.` : "No reviews found."
 
 
         return NextResponse.json(result, { status: 200 });
@@ -78,6 +111,11 @@ export const POST = withApiAuthRequired(async function postRecipeReview(req: Nex
             }
             body.newReview.created_at = new Date().toISOString();
             body.newReview.userPictureUrl = user.picture;
+
+            if (isNaN(body.newReview.rating) || body.newReview.rating < 1 || body.newReview.rating > 5) {
+                return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 404 });
+            }
+
             await dbRtns.addOne(db, recipeReviewCollection, body.newReview);
 
             result.setTrue(`The review has been added!`);
@@ -123,8 +161,10 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             }
             body.review.updated_at = new Date().toISOString();
             delete body.review._id;
+            if (isNaN(body.review.rating) || body.review.rating < 1 || body.review.rating > 5) {
+                return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 404 });
+            }
 
-            delete body.recipe._id;
             await dbRtns.updateOne(db, recipeReviewCollection, { _id: new ObjectId(body.recipe._id) }, body.recipe);
 
             result.setTrue(`The review has updated.`);
@@ -146,7 +186,7 @@ export const DELETE = withApiAuthRequired(async function deleteReview(req: NextR
     }
 
     const reviewId = new ObjectId(req.nextUrl.searchParams.get('_id'));
-    
+
 
     if (!reviewId) {
         return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
@@ -156,7 +196,7 @@ export const DELETE = withApiAuthRequired(async function deleteReview(req: NextR
     try {
         let db = await dbRtns.getDBInstance();
         let response = await dbRtns.findOne(db, recipeReviewCollection, { _id: new ObjectId(reviewId) });
-        
+
         if (!response) {
             return NextResponse.json({ error: 'Selected review does not exist.' }, { status: 404 })
         }

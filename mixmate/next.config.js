@@ -50,6 +50,17 @@ const nextConfig = {
         hostname: "pub.highlight.io",
         port: "",
         pathname: "/*",
+      },
+      {
+        protocol: "https",
+        hostname: "t3.ftcdn.net",
+        port: "",
+        pathname: "/*",
+      },{
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com",
+        port: "",
+        pathname: "/*",
       }
     ],
     domains: [
@@ -60,7 +71,9 @@ const nextConfig = {
       "i0.wp.com",
       "images.weserv.nl",
       "lh3.googleusercontent.com",
-      "pub.highlight.io"
+      "pub.highlight.io",
+      "t3.ftcdn.net",
+      "encrypted-tbn0.gstatic.com"
     ],
   },
   async rewrites() {

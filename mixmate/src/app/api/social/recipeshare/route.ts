@@ -5,6 +5,30 @@ import { userCollection, sharedRecipeCollection, recipeReviewCollection } from "
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
+
+function isValidMixmateUrl(url) {
+    try {
+        // Create a URL object to parse the input
+        const parsedUrl = new URL(url);
+
+        // Check if the protocol is http or https
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            return false;
+        }
+
+        // Check if the hostname matches the required domain
+        if (parsedUrl.hostname !== 'mixmatebucket.s3.us-east-2.amazonaws.com') {
+            return false;
+        }
+
+        // If all checks pass, return true
+        return true;
+    } catch (error) {
+        // If URL parsing fails, it's not a valid URL
+        return false;
+    }
+}
+
 export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req: NextRequest) {
     if (!rateLimit(req, 100, 15 * 60 * 1000)) {
         // 100 requests per 15 minutes
@@ -31,18 +55,20 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
         if (userId) {
             criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
         } else {
-            criteria = { visibility: "public" };
+            criteria = { visibility: "private" };
         }
 
         let allRecipes = await dbRtns.findAll(db, sharedRecipeCollection, criteria, {});
         let totalCount = await dbRtns.count(db, sharedRecipeCollection, criteria);
-        
         let updatedRecipes = [];
         if (allRecipes.length > 0) {
             allRecipes.sort((a, b) => b.created_at.localeCompare(a.created_at));
             updatedRecipes = await Promise.all(
                 allRecipes.map(async (recipe) => {
                     const updatedRecipe = { ...recipe };
+                    if (isNotSet(updatedRecipe.strDrinkThumb) || !isValidMixmateUrl(updatedRecipe.strDrinkThumb)) {
+                        updatedRecipe.strDrinkThumb = "https://mixmatebucket.s3.us-east-2.amazonaws.com/not-found-icon.png";
+                    }
                     const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
                     updatedRecipe.reviews = reviews;
                     return updatedRecipe;
@@ -57,6 +83,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
 
         return NextResponse.json(result, { status: 200 });
     } catch (err) {
+        console.log(err);
         return NextResponse.json({ error: 'Error fetching the recipes from the custom recipes collection.' }, { status: 400 });
     }
 });
@@ -85,6 +112,10 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
         try {
             // let isImageUploaded = null;
             let fileName = body.filename;
+            console.log(fileName);
+            if (!isValidMixmateUrl(fileName)) {
+                return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
+            }
 
             // Validate if user exist
             let db = await dbRtns.getDBInstance();
@@ -123,25 +154,28 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
         return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
     }
     if (req.body) {
-        const body = await readRequestBody(req.body);
-        if (!body) {
-            return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
-        }
-        else {
-            if (!body.recipe)
-                return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
-            if (!body.userId)
-                return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
-        }
         let result = new Result(true);
-        const { user } = await getSession();
-        if (!user) {
-            return NextResponse.json({ error: "Invalid session." }, { status: 400 });
-        }
-        if (user.sub !== body.userId) {
-            return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
-        }
+
         try {
+
+            const { user } = await getSession();
+
+            const body = await readRequestBody(req.body);
+            if (!body) {
+                return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
+            }
+            else {
+                if (!body.recipe)
+                    return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
+                if (!body.userId)
+                    return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
+            }
+            if (!user) {
+                return NextResponse.json({ error: "Invalid session." }, { status: 400 });
+            }
+            if (user.sub !== body.userId) {
+                return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
+            }
             // Validate if user exist
             let db = await dbRtns.getDBInstance();
             //user.sub is  unique id of each user
@@ -151,6 +185,9 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
 
+            if (!isValidMixmateUrl(body.recipe.strDrinkThumb)) {
+                return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
+            }
             const tempId = body.recipe._id;
             delete body.recipe._id;
             body.recipe.updated_at = new Date().toISOString();
