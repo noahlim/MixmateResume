@@ -55,7 +55,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
         if (userId) {
             criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
         } else {
-            criteria = { visibility: "private" };
+            criteria = { visibility: "public" };
         }
 
         let allRecipes = await dbRtns.findAll(db, sharedRecipeCollection, criteria, {});
