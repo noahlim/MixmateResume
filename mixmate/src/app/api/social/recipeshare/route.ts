@@ -110,7 +110,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
                         updatedRecipe.strDrinkThumb = "https://mixmatebucket.s3.us-east-2.amazonaws.com/not-found-icon.png";
                     }
                     const reviews = await dbRtns.findAll(db, recipeReviewCollection, { recipeId: updatedRecipe._id.toString() }, {});
-                    updatedRecipe.reviews = reviews;
+                    updatedRecipe.reviews = reviews.sort((a, b) => b.created_at.localeCompare(a.created_at));
                     return updatedRecipe;
                 })
             );
@@ -120,7 +120,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
         const data = { allRecipes: updatedRecipes, length: totalCount };
         result.data = data;
         result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
-
+        console.log('called');
         return NextResponse.json(result, { status: 200 });
     } catch (err) {
         console.log(err);

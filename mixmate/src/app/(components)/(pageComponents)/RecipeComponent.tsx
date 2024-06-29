@@ -30,7 +30,7 @@ import { ToastMessage } from "interface/toastMessage";
 import RecipeComponentRow from "./RecipeComponentRow";
 import SharingDialog from "./SharingDialog";
 
-function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
+const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   const dispatch = useDispatch();
 
   const isEditablePage =
@@ -291,4 +291,4 @@ function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
   );
 }
 
-export default Recipe_Component;
+export default RecipeComponent;

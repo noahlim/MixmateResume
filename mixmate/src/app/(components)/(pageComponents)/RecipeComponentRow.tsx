@@ -114,7 +114,7 @@ const RecipeComponentRow = ({
     }
 
     dispatch(pageStateActions.setPageLoadingState(true));
-    let newReview = {      
+    let newReview = {
       recipeId: drink?._id,
       comment: reviewValue,
       rating: ratingValue,
@@ -408,31 +408,32 @@ const RecipeComponentRow = ({
                       color="error"
                       onClick={() =>
                         messageBoxDeleteRecipe(drink?._id, drink?.recipeName)
-                      }
+                      }                      
                     >
-                      <DeleteForeverIcon />
+                      <DeleteForeverIcon sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {(applicationPage === APPLICATION_PAGE.myRecipes ||
+                  applicationPage === APPLICATION_PAGE.social) && (
+                  <Tooltip title="Share the Recipe" placement="top">
+                    <IconButton
+                      color="success"
+                      onClick={() => handleModalShareRecipeOpen(drink)}
+                    >
+                      <ShareIcon  sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
                     </IconButton>
                   </Tooltip>
                 )}
                 {applicationPage === APPLICATION_PAGE.myRecipes && (
-                  <>
-                    <Tooltip title="Share Recipe" placement="top">
-                      <IconButton
-                        color="success"
-                        onClick={() => handleModalShareRecipeOpen(drink)}
-                      >
-                        <ShareIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit the Recipe" placement="top">
-                      <IconButton
-                        color="primary"
-                        onClick={() => modalAddEditRecipe_onOpen(drink?._id)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </>
+                  <Tooltip title="Edit the Recipe" placement="top">
+                    <IconButton
+                      color="primary"
+                      onClick={() => modalAddEditRecipe_onOpen(drink?._id)}
+                    >
+                      <EditIcon  sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
+                    </IconButton>
+                  </Tooltip>
                 )}
               </Grid>
               {/**Comments input section */}
@@ -493,7 +494,7 @@ const RecipeComponentRow = ({
                     alignContent: "center",
                   }}
                 >
-                  <Stack direction={{ xs: "column", lg: "row" }}>
+                  <Stack direction={{ xs: "column", md: "row" }}>
                     {(applicationPage === APPLICATION_PAGE.social ||
                       applicationPage === APPLICATION_PAGE.myRecipes) &&
                       drink?.sub === user.sub && (

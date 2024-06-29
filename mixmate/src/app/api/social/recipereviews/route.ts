@@ -95,6 +95,7 @@ export const POST = withApiAuthRequired(async function postRecipeReview(req: Nex
         }
         let result = new Result(true);
         const { user } = await getSession();
+        console.log(user);
         if (!user) {
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
         }
@@ -113,7 +114,7 @@ export const POST = withApiAuthRequired(async function postRecipeReview(req: Nex
             if(!isValidAvatarUrl(user.picture)){
                 return NextResponse.json({ error: 'Invalid user picture URL.' }, { status: 404 });
             }
-            body.userNickname = user.email_verified ? user.name : user.nickname,
+            body.newReview.userNickname = user.email_verified ? user.name : user.nickname,
             body.newReview.userPictureUrl = user.picture;
 
             if (isNaN(body.newReview.rating) || body.newReview.rating < 1 || body.newReview.rating > 5) {

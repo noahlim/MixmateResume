@@ -15,9 +15,6 @@ const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
   const [visibleReviews, setVisibleReviews] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [sortedReviews, setSortedReviews] = useState(
-    reviews.sort((a, b) => b.created_at.localeCompare(a.created_at))
-  );
   const toggleReviews = () => {
     if (isExpanded) {
       setVisibleReviews(5);
@@ -59,7 +56,7 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
           sx={{ display: "flex", justifyContent: "flex-end" }}
         >
           <Grid item xs={12} sx={{ marginTop: "30px" }}>
-            {sortedReviews.slice(0, visibleReviews).map((review, index) => {
+            {reviews.slice(0, visibleReviews).map((review, index) => {
               const createdAt = moment(review.created_at);
               const now = moment();
               const daysDiff = now.diff(createdAt, "days");
