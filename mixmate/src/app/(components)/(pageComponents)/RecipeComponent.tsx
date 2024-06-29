@@ -21,7 +21,6 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import { useTheme } from "@mui/material/styles";
 import AddEditRecipe_Component from "../AddEditRecipe_Component";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
@@ -49,8 +48,6 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   };
   const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
   const [selectedRecipeIdAddEdit, setSelectedRecipeIdAddEdit] = useState(null);
-
-  const theme = useTheme();
 
   let handleAddEditRecipeModalOpen = (selectedRecipeId) => {
     dispatch(pageStateActions.setPageLoadingState(true));

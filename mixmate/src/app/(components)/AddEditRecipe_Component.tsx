@@ -58,15 +58,14 @@ function AddEditRecipe_Component({
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
   const [currentRecipeImage, setCurrentRecipeImage] = useState(null);
-  const [currentRecipeCategory, setCurrentRecipeCategory] = useState(null);
+  const [currentRecipeCategory, setCurrentRecipeCategory] = useState("");
   const [currentRecipeAlcoholicType, setCurrentRecipeAlcoholicType] =
-    useState(null);
-  const [currentRecipeGlass, setCurrentRecipeGlass] = useState(null);
+    useState("");
+  const [currentRecipeGlass, setCurrentRecipeGlass] = useState("");
   const [currentRecipeIngredients, setCurrentRecipeIngredients] = useState([]);
   const [currentRecipeMeasure, setCurrentRecipeMeasure] = useState([]);
   const [currentRecipeInstructions, setCurrentRecipeInstructions] =
     useState("");
-  //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
   const [currentRecipeVisibility, setCurrentRecipeVisibility] = useState(
     applicationPage === APPLICATION_PAGE.social ? "public" : "private"
   );
@@ -382,8 +381,7 @@ function AddEditRecipe_Component({
                   onChange={(e) => setCurrentRecipeCategory(e.target.value)}
                 >
                   {categories?.map((cat, index) => {
-                    // const label =
-                    // typeof cat === "string" ? cat : cat?.toString() || "";
+                   
                     return (
                       <MenuItem key={index} value={cat}>
                         {cat}
