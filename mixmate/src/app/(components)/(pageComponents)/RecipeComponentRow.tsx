@@ -114,9 +114,7 @@ const RecipeComponentRow = ({
     }
 
     dispatch(pageStateActions.setPageLoadingState(true));
-    let newReview = {
-      userId: user.sub,
-      userNickname: user.email_verified ? user.name : user.nickname,
+    let newReview = {      
       recipeId: drink?._id,
       comment: reviewValue,
       rating: ratingValue,

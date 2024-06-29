@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userIngredientCollection, recipeCollection } from '@/app/_utilities/_server/database/config';
-import { Result } from "@/app/_utilities/_server/util";
+import { userIngredientCollection, recipeCollection, userCollection } from '@/app/_utilities/_server/database/config';
+import { Result, isNotSet } from "@/app/_utilities/_server/util";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 
@@ -15,19 +15,21 @@ export const GET = withApiAuthRequired(async function getAvailableRecipes(req: N
     let result = new Result();
     try {
 
+
         const { user } = await getSession();
-        const userId = req.nextUrl.searchParams.get('userId');
+        let db = await dbRtns.getDBInstance();
+
+        let userExist = await dbRtns.findOne(db, userCollection, { sub: user.sub });
+
+        if (isNotSet(userExist)) {
+            return NextResponse.json({ error: 'User information not found' }, { status: 404 });
+        }
         const singleIngredient = req.nextUrl.searchParams.get('singleIngredient');
         const ingredient = req.nextUrl.searchParams.get('ingredient');
-
-        if (!userId || userId !== user.sub) {
-            return NextResponse.json({ error: 'Invalid user data.' }, { status: 400 });
-        }
 
 
         let ingredientsArray;
 
-        let db = await dbRtns.getDBInstance();
         if (ingredient && singleIngredient) {
             ingredientsArray = [ingredient];
         } else {

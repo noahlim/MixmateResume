@@ -79,14 +79,14 @@ function MenuBar() {
         route === APPLICATION_PAGE.myIngredients ||
         route === APPLICATION_PAGE.myRecipes ||
         route === APPLICATION_PAGE.social
-      )
+      ) {
         dispatch(pageStateActions.setAuthenticatedModalOpen(true));
-      return;
-    }
-    if (route !== APPLICATION_PAGE.root && route !== APPLICATION_PAGE.about)
-      dispatch(pageStateActions.setPageLoadingState(true));
-
-    router.push(route);
+        return;
+      } else {
+        router.push(route);
+        return;
+      }
+    } else router.push(route);
   };
 
   useEffect(() => {

@@ -16,10 +16,6 @@ export const GET = withApiAuthRequired(async function getAllUserIngredients(req:
 
     const { user } = await getSession();
 
-    if (user.sub !== req.nextUrl.searchParams.get('userId')) {
-      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
-    }
-
     let db = await dbRtns.getDBInstance();
 
     let userIngredientDocument = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
@@ -57,12 +53,13 @@ export const POST = withApiAuthRequired(async function postUserIngredient(req: N
     if (!body.ingredient) {
       return NextResponse.json({ error: 'No data passed' }, { status: 404 });
     }
-    if (user.sub !== body.userId) {
-      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
-    }
 
     let db = await dbRtns.getDBInstance();
 
+    let userExist = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
+    if (isNotSet(userExist)) {
+      return NextResponse.json({ error: 'User information not found' }, { status: 404 });
+    }
     //add userIngredientDocument which is a collection of ingredients for each user if not found
     let userIngredientDocument = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
     if (isNotSet(userIngredientDocument)) {
@@ -105,7 +102,6 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
     return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
   }
 
-  const userId = req.nextUrl.searchParams.get('userId');
   const ingredient = req.nextUrl.searchParams.get('ingredient');
 
   if (!ingredient) {
@@ -114,18 +110,19 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
 
   try {
     const { user } = await getSession();
-
-    if (!userId || userId !== user.sub) {
-      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
-    }
     let db = await dbRtns.getDBInstance();
-    let response = await dbRtns.findOne(db, userIngredientCollection, { sub: userId });
+
+    let userExist = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
+    if (isNotSet(userExist)) {
+      return NextResponse.json({ error: 'User information not found' }, { status: 404 });
+    }
+    let response = await dbRtns.findOne(db, userIngredientCollection, { sub: user.sub });
     if (!response) {
-      return NextResponse.json({ error: "User does not exist." }, { status: 404 })
+      return NextResponse.json({ error: "User information not found" }, { status: 404 })
     }
 
     const updatedIngredientList = response.ingredients.filter(ing => ing.strIngredient1 !== ingredient);
-    response = await dbRtns.updateOne(db, userIngredientCollection, { sub: userId }, { ingredients: updatedIngredientList, updated_at: new Date().toISOString() });
+    response = await dbRtns.updateOne(db, userIngredientCollection, { sub: user.sub }, { ingredients: updatedIngredientList, updated_at: new Date().toISOString() });
 
     if (response) {
       const result = new Result(true);

@@ -6,7 +6,7 @@ import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
 
-function isValidMixmateUrl(url) {
+const isValidMixmateUrl = (url) => {
     try {
         // Create a URL object to parse the input
         const parsedUrl = new URL(url);
@@ -29,6 +29,50 @@ function isValidMixmateUrl(url) {
     }
 }
 
+const validateRecipe = (recipe) => {
+    let result = new Result(true);
+    if (!recipe.ingredients || recipe.ingredients.length === 0) {
+        result.setFalse('No ingredients passed');
+        return result;
+    }
+    const ingredients = recipe.ingredients.filter((ing) => !ing.ingredient || !ing.measure);
+    if (ingredients.length > 0) {
+        result.setFalse('All ingredients must have both ingredient and measure');
+        return result;
+    }
+
+    if (isNotSet(recipe.strInstructions) || recipe.strInstructions.trim() === '') {
+        result.setFalse('No instructions passed');
+        return result;
+    }
+
+    if (isNotSet(recipe.strDrink) || recipe.strDrink.trim() === '') {
+        result.setFalse('No recipe name passed');
+        return result;
+    }
+
+    if (isNotSet(recipe.strCategory) || recipe.strCategory.trim() === '') {
+        result.setFalse('No recipe category passed');
+        return result;
+    }
+
+    if (isNotSet(recipe.strAlcoholic) || recipe.strAlcoholic.trim() === '') {
+        result.setFalse('No recipe alcoholic type passed');
+        return result;
+    }
+
+    if (isNotSet(recipe.strGlass) || recipe.strGlass.trim() === '') {
+        result.setFalse('No recipe glass type passed');
+        return result;
+    }
+
+    if (isNotSet(recipe.visibility) || recipe.visibility.trim() === '') {
+        result.setFalse('No recipe visibility passed');
+        return result;
+    }
+
+    return result;
+}
 export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req: NextRequest) {
     if (!rateLimit(req, 100, 15 * 60 * 1000)) {
         // 100 requests per 15 minutes
@@ -37,23 +81,19 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
 
     let result = new Result();
     try {
-        const userId = req.nextUrl.searchParams.get('userid');
 
         const isVisible = req.nextUrl.searchParams.get('publicflag') === 'true';
+        const isSocial = req.nextUrl.searchParams.get('socialflag') === 'true';
         const { user } = await getSession();
         if (!user) {
-            return NextResponse.json({ error: "Invalid session." }, { status: 400 });
-        }
-
-        if (userId && user.sub !== userId) {
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
         }
 
         let db = await dbRtns.getDBInstance();
 
         let criteria;
-        if (userId) {
-            criteria = isVisible ? { sub: userId, visibility: "public" } : { sub: userId };
+        if (!isSocial) {
+            criteria = isVisible ? { sub: user.sub, visibility: "public" } : { sub: user.sub };
         } else {
             criteria = { visibility: "public" };
         }
@@ -110,9 +150,12 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             return NextResponse.json({ error: "Invalid session." }, { status: 400 });
         }
         try {
-            // let isImageUploaded = null;
+            const isRecipeValid = validateRecipe(body.recipe);
+            if (!isRecipeValid.isOk) {
+                return NextResponse.json({ error: isRecipeValid.message }, { status: 404 });
+            }
+
             let fileName = body.filename;
-            console.log(fileName);
             if (!isValidMixmateUrl(fileName)) {
                 return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
             }
@@ -133,7 +176,6 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
             body.recipe.strAuthor = user.email_verified ? user.name : user.nickname;
             body.recipe.strDrinkThumb = fileName;
             body.recipe.label = body.recipe.strDrink
-
             await dbRtns.addOne(db, sharedRecipeCollection, body.recipe);
 
             result.setTrue(`The recipe has been added!`);
@@ -167,28 +209,28 @@ export const PUT = withApiAuthRequired(async function putRecipeOnSocial(req: Nex
             else {
                 if (!body.recipe)
                     return NextResponse.json({ error: 'No recipe data passed' }, { status: 404 });
-                if (!body.userId)
-                    return NextResponse.json({ error: 'No user id passed' }, { status: 404 });
+
             }
             if (!user) {
                 return NextResponse.json({ error: "Invalid session." }, { status: 400 });
             }
-            if (user.sub !== body.userId) {
-                return NextResponse.json({ error: "The user is not authorized to update this recipe." }, { status: 401 });
-            }
             // Validate if user exist
-            let db = await dbRtns.getDBInstance();
-            //user.sub is  unique id of each user
-            let userExist = await dbRtns.findOne(db, userCollection, { sub: user.sub });
+            const isRecipeValid = validateRecipe(body.recipe);
+            if (!isRecipeValid.isOk) {
+                return NextResponse.json({ error: isRecipeValid.message }, { status: 404 });
+            }
 
-            if (isNotSet(userExist)) {
-                return NextResponse.json({ error: 'User information not found' }, { status: 404 });
+            let db = await dbRtns.getDBInstance();
+            const tempId = body.recipe._id;
+
+            const recipeObject = await dbRtns.findOne(db, sharedRecipeCollection, { _id: new ObjectId(tempId) });
+            if (recipeObject.sub !== user.sub) {
+                return NextResponse.json({ error: "Current user is not authorized to update this recipe." }, { status: 401 });
             }
 
             if (!isValidMixmateUrl(body.recipe.strDrinkThumb)) {
                 return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
             }
-            const tempId = body.recipe._id;
             delete body.recipe._id;
             body.recipe.updated_at = new Date().toISOString();
             await dbRtns.updateOne(db, sharedRecipeCollection, { _id: new ObjectId(tempId) }, body.recipe);
@@ -225,7 +267,7 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
             return NextResponse.json({ error: 'Selected recipe does not exist on your list.' }, { status: 404 })
         }
         //when the unique id of the user and the id of the user who created
-        //the favourite list do not match    
+        //the shared list do not match    
         if (user.sub !== response.sub) {
             return NextResponse.json({ error: "The user is not authorized to delete this recipe." }, { status: 401 });
         }

@@ -15,7 +15,6 @@ import {
   Button,
   TextField,
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
@@ -29,16 +28,13 @@ import {
   API_DRINK_ROUTES,
   API_ROUTES,
   REQ_METHODS,
-  SEVERITY,
 } from "@/app/_utilities/_client/constants";
 import {
   displayErrorSnackMessage,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
 import { recipeActions } from "lib/redux/recipeSlice";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import { ToastMessage } from "interface/toastMessage";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import MarqueeAnimation from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import MyMixMateHeader from "@/app/(components)/MyMixMateHeader";
@@ -61,8 +57,6 @@ const MyIngredients = () => {
   const allIngredients: Ingredient[] = useSelector(
     (state: any) => state.recipe.ingredients
   );
-
-  const { user, error, isLoading } = useUser();
 
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
@@ -231,7 +225,7 @@ const MyIngredients = () => {
       makeRequest(
         API_ROUTES.userIngredients,
         REQ_METHODS.get,
-        { userId: user.sub },
+        { },
         (response) => {
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)

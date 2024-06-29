@@ -39,7 +39,6 @@ export const GET = withApiAuthRequired(async function getAllReviews(req: NextReq
 
     try {
         const userId = req.nextUrl.searchParams.get('userid');
-        const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
 
         const { user } = await getSession();
         //get shared recipes only for the authenticated users
@@ -101,21 +100,26 @@ export const POST = withApiAuthRequired(async function postRecipeReview(req: Nex
         }
         try {
             // Validate if user exist
+            
             let db = await dbRtns.getDBInstance();
 
             //user.sub is  unique id of each user
             let userExist = await dbRtns.findOne(db, userCollection, { sub: user.sub });
 
-            if (isNotSet(userExist) || body.newReview.userId !== user.sub) {
+            if (isNotSet(userExist)) {
                 return NextResponse.json({ error: 'User information not found' }, { status: 404 });
             }
             body.newReview.created_at = new Date().toISOString();
+            if(!isValidAvatarUrl(user.picture)){
+                return NextResponse.json({ error: 'Invalid user picture URL.' }, { status: 404 });
+            }
+            body.userNickname = user.email_verified ? user.name : user.nickname,
             body.newReview.userPictureUrl = user.picture;
 
             if (isNaN(body.newReview.rating) || body.newReview.rating < 1 || body.newReview.rating > 5) {
                 return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 404 });
             }
-
+            body.newReview.userId = user.sub,
             await dbRtns.addOne(db, recipeReviewCollection, body.newReview);
 
             result.setTrue(`The review has been added!`);

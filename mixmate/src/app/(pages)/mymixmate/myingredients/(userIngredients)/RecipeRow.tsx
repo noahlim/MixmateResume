@@ -32,7 +32,6 @@ import {
   SEVERITY,
 } from "@/app/_utilities/_client/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import Image from "next/image";
 import { ToastMessage } from "interface/toastMessage";
@@ -45,7 +44,6 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
   const [rowOpen, setRowOpen] = useState(false);
   const [drinkInfo, setDrinkInfo] = useState(null);
   const dispatch = useDispatch();
-  const { user, error, isLoading } = useUser();
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
@@ -62,7 +60,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { userId: user.sub, recipe },
+      { recipe },
       (response) => {
         const toastMessageObject: ToastMessage = {
           message: response.message,

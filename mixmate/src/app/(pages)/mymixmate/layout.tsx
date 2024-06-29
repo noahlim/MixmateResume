@@ -11,13 +11,12 @@ import { FaEarthAmericas } from "react-icons/fa6";
 import { LiaCocktailSolid } from "react-icons/lia";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
-import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState(0);
-  const { user, error, isLoading } = useUser();
   useEffect(() => {
     switch (pathname) {
       case APPLICATION_PAGE.favourites:

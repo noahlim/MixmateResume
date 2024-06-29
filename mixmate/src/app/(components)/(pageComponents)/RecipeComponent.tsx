@@ -69,7 +69,7 @@ function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
       makeRequest(
         API_ROUTES.favourite,
         REQ_METHODS.delete,
-        { userId: user.sub, _id: infoRecipeToDelete._id },
+        { recipeId: infoRecipeToDelete._id },
         (response) => {
           const toastMessageObject: ToastMessage = {
             title: "Favorites",
@@ -137,7 +137,7 @@ function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
     makeRequest(
       API_ROUTES.recipeShare,
       REQ_METHODS.put,
-      { recipe: newRecipeObject, userId: user.sub },
+      { recipe: newRecipeObject },
       (response) => {
         setModalShareRecipeOpen(false);
         const toastMessageObject: ToastMessage = {
@@ -176,7 +176,7 @@ function Recipe_Component({ applicationPage, recipes, reloadRecipes }) {
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { userId: user.sub, recipe: recipe },
+      { recipe: recipe },
       (response) => {
         const toastMessageObject: ToastMessage = {
           open: true,

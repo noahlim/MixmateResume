@@ -34,7 +34,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
-import { useUser } from "@auth0/nextjs-auth0/client";
 
 function AddEditRecipe_Component({
   openModal,
@@ -43,7 +42,6 @@ function AddEditRecipe_Component({
   reloadPage,
   applicationPage,
 }) {
-  const { user, error, isLoading } = useUser();
   const dispatch = useDispatch();
   const alcoholicTypes = useSelector(
     (state: any) => state.recipe.alcoholicTypes
@@ -69,7 +67,9 @@ function AddEditRecipe_Component({
   const [currentRecipeInstructions, setCurrentRecipeInstructions] =
     useState("");
   //const [currentRecipeId, setCurrentRecipeId] = useState(loadRecipeIfExist());
-
+  const [currentRecipeVisibility, setCurrentRecipeVisibility] = useState(
+    applicationPage === APPLICATION_PAGE.social ? "public" : "private"
+  );
   useEffect(() => {
     // Load data if recipe ID exist
     let loadRecipeIfExist = () => {
@@ -96,6 +96,7 @@ function AddEditRecipe_Component({
             setCurrentRecipeIngredients(ingredients);
             setCurrentRecipeMeasure(measures);
             setCurrentRecipeInstructions(response.data.strInstructions);
+            setCurrentRecipeVisibility(response.data.visibility);
             dispatch(pageStateActions.setPageLoadingState(false));
           }
         )
@@ -271,8 +272,7 @@ function AddEditRecipe_Component({
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
-          visibility:
-            applicationPage === APPLICATION_PAGE.social ? "public" : "private",
+          visibility: currentRecipeVisibility,
         };
 
         //if image is not included, only send {recipe:newRecipeInfo}
@@ -325,12 +325,13 @@ function AddEditRecipe_Component({
           strInstructions: currentRecipeInstructions,
           strGlass: currentRecipeGlass,
           ingredients: ingredientsArray,
+          visibility: currentRecipeVisibility,
         };
 
         makeRequest(
           API_ROUTES.recipeShare,
           REQ_METHODS.put,
-          { recipe: newRecipeInfo, userId: user.sub },
+          { recipe: newRecipeInfo },
           (response) => {
             closeNewRecipeModal_onClick();
             const toastMessageObject: ToastMessage = {
@@ -371,7 +372,6 @@ function AddEditRecipe_Component({
           <br />
           <br />
           {
-            (
             <>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="new-category-select-label">Category</InputLabel>
@@ -436,7 +436,7 @@ function AddEditRecipe_Component({
                   })}
                 </Select>
               </FormControl>
-            </>)
+            </>
           }
           <br />
           <br />
@@ -448,8 +448,8 @@ function AddEditRecipe_Component({
               onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
             />
           </label>
-          <Divider sx={{m:"30px 10px 0px 0px"}}/>
-        <DialogTitle>Preparation</DialogTitle>
+          <Divider sx={{ m: "30px 10px 0px 0px" }} />
+          <DialogTitle>Preparation</DialogTitle>
           <Table>
             <TableBody>
               <TableRow>

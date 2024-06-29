@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
   Card,
   CardContent,
   Grid,
-  Container,
   Tooltip,
   IconButton,
   Button,
@@ -34,7 +33,6 @@ import {
   SEVERITY,
 } from "@/app/_utilities/_client/constants";
 import { userInfoActions } from "@lib/redux/userInfoSlice";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import ShoppingItemCardGridDialog from "./ShoppingItemCard/ShoppingItemCardGrid";
 const StyledCard = styled(Card)<{ isalcoholic: string }>(
   ({ theme, isalcoholic }) => ({
@@ -61,7 +59,6 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
   const [isDataFetched, setIsDataFetched] = useState(false);
 
   const dispatch = useDispatch();
-  const { user, error, isLoading } = useUser();
 
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
@@ -106,7 +103,7 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
     makeRequest(
       API_ROUTES.userIngredients,
       REQ_METHODS.delete,
-      { userId: user.sub, ingredient: ingredient.strIngredient1 },
+      { ingredient: ingredient.strIngredient1 },
       (response) => {
         const toastMessageObject: ToastMessage = {
           message: response.message,
@@ -149,11 +146,11 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
     makeRequest(
       API_ROUTES.userIngredients,
       REQ_METHODS.post,
-      { userId: user.sub, ingredient: ingredient },
+      { ingredient: ingredient },
       (response) => {
         const toastMessageObject: ToastMessage = {
           open: true,
-          message: "Ingredient added to the list!",
+          message: response.message,
           severity: SEVERITY.Success,
           title: "Ingredients",
         };

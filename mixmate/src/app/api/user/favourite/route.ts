@@ -23,13 +23,15 @@ export const POST = withApiAuthRequired(async function postFavourite(req: NextRe
     let result = new Result(true);
     try {
       const { user } = await getSession();
+      let db = await dbRtns.getDBInstance();
 
-      if (body.userId !== user.sub) {
-        return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
+      let userExist = await dbRtns.findOne(db, userCollection, { sub: user.sub });
+
+      if (isNotSet(userExist)) {
+          return NextResponse.json({ error: 'User information not found' }, { status: 404 });
       }
 
       // Validate if user exist
-      let db = await dbRtns.getDBInstance();
       //add userIngredientDocument which is a collection of ingredients for each user if not found
       let userFavoriteDocument = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
       const favouriteRecipe = body.recipe;
@@ -74,7 +76,6 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
   try {
 
     const { user } = await getSession();
-    const pageNumber = parseInt(req.nextUrl.searchParams.get('index'));
   
     let db = await dbRtns.getDBInstance();
 
@@ -90,13 +91,13 @@ export const GET = withApiAuthRequired(async function getAllFavourites(req: Next
         let collection = isSet(recipe.strAuthor) ? sharedRecipeCollection : recipeCollection;
         const foundRecipe = await dbRtns.findOne(db, collection, { _id: new ObjectId(recipe._id) });
         return foundRecipe;
-      }));
+      }));           
+
+      //let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
 
 
-      let recipes = publicRecipes.slice((pageNumber - 1) * 5, pageNumber * 5);
-
-
-      const data = { recipes, allRecipes: publicRecipes, length: publicRecipes.length };
+      //const data = { recipes, allRecipes: publicRecipes, length: publicRecipes.length };
+      const data = {allRecipes: publicRecipes, length: publicRecipes.length };
 
       //response is the object deleted
       result.data = data;
@@ -123,25 +124,19 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
     return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
   }
 
-  const drinkId = new ObjectId(req.nextUrl.searchParams.get('_id'));
-  const userId = new ObjectId(req.nextUrl.searchParams.get('userId'));
+  const drinkId = new ObjectId(req.nextUrl.searchParams.get('recipeId'));
 
 
   if (!drinkId) {
     return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
   }
-  const { user } = await getSession();
 
   try {
     const { user } = await getSession();
 
-    if (userId !== user.sub) {
-      return NextResponse.json({ error: 'Unauthorized user access.' }, { status: 400 });
-    }
-
     let db = await dbRtns.getDBInstance();
 
-    let response = await dbRtns.findOne(db, userFavouriteCollection, { sub: userId });
+    let response = await dbRtns.findOne(db, userFavouriteCollection, { sub: user.sub });
     if (!response) {
       return NextResponse.json({ error: 'User does not exist.' }, { status: 404 })
     }
@@ -152,7 +147,12 @@ export const DELETE = withApiAuthRequired(async function deleteFavourite(req: Ne
     }
 
     const updatedFavoriteList = response.favorites.filter(favorite => favorite._id !== drinkId);
-    response = await dbRtns.updateOne(db, userFavouriteCollection, { sub: userId }, { favorites: updatedFavoriteList, updated_at: new Date().toISOString() });
+    
+    if (response.favorites.length === updatedFavoriteList.length) {
+      return NextResponse.json({ error: "Selected recipe does not exist." }, { status: 404 });
+    }
+    
+    response = await dbRtns.updateOne(db, userFavouriteCollection, { sub: user.sub }, { favorites: updatedFavoriteList, updated_at: new Date().toISOString() });
 
     if (response) {
       const result = new Result(true);

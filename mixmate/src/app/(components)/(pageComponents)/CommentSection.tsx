@@ -4,10 +4,7 @@ import moment from "moment";
 import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import {
-  Typography,
-  Divider,
-} from "@mui/material";
+import { Typography, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -18,7 +15,9 @@ const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
   const [visibleReviews, setVisibleReviews] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
-
+  const [sortedReviews, setSortedReviews] = useState(
+    reviews.sort((a, b) => b.created_at.localeCompare(a.created_at))
+  );
   const toggleReviews = () => {
     if (isExpanded) {
       setVisibleReviews(5);
@@ -60,7 +59,7 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
           sx={{ display: "flex", justifyContent: "flex-end" }}
         >
           <Grid item xs={12} sx={{ marginTop: "30px" }}>
-            {reviews.slice(0, visibleReviews).map((review, index) => {
+            {sortedReviews.slice(0, visibleReviews).map((review, index) => {
               const createdAt = moment(review.created_at);
               const now = moment();
               const daysDiff = now.diff(createdAt, "days");

@@ -20,7 +20,7 @@ function AboutPage() {
 
   useEffect(() => {
     dispatch(pageStateActions.setPageLoadingState(false));
-  },[dispatch])
+  }, [dispatch]);
   return (
     <Box
       sx={{
@@ -47,7 +47,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%" }}}
+                sx={{ width: { xs: "80%", md: "50%" }, height: { lg: "80%" } }}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -64,10 +64,10 @@ function AboutPage() {
                   item
                   xs={12}
                   textAlign="left"
-                  sx={{ padding: { sx: "20px 0px" }, margin: "20px" }}
+                  sx={{ padding: { xs: "20px 0px" }, margin: "10px" }}
                 >
                   <Typography
-                    fontSize={isTabletScreen ? "18px" : "16px"}
+                    sx={{ fontSize: { xs: "18px", lg: "18px" } }}
                     color="black"
                     className={spaceGrotesk.className}
                   >
@@ -133,7 +133,11 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%"},borderColor: "#FFFFFF"}}                
+                sx={{
+                  width: { xs: "80%", md: "50%" },
+                  height: { lg: "90%" },
+                  borderColor: "#FFFFFF",
+                }}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography
@@ -157,14 +161,15 @@ function AboutPage() {
                     className={spaceGrotesk.className}
                   >
                     MixMate is a cutting-edge cocktail app featuring an
-                    innovative tool that suggests recipes tailored to users&apos;
-                    available ingredients, fostering creativity and
+                    innovative tool that suggests recipes tailored to
+                    users&apos; available ingredients, fostering creativity and
                     experimentation. Users can craft and share original cocktail
                     recipes with a vibrant community, where enthusiasts connect,
                     rate recipes, and provide feedback that drives the
-                    platform&apos;s continuous evolution. This collaborative approach
-                    ensures MixMate remains a dynamic resource, adapting to the
-                    ever-changing tastes and trends of the cocktail world.
+                    platform&apos;s continuous evolution. This collaborative
+                    approach ensures MixMate remains a dynamic resource,
+                    adapting to the ever-changing tastes and trends of the
+                    cocktail world.
                   </Typography>
                   <br />
                 </Grid>
@@ -190,7 +195,7 @@ function AboutPage() {
               <Box
                 justifyContent="center"
                 alignContent="center"
-                sx={{ width: { xs: "80%", md: "50%" }, height: {lg:"60%" }}}
+                sx={{ width: { xs: "80%", md: "50%" }, height: { lg: "80%" } }}
               >
                 <Grid item xs={12} textAlign="center">
                   <Typography

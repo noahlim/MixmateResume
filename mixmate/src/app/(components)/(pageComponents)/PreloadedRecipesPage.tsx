@@ -136,10 +136,10 @@ function DefaultRecipesComponent({ applicationPage }) {
         query = { index: pageIndex };
       } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
         apiRoute = API_ROUTES.recipeShare;
-        query = { userid: user?.sub, publicflag: false };
+        query = { publicflag: false, socialflag: false};
       } else if (applicationPage === APPLICATION_PAGE.social) {
         apiRoute = API_ROUTES.recipeShare;
-        query = { publicflag: true };
+        query = { publicflag: true, socialflag: true };
       }
 
       makeRequest(apiRoute, REQ_METHODS.get, query, (response) => {

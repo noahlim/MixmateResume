@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import { Typography } from "@mui/material";
+import { Dela_Gothic_One } from "next/font/google";
+const delaGothicOne = Dela_Gothic_One({ subsets: ["latin"], weight: "400" });
 
 const StyledTypography = styled(Typography)<{ $isLargeScreen?: boolean, $isTabletScreen?: boolean, background_color?: string }>`
   color: #000;
   position: relative;
   text-decoration: none;
-  font-family: "Dela Gothic One";
   flex: 1 1 50%; 
   padding: 20px;
   z-index: 3;
@@ -35,6 +36,7 @@ const HoverTypography = ({ $isSmallMobileScreen, $isTabletScreen, $isLargeScreen
       background_color={backgroundColor}
       variant={variant}
       textAlign={alignTo}
+      className={delaGothicOne.className}
     >
       {children}
     </StyledTypography>

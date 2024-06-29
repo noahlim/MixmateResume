@@ -27,7 +27,6 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import { useTheme } from "@mui/material/styles";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import Chip from "@mui/material/Chip";
 import { Pagination } from "@mui/material";
 import { pageStateActions } from "lib/redux/pageStateSlice";
@@ -50,7 +49,6 @@ const AvailableRecipes = ({
   ingredient = null,
 }) => {
   const theme = useTheme();
-  const { user, error, isLoading } = useUser();
 
   const [pageIndexCount, setPageIndexCount] = useState(1);
   const [filteredAllRecipes, setFilteredRecipes] = useState([]);
@@ -163,11 +161,10 @@ const AvailableRecipes = ({
     dispatch(pageStateActions.setPageLoadingState(true));
     const criteria = isSingleIngredient
       ? {
-          userId: user.sub,
           singleIngredient: isSingleIngredient,
           ingredient: ingredient.strIngredient1,
         }
-      : { userId: user.sub };
+      : {};
     makeRequest(
       API_ROUTES.availableRecipes,
       REQ_METHODS.get,

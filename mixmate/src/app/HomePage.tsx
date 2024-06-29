@@ -17,7 +17,10 @@ import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
-
+import { Dela_Gothic_One } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
+const notoSans = Noto_Sans({ subsets: ["latin"], weight: "400" });
+const delaGothicOne = Dela_Gothic_One({ subsets: ["latin"], weight: "400" });
 function HomePage() {
   const isSmallMobileScreen = useMediaQuery((theme: any) =>
     theme.breakpoints.between("xs", "sm")
@@ -77,6 +80,7 @@ function HomePage() {
             <Grid item>
               <Box
                 component={Button}
+                className={delaGothicOne.className}
                 sx={{
                   width: "250px",
                   borderRadius: "50vh",
@@ -103,9 +107,12 @@ function HomePage() {
             <Grid item>
               <Box
                 component={Button}
+                className={delaGothicOne.className}
+
                 sx={{
                   width: "250px",
                   zIndex: 1,
+                  
                   borderRadius: "50vh",
                   backgroundColor: "white",
                   color: "black",
@@ -251,7 +258,7 @@ function HomePage() {
                           margin={2}
                           variant="h6"
                           position="relative"
-                          className="noto_sans"
+                          className={notoSans.className}
                           sx={{
                             zIndex: 10,
                             paddingRight: { md: "30%", xs: null },
@@ -320,7 +327,7 @@ function HomePage() {
                         <Typography
                           margin={2}
                           variant="h6"
-                          className="noto_sans"
+                          className={notoSans.className}
                           position="relative"
                           sx={{
                             zIndex: 10,
@@ -395,9 +402,7 @@ function HomePage() {
             <Grid item xs={12} textAlign="center">
               <Typography
                 variant="h3"
-                style={{
-                  fontFamily: "Dela Gothic one",
-                }}
+                className={delaGothicOne.className} 
               >
                 Join MixMate today!
               </Typography>
