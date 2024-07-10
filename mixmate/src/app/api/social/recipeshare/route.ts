@@ -119,8 +119,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
 
         const data = { allRecipes: updatedRecipes, length: totalCount };
         result.data = data;
-        result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
-        console.log('called');
+        result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";       
         return NextResponse.json(result, { status: 200 });
     } catch (err) {
         console.log(err);
