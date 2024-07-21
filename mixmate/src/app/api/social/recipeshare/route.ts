@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readRequestBody, Result, isNotSet } from "@/app/_utilities/_server/util";
 import * as dbRtns from "@/app/_utilities/_server/database/db_routines"
-import { userCollection, sharedRecipeCollection, recipeReviewCollection } from "@/app/_utilities/_server/database/config";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
+import { userCollection, sharedRecipeCollection, recipeReviewCollection, aws_access_key, aws_secret_key, bucket_name, bucket_region } from "@/app/_utilities/_server/database/config";
 import { rateLimit } from "@/app/_utilities/_server/rateLimiter";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { ObjectId } from "mongodb";
+const s3 = new S3Client({
+    credentials: {
+        accessKeyId: aws_access_key,
+        secretAccessKey: aws_secret_key
+    },
+    region: bucket_region
+});
+
 
 const isValidMixmateUrl = (url) => {
     try {
@@ -119,7 +129,7 @@ export const GET = withApiAuthRequired(async function getAllUserCustomRecipe(req
 
         const data = { allRecipes: updatedRecipes, length: totalCount };
         result.data = data;
-        result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";       
+        result.message = totalCount > 0 ? `${totalCount} recipes found!` : "No recipes found.";
         return NextResponse.json(result, { status: 200 });
     } catch (err) {
         console.log(err);
@@ -136,6 +146,7 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
     if (req.body) {
         const body = await readRequestBody(req.body);
 
+        console.log(body);
         if (!body) {
             return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
         }
@@ -156,6 +167,7 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
 
             let fileName = body.filename;
             if (!isValidMixmateUrl(fileName)) {
+                console.log(fileName);
                 return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
             }
 
@@ -274,6 +286,15 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
         //response is the object deleted
         response = await dbRtns.deleteOne(db, sharedRecipeCollection, { _id: drinkId });
         if (response) {
+            console.log(response);
+            const fileName = response.strDrinkThumb.split('/').pop();
+
+            const command = new DeleteObjectCommand({
+                Bucket: bucket_name,
+                Key: fileName
+            });
+
+            const s3Response = await s3.send(command);
             const result = new Result(true);
             result.message = "Selected recipe has been deleted successfully";
             return NextResponse.json(result, { status: 200 });

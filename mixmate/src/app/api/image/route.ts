@@ -3,6 +3,8 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { Result, generateRandomKey } from '@/app/_utilities/_server/util';
 
 import { aws_access_key, aws_secret_key, bucket_name, bucket_region } from '@/app/_utilities/_server/database/config';
+import { withApiAuthRequired } from '@auth0/nextjs-auth0';
+import { rateLimit } from '@/app/_utilities/_server/rateLimiter';
 
 const s3 = new S3Client({
     credentials: {
@@ -28,14 +30,24 @@ async function uploadFileToS3(file, fileName) {
     return result;
 }
 
-export const POST = (async function postImageOnDatabase(request) {
+export const POST = withApiAuthRequired(async function postImageOnDatabase(request: NextRequest) {
+    if (!rateLimit(request, 100, 15 * 60 * 1000)) { // 100 requests per 15 minutes
+        return NextResponse.json({ error: 'You have made too many requests. Please try again later.' }, { status: 429 })
+    }
+
     try {
 
         const formData = await request.formData();
         const file = formData.get("file");
 
-        if (!file) {
-            return NextResponse.json({ error: "File is required." }, { status: 400 });
+        if (!file || typeof file === 'string') {
+            return NextResponse.json({ error: "File is required and must be a File object." }, { status: 400 });
+        }
+        if(file.size > 1024 * 1024 * 5) {
+            return NextResponse.json({ error: "File size must be less than 5MB." }, { status: 400 });
+        }
+        if(!file.type.startsWith('image')) {
+            return NextResponse.json({ error: "File must be an image." }, { status: 400 });
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
@@ -57,7 +69,7 @@ export const POST = (async function postImageOnDatabase(request) {
     }
 })
 
-export async function GET(req: NextRequest) {
+export const GET = withApiAuthRequired(async function GET(req: NextRequest) {
     try {
         const fileName = req.nextUrl.searchParams.get('filename');
         if (!fileName) {
@@ -83,10 +95,10 @@ export async function GET(req: NextRequest) {
         console.error(error);
         return NextResponse.json({ error: 'Failed to retrieve file.' }, { status: 500 });
     }
-}
+})
 
 
-export async function DELETE(req: NextRequest) {
+export const DELETE = withApiAuthRequired(async function DELETE(req: NextRequest) {
     try {
         const fileName = req.nextUrl.searchParams.get('filename');
         if (!fileName) {
@@ -105,4 +117,4 @@ export async function DELETE(req: NextRequest) {
         console.error(error);
         return NextResponse.json({ error: 'Failed to delete file.' }, { status: 500 });
     }
-}
+})

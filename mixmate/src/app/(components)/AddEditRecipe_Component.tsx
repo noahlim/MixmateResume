@@ -34,6 +34,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { generateRandomKey } from "../_utilities/_server/util";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { ToastMessage } from "interface/toastMessage";
+import { set } from "@auth0/nextjs-auth0/dist/session";
 
 function AddEditRecipe_Component({
   openModal,
@@ -57,7 +58,7 @@ function AddEditRecipe_Component({
   const [currentRecipeRowId, setCurrentRecipeRowId] = useState(null);
   const [currentRecipeType, setCurrentRecipeType] = useState(null);
   const [currentRecipeName, setCurrentRecipeName] = useState("");
-  const [currentRecipeImage, setCurrentRecipeImage] = useState(null);
+  const [currentRecipeImage, setCurrentRecipeImage] = useState<File>(null);
   const [currentRecipeCategory, setCurrentRecipeCategory] = useState("");
   const [currentRecipeAlcoholicType, setCurrentRecipeAlcoholicType] =
     useState("");
@@ -69,6 +70,7 @@ function AddEditRecipe_Component({
   const [currentRecipeVisibility, setCurrentRecipeVisibility] = useState(
     applicationPage === APPLICATION_PAGE.social ? "public" : "private"
   );
+  const [imageTypeLimitationText, setImageTypeLimitationText] = useState("");
   useEffect(() => {
     // Load data if recipe ID exist
     let loadRecipeIfExist = () => {
@@ -122,18 +124,40 @@ function AddEditRecipe_Component({
     setCurrentRecipeRowId(null);
     setCurrentRecipeType(null);
     setCurrentRecipeName("");
-    setCurrentRecipeImage("");
+    setCurrentRecipeImage(null);
     setCurrentRecipeCategory("");
     setCurrentRecipeAlcoholicType("");
     setCurrentRecipeGlass("");
     setCurrentRecipeIngredients([]);
     setCurrentRecipeMeasure([]);
     setCurrentRecipeInstructions("");
+    setImageTypeLimitationText("");
     dispatch(pageStateActions.setPageLoadingState(false));
     closeModal();
   };
   let fileSelectImage_onChange = (file) => {
-    setCurrentRecipeImage(file);
+    console.log(file);
+    if (file) {
+      // Check if the file type starts with 'image/'
+
+      if (!file.type.startsWith("image/")) {
+        setImageTypeLimitationText("Please select an image file.");
+        dispatch(pageStateActions.setPageLoadingState(false));
+      }
+
+      // Optional: Check file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        setImageTypeLimitationText(
+          "File is too large. Please select an image smaller than 5MB."
+        );
+        dispatch(pageStateActions.setPageLoadingState(false));
+      }
+      setImageTypeLimitationText("");
+      setCurrentRecipeImage(file);
+    } else {
+      setImageTypeLimitationText("");
+    }
   };
 
   let handleAddNewIngredientButtonClick = () => {
@@ -191,14 +215,16 @@ function AddEditRecipe_Component({
     let toastMessageObject: ToastMessage;
 
     // Validate data
-    if (isNotSet(currentRecipeName))
+    if (isNotSet(currentRecipeName)) {
       toastMessageObject = {
         open: true,
         message: "Recipe name is required",
         severity: SEVERITY.Warning,
         title: "New Recipe",
       };
-    else if (
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      return;
+    } else if (
       isNotSet(currentRecipeIngredients) ||
       currentRecipeIngredients.length === 0
     ) {
@@ -209,6 +235,7 @@ function AddEditRecipe_Component({
         title: "New Recipe",
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      return;
     } else if (isNotSet(currentRecipeInstructions)) {
       toastMessageObject = {
         open: true,
@@ -217,6 +244,44 @@ function AddEditRecipe_Component({
         title: "New Recipe",
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      return;    
+    } else if (isNotSet(currentRecipeImage)) {
+      toastMessageObject = {
+        open: true,
+        message: isNotSet(imageTypeLimitationText) ? "Select an image for your recipe" : imageTypeLimitationText,
+        severity: SEVERITY.Warning,
+        title: "New Recipe",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      return;
+
+    } else if (!currentRecipeImage.type.startsWith("image/")) {
+      setImageTypeLimitationText("Please select an image file.");
+      toastMessageObject = {
+        open: true,
+        message: "Please select an image file.",
+        severity: SEVERITY.Warning,
+        title: "Image Error",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      dispatch(pageStateActions.setPageLoadingState(false));
+
+      return;
+    } // 5MB
+    else if (currentRecipeImage.size > 5 * 1024 * 1024) {
+      setImageTypeLimitationText(
+        "File is too large. Please select an image smaller than 5MB."
+      );
+      toastMessageObject = {
+        open: true,
+        message: "File is too large. Please select an image smaller than 5MB.",
+        severity: SEVERITY.Warning,
+        title: "Image Error",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      dispatch(pageStateActions.setPageLoadingState(false));
+
+      return;
     } else if (
       currentRecipeType === "Favorite" &&
       JSON.stringify(currentRecipeIngredients) ===
@@ -247,7 +312,12 @@ function AddEditRecipe_Component({
             });
         }
         let fileName = "";
-        if (currentRecipeImage) {
+        if (
+          currentRecipeImage &&
+          currentRecipeImage.type.startsWith("image/") &&
+          currentRecipeImage.size < 5 * 1024 * 1024
+        ) {
+          setImageTypeLimitationText("");
           const formData = new FormData();
           formData.append("file", currentRecipeImage);
           await makeRequest(
@@ -259,9 +329,19 @@ function AddEditRecipe_Component({
                 fileName = response.data;
               }
             }
-          );
+          ).catch((error) => {
+            displayErrorSnackMessage(error, dispatch);
+
+          }).finally(() => {
+            dispatch(pageStateActions.setPageLoadingState(false));
+          });
         }
 
+        console.log(fileName);
+        if(fileName === "") {
+          dispatch(pageStateActions.setPageLoadingState(false));
+          return;
+        }
         let newRecipeInfo = {
           idDrink: generateRandomKey(12),
           strDrink: currentRecipeName,
@@ -381,7 +461,6 @@ function AddEditRecipe_Component({
                   onChange={(e) => setCurrentRecipeCategory(e.target.value)}
                 >
                   {categories?.map((cat, index) => {
-                   
                     return (
                       <MenuItem key={index} value={cat}>
                         {cat}
@@ -446,6 +525,11 @@ function AddEditRecipe_Component({
               onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
             />
           </label>
+          <br />
+
+          <Typography variant="caption" color="error">
+            {imageTypeLimitationText}
+          </Typography>
           <Divider sx={{ m: "30px 10px 0px 0px" }} />
           <DialogTitle>Preparation</DialogTitle>
           <Table>
