@@ -193,7 +193,6 @@ const MyIngredients = () => {
       setFilteredDisplayedIngredients(matchedIngredients);
       updateIngredientsState(matchedIngredients);
     } catch (e) {
-      console.log(e);
     }
   };
   const updateIngredientsState = (ingredients: Ingredient[]) => {

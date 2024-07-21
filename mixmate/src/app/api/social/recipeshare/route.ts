@@ -146,7 +146,6 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
     if (req.body) {
         const body = await readRequestBody(req.body);
 
-        console.log(body);
         if (!body) {
             return NextResponse.json({ error: 'Error : Body is Empty' }, { status: 404 });
         }
@@ -167,7 +166,6 @@ export const POST = withApiAuthRequired(async function postRecipeOnSocial(req: N
 
             let fileName = body.filename;
             if (!isValidMixmateUrl(fileName)) {
-                console.log(fileName);
                 return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
             }
 
@@ -286,7 +284,6 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(req:
         //response is the object deleted
         response = await dbRtns.deleteOne(db, sharedRecipeCollection, { _id: drinkId });
         if (response) {
-            console.log(response);
             const fileName = response.strDrinkThumb.split('/').pop();
 
             const command = new DeleteObjectCommand({

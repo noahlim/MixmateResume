@@ -244,18 +244,20 @@ function AddEditRecipe_Component({
         title: "New Recipe",
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      return;    
+      return;
     } else if (isNotSet(currentRecipeImage)) {
       toastMessageObject = {
         open: true,
-        message: isNotSet(imageTypeLimitationText) ? "Select an image for your recipe" : imageTypeLimitationText,
+        message: isNotSet(imageTypeLimitationText)
+          ? "Select an image for your recipe"
+          : imageTypeLimitationText,
         severity: SEVERITY.Warning,
         title: "New Recipe",
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
       return;
-
-    } else if (!currentRecipeImage.type.startsWith("image/")) {
+      //validate only if the recipes is created for the first time
+    } else if (!recipeId && !currentRecipeImage.type.startsWith("image/")) {
       setImageTypeLimitationText("Please select an image file.");
       toastMessageObject = {
         open: true,
@@ -268,7 +270,7 @@ function AddEditRecipe_Component({
 
       return;
     } // 5MB
-    else if (currentRecipeImage.size > 5 * 1024 * 1024) {
+    else if (!recipeId && currentRecipeImage.size > 5 * 1024 * 1024) {
       setImageTypeLimitationText(
         "File is too large. Please select an image smaller than 5MB."
       );
@@ -329,16 +331,16 @@ function AddEditRecipe_Component({
                 fileName = response.data;
               }
             }
-          ).catch((error) => {
-            displayErrorSnackMessage(error, dispatch);
-
-          }).finally(() => {
-            dispatch(pageStateActions.setPageLoadingState(false));
-          });
+          )
+            .catch((error) => {
+              displayErrorSnackMessage(error, dispatch);
+            })
+            .finally(() => {
+              dispatch(pageStateActions.setPageLoadingState(false));
+            });
         }
 
-        console.log(fileName);
-        if(fileName === "") {
+        if (fileName === "") {
           dispatch(pageStateActions.setPageLoadingState(false));
           return;
         }
@@ -384,6 +386,38 @@ function AddEditRecipe_Component({
             dispatch(pageStateActions.setPageLoadingState(false));
           });
       } else {
+        //if image has been updated the currentRecipeImage will be a file,
+        //else it will be a string
+        let fileName = "";
+        if (currentRecipeImage.type) {
+          if (
+            currentRecipeImage &&
+            currentRecipeImage.type.startsWith("image/") &&
+            currentRecipeImage.size < 5 * 1024 * 1024
+          ) {
+            setImageTypeLimitationText("");
+            const formData = new FormData();
+            formData.append("file", currentRecipeImage);
+            await makeRequest(
+              API_ROUTES.image,
+              REQ_METHODS.post,
+              formData,
+              (response) => {
+                if (
+                  response.message === "File has been added to the storage."
+                ) {
+                  fileName = response.data;
+                }
+              }
+            )
+              .catch((error) => {
+                displayErrorSnackMessage(error, dispatch);
+              })
+              .finally(() => {
+                dispatch(pageStateActions.setPageLoadingState(false));
+              });
+          }
+        }
         // Update recipe info
         const ingredientsArray = [];
         for (let i = 0; i < currentRecipeIngredients.length; i++) {
@@ -398,7 +432,7 @@ function AddEditRecipe_Component({
           _id: currentRecipeRowObjectId,
           idDrink: currentRecipeRowId,
           strDrink: currentRecipeName,
-          strDrinkThumb: currentRecipeImage,
+          strDrinkThumb: isNotSet(fileName) ? currentRecipeImage : fileName,
           strCategory: currentRecipeCategory,
           strAlcoholic: currentRecipeAlcoholicType,
           strInstructions: currentRecipeInstructions,
