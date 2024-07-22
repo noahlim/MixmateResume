@@ -136,7 +136,6 @@ function AddEditRecipe_Component({
     closeModal();
   };
   let fileSelectImage_onChange = (file) => {
-    console.log(file);
     if (file) {
       // Check if the file type starts with 'image/'
 
