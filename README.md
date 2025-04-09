@@ -4,4 +4,6 @@
 
 **Mixmate** is a cocktail sharing platform developed with Next.js 14 by Hongseok Kim & Noah Lim. Jump to your journey for creation of creative cocktails here! 
 
+#PLEASE NOTE THE DB IS NO LONGER CONNECTED PROPERLY SO ONLY FRONTEND FUNCITONALIY WILL BE WORKING as of APRIL 2025
+
 ---
