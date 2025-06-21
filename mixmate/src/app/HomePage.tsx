@@ -4,435 +4,485 @@ import {
   Button,
   Grid,
   Typography,
+  Container,
+  Card,
+  CardContent,
+  IconButton,
+  Chip,
 } from "@mui/material";
-import { API_ROUTES, APPLICATION_PAGE} from "@/app/_utilities/_client/constants";
+import {
+  API_ROUTES,
+  APPLICATION_PAGE,
+} from "@/app/_utilities/_client/constants";
 import { useMediaQuery } from "@mui/material";
-import StarShape from "@/app/(components)/(shapeComponents)/StarShape";
-import FloatingBoxWrapper from "@/app/(components)/(shapeComponents)/FloatingBox";
-import Image from "next/image";
-import HoverTypography from "@/app/(components)/(shapeComponents)/HoverTypography";
-import BlogSection from "@/app/(components)/(shapeComponents)/BlogSection";
 import { useRouter } from "next/navigation";
-import MarqueeScroll from "@/app/(components)/(shapeComponents)/MarqueeAnimation";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
-import { Dela_Gothic_One } from "next/font/google";
-import { Noto_Sans } from "next/font/google";
-const notoSans = Noto_Sans({ subsets: ["latin"], weight: "400" });
-const delaGothicOne = Dela_Gothic_One({ subsets: ["latin"], weight: "400" });
+import { BiDrink, BiWine, BiBeer, BiLemon } from "react-icons/bi";
+import {
+  MdFavorite,
+  MdRestaurantMenu,
+  MdLocalBar,
+  MdTrendingUp,
+  MdStar,
+  MdPeople,
+  MdSecurity,
+} from "react-icons/md";
+import { BsArrowRight, BsArrowLeft } from "react-icons/bs";
+import { GiCherry, GiAppleCore } from "react-icons/gi";
+
 function HomePage() {
-  const isSmallMobileScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("xs", "sm")
-  );
-  const isMediumMobileScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("sm", "md")
-  );
-  const isTabletScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.between("md,lg")
-  );
-  const isLargeScreen = useMediaQuery((theme: any) =>
-    theme.breakpoints.up("lg")
+  const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery((theme: any) =>
+    theme.breakpoints.between("md", "lg")
   );
   const router = useRouter();
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(pageStateActions.setPageLoadingState(false));
+  }, [dispatch]);
 
-  })
+  const features = [
+    {
+      icon: <BiDrink size={48} />,
+      title: "Discover Recipes",
+      description:
+        "Explore thousands of cocktail recipes from classics to modern creations",
+      color: "var(--accent-gold)",
+    },
+    {
+      icon: <MdFavorite size={48} />,
+      title: "Save Favorites",
+      description: "Build your personal collection of favorite cocktails",
+      color: "var(--accent-pink)",
+    },
+    {
+      icon: <MdRestaurantMenu size={48} />,
+      title: "Create Your Own",
+      description: "Design and share your unique cocktail creations",
+      color: "var(--accent-teal)",
+    },
+    {
+      icon: <MdLocalBar size={48} />,
+      title: "Shopping Lists",
+      description: "Generate shopping lists for your cocktail ingredients",
+      color: "var(--accent-purple)",
+    },
+  ];
+
+  const stats = [
+    { number: "1000+", label: "Recipes", icon: <BiDrink /> },
+    { number: "50+", label: "Ingredients", icon: <BiWine /> },
+    { number: "24/7", label: "Available", icon: <BiBeer /> },
+    { number: "4.9★", label: "Rating", icon: <MdStar /> },
+  ];
+
   return (
-    <>
-      <Grid container direction="column" justifyContent="center">
-        <Grid
-          container
-          item
-          direction="column"
-          justifyContent="center"
-          alignItems="center"
-          position="relative"
-          style={{
-            backgroundImage: "url(/welcomepage/background3.jpg)",
-            overflowX: "hidden",
+    <Box sx={{ minHeight: "100vh", pt: 2 }}>
+      {/* Hero Section */}
+      <Container maxWidth="xl">
+        <Box
+          sx={{
+            minHeight: "90vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <Image
-            src="/mixmatelogo.png"
-            alt="MixMate Logo"
-            decoding="async"
-            width={704}
-            height={354}
-            style={{
-              width: isLargeScreen || isTabletScreen ? "40%" : "80%",
-              zIndex: 1,
+          {/* Background Elements */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "10%",
+              left: "10%",
+              opacity: 0.1,
+              animation: "pulse 3s ease-in-out infinite",
             }}
-          />
-          <Grid
-            md={12}
-            xs={12}
-            justifyContent="center"
-            alignContent="center"
-            style={{
-              padding: 20,
-            }}
-            item
-            container
           >
-            <Grid item>
-              <Box
-                component={Button}
-                className={delaGothicOne.className}
-                sx={{
-                  width: "250px",
-                  borderRadius: "50vh",
-                  backgroundColor: "white",
-                  color: "black",
-                  fontFamily: "Dela Gothic one",
-                  fontSize: "15px",
-                  marginBottom: { xs: "0px", sm: "20px" },
-                  marginRight: { md: "50px", xs: "0px" },
-                  transition:
-                    "color .3s ease-in-out, box-shadow .3s ease-in-out",
-                  boxShadow: "inset 0 0 0 0 #54b3d6",
-                  zIndex: 1,
-                  ":hover": {
-                    boxShadow: "inset 250px 0 0 0 #54b3d6",
-                    color: "white",
-                  },
-                }}
-                onClick={() => router.push(APPLICATION_PAGE.recipes)}
-              >
-                Check The Recipes
-              </Box>
-            </Grid>
-            <Grid item>
-              <Box
-                component={Button}
-                className={delaGothicOne.className}
+            <GiAppleCore size={80} color="var(--accent-orange)" />
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "20%",
+              right: "15%",
+              opacity: 0.1,
+              animation: "pulse 3s ease-in-out infinite 1s",
+            }}
+          >
+            <BiLemon size={60} color="var(--accent-orange)" />
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: "20%",
+              left: "15%",
+              opacity: 0.1,
+              animation: "pulse 3s ease-in-out infinite 2s",
+            }}
+          >
+            <BiLemon size={70} color="var(--accent-gold)" />
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: "15%",
+              right: "10%",
+              opacity: 0.1,
+              animation: "pulse 3s ease-in-out infinite 0.5s",
+            }}
+          >
+            <GiCherry size={50} color="var(--accent-pink)" />
+          </Box>
 
-                sx={{
-                  width: "250px",
-                  zIndex: 1,
-                  
-                  borderRadius: "50vh",
-                  backgroundColor: "white",
-                  color: "black",
-                  fontFamily: "Dela Gothic one",
-                  fontSize: "15px",
-                  marginBottom: { sm: "20px", xs: "0px" },
-                  marginLeft: { md: "50px", xs: "0px" },
-                  transition:
-                    "color .3s ease-in-out, box-shadow .3s ease-in-out",
-                  boxShadow: "inset 0 0 0 0 #54b3d6",
-                  ":hover": {
-                    boxShadow: "inset 250px 0 0 0 #54b3d6",
-                    color: "white",
-                  },
-                }}
-                onClick={() => router.push(APPLICATION_PAGE.myMixMate)}
-              >
-                Get Your Own Mixes
-              </Box>
-            </Grid>                          
-          </Grid>
-        </Grid>
-        <Grid
-          container
-          item
-          justifyContent="start"
-          alignContent="center"
-          display="flex"
-          style={{
-            overflowX: "hidden",
-            backgroundColor: "#F1FEFD",
-          }}
-          sm={12}
-        >
-          <Grid
-            container
-            item
-            display="flex"
-            justifyContent="start"
-            alignItems="center"
-          >
-            <Grid item xs={9}>
-              <Box
-                display="flex"
-                flexDirection={isSmallMobileScreen ? "row" : "column"}
-                justifyContent="flex-start"
-                alignItems="left"
-                sx={{ padding: 3,
-                  flexDirection: { xs: "row", sm: "column" },
-                 }}
-              >
-                <FloatingBoxWrapper
-                  $isSmallMobileScreen={isSmallMobileScreen}
-                  $isTabletScreen={isTabletScreen}
-                  $isMediumMobileScreen={isMediumMobileScreen}
-                />
-                <HoverTypography
-                  $isSmallMobileScreen={isSmallMobileScreen}
-                  $isLargeScreen={isLargeScreen}
-                  $isTabletScreen={isTabletScreen}
-                  backgroundColor={"#F8C471"}
-                  alignTo={"left"}
-                  variant={isLargeScreen ? "h2" : isTabletScreen ? "h1" : "h3"}
-                >
-                  MixMate-Serving You the Perfect Drink!
-                </HoverTypography>
-              </Box>
-            </Grid>
-            <Box
+          {/* Main Content */}
+          <Box className="animate-fade-in" sx={{ zIndex: 2, mb: 6 }}>
+            <Typography
+              variant="h1"
+              className="heading-1 font-display"
               sx={{
-                position: "absolute",
-                right: 30,
-                top: {md: 250, xs:130},
-                width: {md: "35%", xs:"50%"},
-                height: {md: "35%", xs:"50%"},
-                zIndex: 0,
+                fontSize: { xs: "2.5rem", sm: "3rem", md: "4rem", lg: "5rem" },
+                mb: 3,
+                background: "var(--gold-gradient)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                fontWeight: 700,
               }}
             >
-              <StarShape width="100%" height="100%" />
-            </Box>
-          </Grid>
-          <Grid
-            container
-            justifyContent={{ xs: "center", md: "flex-end" }}
-            alignItems="center"
-          >
-            <Grid item xs={12} md={6}>
-              <Grid
-                container
-                sx={{justifyContent: {xs: "center", md: "flex-end"}}}
-              >
-                <Image
-                  alt="Orange on a plate"
-                  width={513}
-                  height={486}
-                  decoding="async"
-                  src="/welcomepage/orange_on_plate.png"
-                  style={{
-                    width: isTabletScreen
-                      ? "80%"
-                      : isMediumMobileScreen || isSmallMobileScreen
-                      ? "90%"
-                      : "60%",
-                    height: "100%",
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Grid
-                container
-                justifyContent="center"
-                alignContent="start"
-                style={{ padding: "10px" }}
-              >
-                <Grid item xs={12}>
-                  <Grid container spacing={2}>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{ textAlign: { lg: "left", xs: "center"}}}
-                    >
-                      <HoverTypography
-                        $isSmallMobileScreen={isSmallMobileScreen}
-                        $isTabletScreen={isTabletScreen}
-                        $isLargeScreen={isLargeScreen}
-                        backgroundColor={"#FBFB7C"}
-                        alignTo={"left"}
-                        variant={isLargeScreen ? "h3" : "h4"}
-                      >
-                        A cocktail treasure-trove packed with vibrant and unique
-                        recipes
-                      </HoverTypography>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{ textAlign: "left" }}
-                      style={{ paddingRight: "20px" }}
-                    >
-                      <Box width="100%">
-                        <Typography
-                          margin={2}
-                          variant="h6"
-                          position="relative"
-                          className={notoSans.className}
-                          sx={{
-                            zIndex: 10,
-                            paddingRight: { md: "30%", xs: null },
-                          }}
-                        >
-                          From the classic ambrosial segments to the adventurous
-                          concoctions, relish endless possibilities.
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid
-            container
-            justifyContent={{ xs: "center", md: "flex-end" }}
-            alignItems="center"
-            style={{ paddingBottom: "30px" }}
-            spacing={3}
-          >
-            <Grid item xs={12} md={7} order={{ xs: 2, md: 1 }}>
-              <Grid
-                container
-                justifyContent="center"
-                alignContent="start"
-                style={{ padding: "10px" }}
-              >
-                <Grid item xs={12}>
-                  <Grid container>
-                    <Grid
-                      item
-                      container
-                      xs={12}
-                      sx={{
-                        textAlign: { xs: "center", md: "right" },
-                      }}
-                      justifyContent="flex-end"
-                      alignContent="center"
-                    >
-                      <Grid item>
-                        <HoverTypography
-                          $isSmallMobileScreen={isSmallMobileScreen}
-                          $isTabletScreen={isTabletScreen}
-                          $isLargeScreen={isLargeScreen}
-                          backgroundColor={"#BAFE84"}
-                          alignTo={
-                            isSmallMobileScreen || isMediumMobileScreen
-                              ? "left"
-                              : "right"
-                          }
-                          variant={isLargeScreen ? "h3" : "h4"}
-                        >
-                          Tailor-made experience that fits your preferences
-                        </HoverTypography>
-                      </Grid>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{ textAlign: "right" }}
-                      style={{ paddingRight: "20px" }}
-                    >
-                      <Box width="100%">
-                        <Typography
-                          margin={2}
-                          variant="h6"
-                          className={notoSans.className}
-                          position="relative"
-                          sx={{
-                            zIndex: 10,
-                            paddingLeft: { xs: null, md: "30%" },
-                          }}
-                        >
-                          Create, share and savour your cocktail stories at
-                          MixMate.
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} md={5} order={{ xs: 1, md: 2 }}>
-              <Grid
-                container
+              MixMate
+            </Typography>
+            <Typography
+              variant="h2"
+              className="heading-2 font-display"
+              sx={{
+                fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" },
+                mb: 4,
+                color: "var(--gray-200)",
+                maxWidth: "800px",
+                mx: "auto",
+                fontWeight: 600,
+              }}
+            >
+              Your Ultimate Cocktail Companion
+            </Typography>
+            <Typography
+              className="text-lg font-primary"
+              sx={{
+                mb: 6,
+                maxWidth: "600px",
+                mx: "auto",
+                color: "var(--gray-300)",
+                fontWeight: 400,
+              }}
+            >
+              Discover, create, and share amazing cocktail recipes. From classic
+              favorites to innovative creations, MixMate is your gateway to
+              mixology mastery.
+            </Typography>
+
+            {/* CTA Buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 3,
+                justifyContent: "center",
+                alignItems: "center",
+                mb: 8,
+              }}
+            >
+              <Button
+                onClick={() => router.push(APPLICATION_PAGE.recipes)}
                 sx={{
-                  justifyContent: {
-                    xs: "center",
-                    md: "flex-start",
+                  background: "var(--primary-gradient)",
+                  color: "var(--white)",
+                  px: 4,
+                  py: 2,
+                  borderRadius: 3,
+                  fontSize: "1.1rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  boxShadow: "var(--shadow-lg)",
+                  "&:hover": {
+                    background: "var(--secondary-gradient)",
+                    transform: "translateY(-3px)",
+                    boxShadow: "var(--shadow-xl)",
                   },
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                <Image
-                  alt="leaf"
-                  width={548}
-                  height={455}
-                  decoding="async"
-                  src="/welcomepage/leaf.png"
-                  style={{
-                    width: isTabletScreen || isLargeScreen ? "80%" : "90%",
-                    height: "100%",
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
+                <MdRestaurantMenu />
+                Explore Recipes
+                <BsArrowRight />
+              </Button>
+              <Button
+                onClick={() => router.push(APPLICATION_PAGE.myMixMate)}
+                sx={{
+                  background: "var(--glass-bg)",
+                  color: "var(--white)",
+                  border: "2px solid var(--glass-border)",
+                  px: 4,
+                  py: 2,
+                  borderRadius: 3,
+                  fontSize: "1.1rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  backdropFilter: "blur(16px)",
+                  "&:hover": {
+                    background: "var(--accent-gradient)",
+                    borderColor: "var(--accent-gold)",
+                    transform: "translateY(-3px)",
+                  },
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <MdFavorite />
+                My MixMate
+                <BsArrowRight />
+              </Button>
+            </Box>
+          </Box>
+
+          {/* Stats Section */}
           <Grid
-            item
             container
-            justifyContent="center"
-            alignContent="center"
             spacing={3}
-            style={{
-              padding: "150px 0px",
+            className="animate-fade-in"
+            sx={{ zIndex: 2 }}
+          >
+            {stats.map((stat, index) => (
+              <Grid item xs={6} md={3} key={index}>
+                <Card
+                  className="glass-card"
+                  sx={{
+                    textAlign: "center",
+                    p: 2,
+                    background: "var(--glass-bg)",
+                    backdropFilter: "blur(16px)",
+                    border: "1px solid var(--glass-border)",
+                  }}
+                >
+                  <CardContent sx={{ p: "16px !important" }}>
+                    <Box sx={{ color: "var(--accent-gold)", mb: 1 }}>
+                      {stat.icon}
+                    </Box>
+                    <Typography
+                      variant="h4"
+                      className="font-primary"
+                      sx={{
+                        fontWeight: 700,
+                        color: "var(--white)",
+                        mb: 0.5,
+                      }}
+                    >
+                      {stat.number}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      className="font-primary"
+                      sx={{ color: "var(--gray-300)", fontWeight: 400 }}
+                    >
+                      {stat.label}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Container>
+
+      {/* Features Section */}
+      <Box
+        sx={{
+          py: 8,
+          background: "var(--glass-bg)",
+          backdropFilter: "blur(16px)",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box className="animate-fade-in" sx={{ textAlign: "center", mb: 6 }}>
+            <Typography
+              variant="h2"
+              className="heading-2 font-display"
+              sx={{
+                fontSize: { xs: "2rem", md: "2.5rem" },
+                mb: 2,
+                fontWeight: 600,
+              }}
+            >
+              Why Choose MixMate?
+            </Typography>
+            <Typography
+              className="text-lg font-primary"
+              sx={{
+                color: "var(--gray-300)",
+                maxWidth: "600px",
+                mx: "auto",
+                fontWeight: 400,
+              }}
+            >
+              Everything you need to become a master mixologist in one beautiful
+              app
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
+            {features.map((feature, index) => (
+              <Grid item xs={12} sm={6} lg={3} key={index}>
+                <Card
+                  className="glass-card animate-fade-in"
+                  sx={{
+                    height: "100%",
+                    background: "var(--glass-bg)",
+                    backdropFilter: "blur(16px)",
+                    border: "1px solid var(--glass-border)",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "var(--shadow-2xl)",
+                    },
+                  }}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CardContent sx={{ textAlign: "center", p: 4 }}>
+                    <Box
+                      sx={{
+                        color: feature.color,
+                        mb: 3,
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography
+                      variant="h5"
+                      className="font-primary"
+                      sx={{
+                        fontWeight: 600,
+                        color: "var(--white)",
+                        mb: 2,
+                      }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography
+                      className="text-base font-primary"
+                      sx={{ color: "var(--gray-300)", fontWeight: 400 }}
+                    >
+                      {feature.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box
+        sx={{
+          py: 8,
+          background: "var(--primary-gradient)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box
+            className="animate-fade-in"
+            sx={{
+              textAlign: "center",
+              position: "relative",
+              zIndex: 2,
             }}
           >
-            <Grid container position="relative">
-              <Grid item>
-                <Box
-                  position="absolute"
-                  bottom="5px"
-                  left="100px"
-                  sx={{ width: { xs: "70%", md: "40%" } }}
-                >
-                  <Image
-                    width={514}
-                    height={483}
-                    decoding="async"
-                    src="/welcomepage/orange.png"
-                    alt="Orange"
-                    style={{
-                      opacity: 0.3,
-                      zIndex: -1,
-                    }}
-                  />
-                </Box>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} textAlign="center">
-              <Typography
-                variant="h3"
-                className={delaGothicOne.className} 
-              >
-                Join MixMate today!
-              </Typography>
-            </Grid>
-            <Grid item xs={12} textAlign="center">
-              <Button
-                variant="contained"
-                onClick={() => (window.location.href = API_ROUTES.login)}
-                style={{
-                  fontFamily: "sans-serif",
-                  color: "white",
-                  backgroundColor: "black",
-                  borderColor: "black",
-                  borderRadius: "50vh",
-                  padding: "10px 20px",
-                  margin: "10px",
-                }}
-              >
-                Sign Up
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-        <MarqueeScroll direction="left"/>
+            <Typography
+              variant="h2"
+              className="heading-2 font-display"
+              sx={{
+                fontSize: { xs: "2rem", md: "3rem" },
+                mb: 3,
+                color: "var(--white)",
+                fontWeight: 600,
+              }}
+            >
+              Ready to Start Mixing?
+            </Typography>
+            <Typography
+              className="text-lg font-primary"
+              sx={{
+                mb: 4,
+                color: "var(--gray-100)",
+                maxWidth: "600px",
+                mx: "auto",
+                fontWeight: 400,
+              }}
+            >
+              Join thousands of cocktail enthusiasts and start creating amazing
+              drinks today
+            </Typography>
+            <Button
+              href={API_ROUTES.login}
+              variant="contained"
+              sx={{
+                background: "var(--white)",
+                color: "var(--primary-dark)",
+                px: 6,
+                py: 2,
+                borderRadius: 3,
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: "var(--shadow-xl)",
+                "&:hover": {
+                  background: "var(--gray-100)",
+                  transform: "translateY(-3px)",
+                  boxShadow: "var(--shadow-2xl)",
+                },
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <MdPeople />
+              Join MixMate
+              <BsArrowRight />
+            </Button>
+          </Box>
+        </Container>
 
-        <Box bgcolor="white">
-          <BlogSection />
-        </Box>
-      </Grid>
-    </>
+        {/* Background Pattern */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            opacity: 0.1,
+            background:
+              "radial-gradient(circle at 20% 80%, var(--accent-gold) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--accent-pink) 0%, transparent 50%)",
+          }}
+        />
+      </Box>
+    </Box>
   );
 }
 

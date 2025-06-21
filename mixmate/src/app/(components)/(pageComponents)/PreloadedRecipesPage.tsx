@@ -126,33 +126,33 @@ function DefaultRecipesComponent({ applicationPage }) {
 
   let loadAllRecipes = () => {
     dispatch(pageStateActions.setPageLoadingState(true));
-      let apiRoute;
-      let query;
-      if (applicationPage === APPLICATION_PAGE.recipes) {
-        query = { criteria: API_DRINK_ROUTES.allRecipes };
-        apiRoute = API_ROUTES.drinks;
-      } else if (applicationPage === APPLICATION_PAGE.favourites) {
-        apiRoute = API_ROUTES.favourite;
-        query = { index: pageIndex };
-      } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
-        apiRoute = API_ROUTES.recipeShare;
-        query = { publicflag: false, socialflag: false};
-      } else if (applicationPage === APPLICATION_PAGE.social) {
-        apiRoute = API_ROUTES.recipeShare;
-        query = { publicflag: true, socialflag: true };
-      }
+    let apiRoute;
+    let query;
+    if (applicationPage === APPLICATION_PAGE.recipes) {
+      query = { criteria: API_DRINK_ROUTES.allRecipes };
+      apiRoute = API_ROUTES.drinks;
+    } else if (applicationPage === APPLICATION_PAGE.favourites) {
+      apiRoute = API_ROUTES.favourite;
+      query = { index: pageIndex };
+    } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
+      apiRoute = API_ROUTES.recipeShare;
+      query = { publicflag: false, socialflag: false };
+    } else if (applicationPage === APPLICATION_PAGE.social) {
+      apiRoute = API_ROUTES.recipeShare;
+      query = { publicflag: true, socialflag: true };
+    }
 
-      makeRequest(apiRoute, REQ_METHODS.get, query, (response) => {
-        setAllRecipes(response.data.allRecipes);
-        setRecipesFiltered(response.data.allRecipes);
-        setDisplayedRecipes(response.data.allRecipes.slice(0, itemsPerPage));
+    makeRequest(apiRoute, REQ_METHODS.get, query, (response) => {
+      setAllRecipes(response.data.allRecipes);
+      setRecipesFiltered(response.data.allRecipes);
+      setDisplayedRecipes(response.data.allRecipes.slice(0, itemsPerPage));
+    })
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
       })
-        .catch((error) => {
-          displayErrorSnackMessage(error, dispatch);
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
     // } else {
     //   dispatch(pageStateActions.setPageLoadingState(false));
     //   setRecipesFiltered(allRecipes);
@@ -170,8 +170,8 @@ function DefaultRecipesComponent({ applicationPage }) {
         setDisplayedRecipes(myRecipes.slice(0, itemsPerPage));
         setMyRecipesFilterOnSocial(true);
       } else {
-        setRecipesFiltered(allRecipes);
-        setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
+        setRecipesFiltered(allRecipes || []);
+        setDisplayedRecipes((allRecipes || []).slice(0, itemsPerPage));
         setMyRecipesFilterOnSocial(false);
       }
     } else {
@@ -188,13 +188,13 @@ function DefaultRecipesComponent({ applicationPage }) {
       loadAllRecipes();
       dispatch(pageStateActions.setPageLoadingState(false));
     } else if (newfilterAndCriteriaInput.length === 0) {
-      setRecipesFiltered(allRecipes);
-      setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
+      setRecipesFiltered(allRecipes || []);
+      setDisplayedRecipes((allRecipes || []).slice(0, itemsPerPage));
       dispatch(pageStateActions.setPageLoadingState(false));
     } else {
       let filteredRecipes;
       if (filteringLogic === "Or") {
-        filteredRecipes = allRecipes.filter((recipe) => {
+        filteredRecipes = (allRecipes || []).filter((recipe) => {
           return newfilterAndCriteriaInput.some((filter) => {
             switch (filter.filter) {
               case FILTER_CRITERIA.category:
@@ -213,10 +213,10 @@ function DefaultRecipesComponent({ applicationPage }) {
                   filter.criteria.toLowerCase()
                 );
               case FILTER_CRITERIA.ingredient:
-                return recipe.ingredients.some(
-                  (ing) =>
-                    ing.ingredient.toLowerCase().includes(
-                    filter.criteria.toLowerCase())
+                return recipe.ingredients.some((ing) =>
+                  ing.ingredient
+                    .toLowerCase()
+                    .includes(filter.criteria.toLowerCase())
                 );
               case FILTER_CRITERIA.recipeName:
                 return recipe.strDrink
@@ -228,7 +228,7 @@ function DefaultRecipesComponent({ applicationPage }) {
           });
         });
       } else if (filteringLogic === "And") {
-        filteredRecipes = allRecipes.filter((recipe) => {
+        filteredRecipes = (allRecipes || []).filter((recipe) => {
           return newfilterAndCriteriaInput.every((filter) => {
             switch (filter.filter) {
               case FILTER_CRITERIA.category:
@@ -276,7 +276,7 @@ function DefaultRecipesComponent({ applicationPage }) {
   }, []);
 
   const onFilterClear = () => {
-    setRecipesFiltered(allRecipes);
+    setRecipesFiltered(allRecipes || []);
     setFilterAndCriteria([]);
   };
 

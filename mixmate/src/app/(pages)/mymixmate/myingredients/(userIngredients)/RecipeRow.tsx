@@ -33,7 +33,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
-import Image from "next/image";
+// import Image from "next/image";
 import { ToastMessage } from "interface/toastMessage";
 import { Sarabun, Vollkorn } from "next/font/google";
 const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
@@ -122,7 +122,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                 <Box marginTop={2}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
-                      <Image
+                      <img
                         src={
                           drink.strDrinkThumb
                             ? drink.strDrinkThumb

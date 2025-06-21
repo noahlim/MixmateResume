@@ -11,25 +11,23 @@ function RootPage({ children }) {
   const theme = createTheme({
     palette: {
       primary: {
-        main: "#ACCEFF",
+        main: "#667eea",
       },
       secondary: {
-        main: "#FFFFFF",
+        main: "#764ba2",
       },
     },
     typography: {
       fontFamily: [
-        '-apple-system',
-        'BlinkMacSystemFont',
+        "Inter",
+        "-apple-system",
+        "BlinkMacSystemFont",
         '"Segoe UI"',
-        'Roboto',
+        "Roboto",
         '"Helvetica Neue"',
-        'Arial',
-        'sans-serif',
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-      ].join(','),
+        "Arial",
+        "sans-serif",
+      ].join(","),
     },
   });
 
@@ -37,11 +35,9 @@ function RootPage({ children }) {
     return (
       <ReduxProvider>
         <ThemeProvider theme={theme}>
-            <MenuBar />
-
-            <HomePage />
+          <MenuBar />
+          <HomePage />
           <Footer />
-
         </ThemeProvider>
       </ReduxProvider>
     );
@@ -51,12 +47,11 @@ function RootPage({ children }) {
   return (
     <ReduxProvider>
       <ThemeProvider theme={theme}>
-          <Box sx={{backgroundColor:"#E6FFFF"}}>
-            <MenuBar />
-
-            {children}
-          </Box>
-          <Footer />
+        <Box sx={{ minHeight: "100vh" }}>
+          <MenuBar />
+          {children}
+        </Box>
+        <Footer />
       </ThemeProvider>
     </ReduxProvider>
   );

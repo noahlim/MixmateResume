@@ -17,6 +17,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "mixmate2.s3.us-east-2.amazonaws.com",
+        port: "",
+        pathname: "/*",
+      },
+      {
+        protocol: "https",
         hostname: "s.gravatar.com",
         port: "",
         pathname: "/*",
@@ -56,24 +62,19 @@ const nextConfig = {
         hostname: "t3.ftcdn.net",
         port: "",
         pathname: "/*",
-      },{
+      },
+      {
         protocol: "https",
         hostname: "encrypted-tbn0.gstatic.com",
         port: "",
         pathname: "/*",
-      }
-    ],
-    domains: [
-      "www.thecocktaildb.com",
-      "mixmatebucket.s3.us-east-2.amazonaws.com",
-      "s.gravatar.com",
-      "aem.lcbo.com",
-      "i0.wp.com",
-      "images.weserv.nl",
-      "lh3.googleusercontent.com",
-      "pub.highlight.io",
-      "t3.ftcdn.net",
-      "encrypted-tbn0.gstatic.com"
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+        port: "",
+        pathname: "/*",
+      },
     ],
   },
   async rewrites() {

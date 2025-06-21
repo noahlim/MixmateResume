@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import LCBOShoppingItemCard from "./LCBOShoppingItemCard";
-import WalmartShoppingItemCard from "./WalmartShoppingItemCard";
+import NoFrillsShoppingItemCard from "./NoFrillsShoppingItemCard";
 
 import { Button, Typography } from "@mui/material";
 import { capitalizeWords } from "@/app/_utilities/_client/utilities";
@@ -34,7 +34,7 @@ const ShoppingItemCardGridDialog = ({ open, onClose, products, ing }) => {
           style={{ fontSize: "1.2em", fontWeight: "bold" }}
         >
           Available Items of {capitalizeWords(ing.strIngredient1)} on{" "}
-          {ing.strAlcoholic ? "LCBO" : "Walmart"}
+          {ing.strAlcoholic ? "LCBO" : "No Frills"}
         </Typography>
         <IconButton
           aria-label="close"
@@ -56,14 +56,14 @@ const ShoppingItemCardGridDialog = ({ open, onClose, products, ing }) => {
               ? `https://www.lcbo.com/en/catalogsearch/result/#q=${encodeURIComponent(
                   ing.strIngredient1
                 )}&t=Products&sort=relevancy&layout=card`
-              : `https://www.walmart.ca/en/search?q=${encodeURIComponent(
+              : `https://www.nofrills.ca/search?search-bar=${encodeURIComponent(
                   ing.strIngredient1
                 )}`,
             "_blank"
           );
         }}
       >
-        View More Items on {ing.strAlcoholic ? "LCBO" : "Walmart"} Website
+        View More Items on {ing.strAlcoholic ? "LCBO" : "No Frills"} Website
       </Button>
       <DialogContent
         sx={{
@@ -85,7 +85,7 @@ const ShoppingItemCardGridDialog = ({ open, onClose, products, ing }) => {
                   {ing.strAlcoholic ? (
                     <LCBOShoppingItemCard product={product} />
                   ) : (
-                    <WalmartShoppingItemCard product={product} />
+                    <NoFrillsShoppingItemCard product={product} />
                   )}
                 </Grid>
               ))}

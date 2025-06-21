@@ -244,7 +244,7 @@ function AddEditRecipe_Component({
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
       return;
-    } else if (isNotSet(currentRecipeImage)) {
+    } else if (isNotSet(currentRecipeImage) && recipeId) {
       toastMessageObject = {
         open: true,
         message: isNotSet(imageTypeLimitationText)
@@ -254,34 +254,6 @@ function AddEditRecipe_Component({
         title: "New Recipe",
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      return;
-      //validate only if the recipes is created for the first time
-    } else if (!recipeId && !currentRecipeImage.type.startsWith("image/")) {
-      setImageTypeLimitationText("Please select an image file.");
-      toastMessageObject = {
-        open: true,
-        message: "Please select an image file.",
-        severity: SEVERITY.Warning,
-        title: "Image Error",
-      };
-      dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      dispatch(pageStateActions.setPageLoadingState(false));
-
-      return;
-    } // 5MB
-    else if (!recipeId && currentRecipeImage.size > 5 * 1024 * 1024) {
-      setImageTypeLimitationText(
-        "File is too large. Please select an image smaller than 5MB."
-      );
-      toastMessageObject = {
-        open: true,
-        message: "File is too large. Please select an image smaller than 5MB.",
-        severity: SEVERITY.Warning,
-        title: "Image Error",
-      };
-      dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      dispatch(pageStateActions.setPageLoadingState(false));
-
       return;
     } else if (
       currentRecipeType === "Favorite" &&
@@ -315,33 +287,69 @@ function AddEditRecipe_Component({
         let fileName = "";
         if (
           currentRecipeImage &&
+          currentRecipeImage.type &&
           currentRecipeImage.type.startsWith("image/") &&
           currentRecipeImage.size < 5 * 1024 * 1024
         ) {
           setImageTypeLimitationText("");
           const formData = new FormData();
           formData.append("file", currentRecipeImage);
-          await makeRequest(
-            API_ROUTES.image,
-            REQ_METHODS.post,
-            formData,
-            (response) => {
-              if (response.message === "File has been added to the storage.") {
-                fileName = response.data;
+          try {
+            await makeRequest(
+              API_ROUTES.image,
+              REQ_METHODS.post,
+              formData,
+              (response) => {
+                if (
+                  response.message === "File has been added to the storage."
+                ) {
+                  fileName = response.data;
+                }
               }
-            }
-          )
-            .catch((error) => {
-              displayErrorSnackMessage(error, dispatch);
-            })
-            .finally(() => {
-              dispatch(pageStateActions.setPageLoadingState(false));
-            });
+            );
+          } catch (error) {
+            console.log("Image upload failed, using existing image:", error);
+            // If image upload fails, we'll keep the existing image
+            fileName = "";
+          }
+        } else if (
+          currentRecipeImage &&
+          currentRecipeImage.type &&
+          !currentRecipeImage.type.startsWith("image/")
+        ) {
+          setImageTypeLimitationText("Please select an image file.");
+          toastMessageObject = {
+            open: true,
+            message: "Please select an image file.",
+            severity: SEVERITY.Warning,
+            title: "Image Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
+          dispatch(pageStateActions.setPageLoadingState(false));
+          return;
+        } else if (
+          currentRecipeImage &&
+          currentRecipeImage.size > 5 * 1024 * 1024
+        ) {
+          setImageTypeLimitationText(
+            "File is too large. Please select an image smaller than 5MB."
+          );
+          toastMessageObject = {
+            open: true,
+            message:
+              "File is too large. Please select an image smaller than 5MB.",
+            severity: SEVERITY.Warning,
+            title: "Image Error",
+          };
+          dispatch(pageStateActions.setToastMessage(toastMessageObject));
+          dispatch(pageStateActions.setPageLoadingState(false));
+          return;
         }
 
         if (fileName === "") {
-          dispatch(pageStateActions.setPageLoadingState(false));
-          return;
+          // Use a default image if no image was uploaded or upload failed
+          fileName =
+            "https://mixmate2.s3.us-east-2.amazonaws.com/not-found-icon.png";
         }
         let newRecipeInfo = {
           idDrink: generateRandomKey(12),
@@ -397,24 +405,24 @@ function AddEditRecipe_Component({
             setImageTypeLimitationText("");
             const formData = new FormData();
             formData.append("file", currentRecipeImage);
-            await makeRequest(
-              API_ROUTES.image,
-              REQ_METHODS.post,
-              formData,
-              (response) => {
-                if (
-                  response.message === "File has been added to the storage."
-                ) {
-                  fileName = response.data;
+            try {
+              await makeRequest(
+                API_ROUTES.image,
+                REQ_METHODS.post,
+                formData,
+                (response) => {
+                  if (
+                    response.message === "File has been added to the storage."
+                  ) {
+                    fileName = response.data;
+                  }
                 }
-              }
-            )
-              .catch((error) => {
-                displayErrorSnackMessage(error, dispatch);
-              })
-              .finally(() => {
-                dispatch(pageStateActions.setPageLoadingState(false));
-              });
+              );
+            } catch (error) {
+              console.log("Image upload failed, using existing image:", error);
+              // If image upload fails, we'll keep the existing image
+              fileName = "";
+            }
           }
         }
         // Update recipe info

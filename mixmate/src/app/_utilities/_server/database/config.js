@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 config();
 export const atlas = process.env.DBURL;
-export const appdb =  process.env.DB;
+export const appdb = process.env.DB;
 export const port = process.env.PORT;
 export const graphql = process.env.GRAPHQLURL;
 export const userCollection = process.env.USERCOLLECTION;
@@ -17,6 +17,6 @@ export const bucket_name = process.env.BUCKET_NAME;
 export const edge_secret_key = process.env.EDGE_STORE_SECRET_KEY;
 export const edge_access_key = process.env.EDGE_STORE_ACCESS_KEY;
 export const recipeReviewCollection = process.env.RECIPES_REVIEWS_COLLECTION;
-export const walmart_api_key = process.env.WALMART_API_KEY;
-export const walmart_api_host = process.env.WALMART_API_HOST;
+export const nofrills_api_key = process.env.NOFRILLS_API_KEY;
+export const nofrills_api_host = process.env.NOFRILLS_API_HOST;
 export const ingredientCollection = process.env.INGREDIENTCOLLECTION;

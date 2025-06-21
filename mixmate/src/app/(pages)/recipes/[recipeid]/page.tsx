@@ -29,7 +29,7 @@ import LocalBarIcon from "@mui/icons-material/LocalBar";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { notFound, useRouter } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 import { Lilita_One, Sarabun, Vollkorn } from "next/font/google";
 const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
@@ -140,11 +140,10 @@ const RecipeById = ({ params }) => {
                 className={vollkorn.className}
               >
                 {recipe.strDrink}
-                
               </Typography>
             </Grid>
             <Grid item xs={12} sm={9} lg={4}>
-              <Image
+              <img
                 style={{ borderRadius: "7%" }}
                 src={
                   recipe.strDrinkThumb
@@ -162,7 +161,7 @@ const RecipeById = ({ params }) => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  width: {xs:"200px", md:"250px"},
+                  width: { xs: "200px", md: "250px" },
                   mb: 3,
                 }}
               >
@@ -193,7 +192,7 @@ const RecipeById = ({ params }) => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  width: {xs:"200px", md:"250px"},
+                  width: { xs: "200px", md: "250px" },
                   mb: 3,
                 }}
               >
@@ -224,8 +223,8 @@ const RecipeById = ({ params }) => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  width: {xs:"200px", md:"250px"},
-                  mb: 5 
+                  width: { xs: "200px", md: "250px" },
+                  mb: 5,
                 }}
               >
                 <Typography

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import FormControl from "@mui/material/FormControl";
 import {
   Grid,
@@ -192,8 +192,7 @@ const MyIngredients = () => {
       setFilterState(tempFilterState);
       setFilteredDisplayedIngredients(matchedIngredients);
       updateIngredientsState(matchedIngredients);
-    } catch (e) {
-    }
+    } catch (e) {}
   };
   const updateIngredientsState = (ingredients: Ingredient[]) => {
     const selectedIngredients: Ingredient[] = ingredients.slice(0, 9);
@@ -219,12 +218,12 @@ const MyIngredients = () => {
     handleFilterChange(tempFilterState);
   };
 
-  let loadUserIngredients = () => {
+  const loadUserIngredients = useCallback(() => {
     if (!userIngredients || userIngredients.length < 1) {
       makeRequest(
         API_ROUTES.userIngredients,
         REQ_METHODS.get,
-        { },
+        {},
         (response) => {
           dispatch(
             userInfoActions.setUserIngredients(response.data.ingredients)
@@ -235,9 +234,9 @@ const MyIngredients = () => {
       });
     }
     dispatch(pageStateActions.setPageLoadingState(false));
-  };
+  }, [userIngredients, dispatch]);
 
-  let loadIngredients = () => {
+  const loadIngredients = useCallback(() => {
     dispatch(pageStateActions.setPageLoadingState(true));
     //when the page has not been loaded before and the
     //ingredients are not in the redux store
@@ -304,11 +303,11 @@ const MyIngredients = () => {
       loadUserIngredients();
     }
     //eslint-disable-next-line
-  };
+  }, [allIngredients, displayedCardItems, dispatch, loadUserIngredients]);
 
   useEffect(() => {
     loadIngredients();
-  }, []);
+  }, [loadIngredients]);
 
   return (
     <>
@@ -331,10 +330,7 @@ const MyIngredients = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setIsWarningModalOpen(false)}
-            color="primary"
-          >
+          <Button onClick={() => setIsWarningModalOpen(false)} color="primary">
             Ok!
           </Button>
         </DialogActions>

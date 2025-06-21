@@ -19,9 +19,7 @@ import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
-import {
-  makeRequest,
-} from "@/app/_utilities/_client/utilities";
+import { makeRequest } from "@/app/_utilities/_client/utilities";
 import {
   API_DRINK_ROUTES,
   API_ROUTES,
@@ -85,22 +83,21 @@ function FilterComponent({
   filteringLogic,
   setFilteringLogic,
   myRecipesFilterOnSocial,
-  loadMyRecipes = null
+  loadMyRecipes = null,
 }) {
-
-  const alphabeticallySortedRecipes = allRecipes.sort(
-    (a,b)=>{
-      const recipeA = a.strDrink.toLowerCase();
-      const recipeB = b.strDrink.toLowerCase();
-      if(recipeA < recipeB){
-        return -1;
-      }
-      if(recipeA>recipeB){
-        return 1;
-      }
-      return 0;
-    }
-  )
+  const alphabeticallySortedRecipes = allRecipes
+    ? allRecipes.sort((a, b) => {
+        const recipeA = a.strDrink.toLowerCase();
+        const recipeB = b.strDrink.toLowerCase();
+        if (recipeA < recipeB) {
+          return -1;
+        }
+        if (recipeA > recipeB) {
+          return 1;
+        }
+        return 0;
+      })
+    : [];
   const dispatch = useDispatch();
   const allIngredients = useSelector((state: any) => state.recipe.ingredients);
   const categories = useSelector((state: any) => state.recipe.categories);
@@ -385,11 +382,7 @@ function FilterComponent({
 
         <Box sx={{ p: 2.5 }}>
           <FormControl>
-            <RadioGroup
-              row
-              onChange={setFilteringLogic}
-              value={filteringLogic}
-            >
+            <RadioGroup row onChange={setFilteringLogic} value={filteringLogic}>
               <FormControlLabel value="Or" control={<Radio />} label="Or" />
               <FormControlLabel value="And" control={<Radio />} label="And" />
             </RadioGroup>
@@ -436,8 +429,8 @@ function FilterComponent({
             {!isIngredientStringValid && (
               <FormHelperText sx={{ color: "red" }}>
                 Ingredient can only Latin alphabets, numbers, and commas -
-                separate them with commas when adding multiple. (e.g. &quot;Vodka,
-                Gin&quot;)
+                separate them with commas when adding multiple. (e.g.
+                &quot;Vodka, Gin&quot;)
               </FormHelperText>
             )}
           </FormControl>
@@ -552,11 +545,13 @@ function FilterComponent({
           </Button>
         </CardContent>
         {applicationPage === APPLICATION_PAGE.social && (
-          <CardContent style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}>
+          <CardContent
+            style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
+          >
             <Button
               onClick={loadMyRecipes}
               variant="outlined"
-              startIcon={<EditIcon />}              
+              startIcon={<EditIcon />}
               sx={{
                 marginRight: 0.7,
                 color: "#81E500",
@@ -568,7 +563,9 @@ function FilterComponent({
                 borderColor: "#81E500",
               }}
             >
-              {myRecipesFilterOnSocial ? "Check All Recipes" : "Curate My Recipes" }
+              {myRecipesFilterOnSocial
+                ? "Check All Recipes"
+                : "Curate My Recipes"}
             </Button>
           </CardContent>
         )}

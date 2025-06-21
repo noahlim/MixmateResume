@@ -41,7 +41,7 @@ import Paper from "@mui/material/Paper";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Image from "next/image";
+// import Image from "next/image";
 import { ToastMessage } from "interface/toastMessage";
 import { FaEarthAmericas } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
@@ -261,7 +261,7 @@ const RecipeComponentRow = ({
           >
             <Grid container spacing={1}>
               <Grid item xs={12} lg={6} display="flex" justifyContent="center">
-                <Image
+                <img
                   src={
                     drink?.strDrinkThumb
                       ? drink?.strDrinkThumb
@@ -408,9 +408,11 @@ const RecipeComponentRow = ({
                       color="error"
                       onClick={() =>
                         messageBoxDeleteRecipe(drink?._id, drink?.recipeName)
-                      }                      
+                      }
                     >
-                      <DeleteForeverIcon sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
+                      <DeleteForeverIcon
+                        sx={{ fontSize: { xs: "30px", lg: "40px" } }}
+                      />
                     </IconButton>
                   </Tooltip>
                 )}
@@ -421,7 +423,9 @@ const RecipeComponentRow = ({
                       color="success"
                       onClick={() => handleModalShareRecipeOpen(drink)}
                     >
-                      <ShareIcon  sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
+                      <ShareIcon
+                        sx={{ fontSize: { xs: "30px", lg: "40px" } }}
+                      />
                     </IconButton>
                   </Tooltip>
                 )}
@@ -431,7 +435,7 @@ const RecipeComponentRow = ({
                       color="primary"
                       onClick={() => modalAddEditRecipe_onOpen(drink?._id)}
                     >
-                      <EditIcon  sx={{fontSize:{xs:"30px", lg:"40px"}}}/>
+                      <EditIcon sx={{ fontSize: { xs: "30px", lg: "40px" } }} />
                     </IconButton>
                   </Tooltip>
                 )}

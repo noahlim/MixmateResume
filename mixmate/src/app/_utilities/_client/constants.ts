@@ -1,4 +1,4 @@
-import { AlertColor } from '@mui/material/Alert';
+import { AlertColor } from "@mui/material/Alert";
 // const END_POINT = "https://mixmate-one.vercel.app/api";
 // const MIXMATE_DOMAIN = 'https://mixmate-one.vercel.app/';
 // const END_POINT = "http://localhost:3000/api";
@@ -7,76 +7,75 @@ const END_POINT = process.env.NEXT_PUBLIC_END_POINT;
 const MIXMATE_DOMAIN = process.env.NEXT_PUBLIC_MIXMATE_DOMAIN;
 
 const SEVERITY: Record<string, AlertColor> = {
-  Info: 'info',
-  Success: 'success',
-  Warning: 'warning',
-  Error: 'error'
+  Info: "info",
+  Success: "success",
+  Warning: "warning",
+  Error: "error",
 };
 const MAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
 const S3_BUCKET_URL = (fileName) =>
-  `https://mixmatebucket.s3.us-east-2.amazonaws.com/${fileName}`;
+  `https://mixmate2.s3.us-east-2.amazonaws.com/${fileName}`;
 
-const APPLICATION_PAGE =
-{
-  root: '/',
-  home: '/',
-  about: '/about',
-  profile: '/profile',
-  recipes: '/recipes',
-  myMixMate: '/mymixmate',
-  favourites: '/mymixmate/favourites',
-  myRecipes: '/mymixmate/myrecipes',
-  social: '/mymixmate/socialrecipes',
-  myIngredients: '/mymixmate/myingredients',
-}
+const APPLICATION_PAGE = {
+  root: "/",
+  home: "/",
+  about: "/about",
+  profile: "/profile",
+  recipes: "/recipes",
+  myMixMate: "/mymixmate",
+  favourites: "/mymixmate/favourites",
+  myRecipes: "/mymixmate/myrecipes",
+  social: "/mymixmate/socialrecipes",
+  myIngredients: "/mymixmate/myingredients",
+};
 
 const API_ROUTES = {
-  user: '/user',
-  userIngredients: '/user/ingredient',
-  login: '/api/auth/login',
-  logout: '/api/auth/logout',
-  userJson: '/api/auth/me',
-  drinks: '/drinks',
-  favourite: '/user/favourite',
-  drinkbyid: '/drinkbyid',  
-  mongoLogin: '/auth/loginmongo',
-  recipeReviews: '/social/recipereviews',
-  recipeShare: '/social/recipeshare',  
-  sharedRecipeById: '/social/recipeshare/recipeid',
-  image: '/image',
-  sharedRecipesFilter: '/social/filtered',
-  drinksByFilter: '/drinks/filter',
-  favouritesByFilter : '/user/favourite/filtered',
-  walmartItems: '/shoppinglist/walmart',
-  lcboItems: '/shoppinglist/lcbo',
-  availableRecipes: '/user/availablerecipes',
-}
+  user: "/user",
+  userIngredients: "/user/ingredient",
+  login: "/api/auth/login",
+  logout: "/api/auth/logout",
+  userJson: "/api/auth/me",
+  drinks: "/drinks",
+  favourite: "/user/favourite",
+  drinkbyid: "/drinkbyid",
+  mongoLogin: "/auth/loginmongo",
+  recipeReviews: "/social/recipereviews",
+  recipeShare: "/social/recipeshare",
+  sharedRecipeById: "/social/recipeshare/recipeid",
+  image: "/image",
+  sharedRecipesFilter: "/social/filtered",
+  drinksByFilter: "/drinks/filter",
+  favouritesByFilter: "/user/favourite/filtered",
+  nofrillsItems: "/shoppinglist/nofrills",
+  lcboItems: "/shoppinglist/lcbo",
+  availableRecipes: "/user/availablerecipes",
+};
 
 const API_DRINK_ROUTES = {
-  alcoholicTypes: 'alcoholicTypes',
-  glassTypes: 'glassTypes',
-  ingredients: 'ingredients',
-  allRecipes: 'allRecipes',
-  drinkCategories: 'drinkCategories',
-  filteredDrinks: 'filteredDrinks',
-  recipeName: 'recipeName',
-}
+  alcoholicTypes: "alcoholicTypes",
+  glassTypes: "glassTypes",
+  ingredients: "ingredients",
+  allRecipes: "allRecipes",
+  drinkCategories: "drinkCategories",
+  filteredDrinks: "filteredDrinks",
+  recipeName: "recipeName",
+};
 
 const FILTER_CRITERIA = {
   category: "Category",
   alcoholic: "Alcoholic",
   glass: "Glass",
   ingredient: "Ingredient",
-  recipeName : "Recipe Name",
+  recipeName: "Recipe Name",
   filterLogic: "Filter Logic",
-}
+};
 const REQ_METHODS = {
   get: "GET" as "GET",
   post: "POST" as "POST",
   delete: "DELETE" as "DELETE",
-  put: "PUT" as "PUT"
-}
+  put: "PUT" as "PUT",
+};
 const ingredientsByAlcoholic = {
   Alcoholic: [
     "Light rum",
@@ -184,4 +183,16 @@ const ingredientsByAlcoholic = {
     "7-Up",
   ],
 };
-export { END_POINT, SEVERITY, MAIL_REGEX, APPLICATION_PAGE, MIXMATE_DOMAIN, ingredientsByAlcoholic, REQ_METHODS, API_ROUTES, API_DRINK_ROUTES, S3_BUCKET_URL, FILTER_CRITERIA }
+export {
+  END_POINT,
+  SEVERITY,
+  MAIL_REGEX,
+  APPLICATION_PAGE,
+  MIXMATE_DOMAIN,
+  ingredientsByAlcoholic,
+  REQ_METHODS,
+  API_ROUTES,
+  API_DRINK_ROUTES,
+  S3_BUCKET_URL,
+  FILTER_CRITERIA,
+};

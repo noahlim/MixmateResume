@@ -16,7 +16,7 @@ import {
   displayErrorSnackMessage,
   makeRequest,
 } from "@/app/_utilities/_client/utilities";
-import Image from "next/image";
+// import Image from "next/image";
 import { LuCupSoda } from "react-icons/lu";
 import { LiaCocktailSolid } from "react-icons/lia";
 import { Sarabun } from "next/font/google";
@@ -70,7 +70,7 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
 
       const apiEndpoint = ingredient.strAlcoholic
         ? API_ROUTES.lcboItems
-        : API_ROUTES.walmartItems;
+        : API_ROUTES.nofrillsItems;
 
       makeRequest(
         apiEndpoint,
@@ -156,12 +156,12 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
         };
         const tempIngredients = [...userIngredients];
         tempIngredients.push({
-          strIngredient1: ingredient.strIngredient1,
+          strIngredient1: ingredient.strIngredient1 || "",
           strIngredientThumb: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-            ingredient.strIngredient1
+            ingredient.strIngredient1 || ""
           )}.png`,
 
-          strAlcoholic: ingredient.strAlcoholic,
+          strAlcoholic: ingredient.strAlcoholic || false,
         });
         //adding the new item to the redux state
         dispatch(userInfoActions.setUserIngredients(tempIngredients));
@@ -189,12 +189,14 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
           backgroundColor: "#F5F5F5",
         }}
         //to prevent error, convert boolean to string
-        isalcoholic={ingredient.strAlcoholic.toString()}
+        isalcoholic={
+          ingredient.strAlcoholic ? ingredient.strAlcoholic.toString() : "false"
+        }
       >
         <Box sx={{ display: "flex", justifyContent: "end", padding: "10px" }}>
           <Tooltip
             title={`This item is ${
-              ingredient.strAlcoholic ? "alcoholic." : "is non-alcoholic."
+              ingredient.strAlcoholic ? "alcoholic." : "non-alcoholic."
             }`}
           >
             <IconButton>
@@ -206,11 +208,11 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
             </IconButton>
           </Tooltip>
         </Box>
-        <Image
+        <img
           src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-            ingredient.strIngredient1
+            ingredient.strIngredient1 || ""
           )}.png`}
-          alt={ingredient.strIngredient1}
+          alt={ingredient.strIngredient1 || "Ingredient"}
           height={400}
           width={400}
         />
@@ -222,7 +224,9 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
                 style={{ fontSize: "25px" }}
                 className={sarabun.className}
               >
-                {capitalizeWords(ingredient.strIngredient1)}
+                {capitalizeWords(
+                  ingredient.strIngredient1 || "Unknown Ingredient"
+                )}
               </Typography>
             </Grid>
             <Grid
@@ -292,19 +296,19 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
                   }
                   sx={{
                     width: "100%",
-                    marginTop:2,
+                    marginTop: 2,
                     backgroundColor: "#FFFFFF !important",
-                      "&:hover": {
-                        backgroundColor: "#DFDFDF !important",
-                      },
-                      "&:focus": {
-                        backgroundColor: "#DADADA !important",
-                      },
+                    "&:hover": {
+                      backgroundColor: "#DFDFDF !important",
+                    },
+                    "&:focus": {
+                      backgroundColor: "#DADADA !important",
+                    },
                   }}
                 >
                   {ingredient.strAlcoholic
                     ? "View Items on LCBO"
-                    : "View Items on Walmart"}
+                    : "View Items on No Frills"}
                 </Button>
               </Stack>
             </Grid>

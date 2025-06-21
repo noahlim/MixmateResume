@@ -8,7 +8,7 @@ import { Typography, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Image from "next/image";
+// import Image from "next/image";
 import { Sarabun } from "next/font/google";
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
@@ -93,7 +93,7 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
                       pt: 1,
                     }}
                   >
-                    <Image
+                    <img
                       src={
                         review.userPictureUrl
                           ? review.userPictureUrl
