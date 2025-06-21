@@ -321,8 +321,8 @@ const Footer = () => {
                   textAlign: { xs: "center", sm: "left" },
                 }}
               >
-                © {currentYear} MixMate. All rights reserved. Created by
-                Hongseok Kim
+                © {currentYear} MixMate. All rights reserved. Created by Noah
+                Lim
               </Typography>
             </Grid>
 
