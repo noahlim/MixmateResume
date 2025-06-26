@@ -1,7 +1,5 @@
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
-import { API_ROUTES } from "./_utilities/_client/constants";
-import RootPage from "./page";
 import { ErrorBoundary, HighlightInit } from "@highlight-run/next/client";
 import ErrorPage from "./(components)/global/ErrorPage";
 import { Poppins, Dancing_Script } from "next/font/google";
@@ -47,13 +45,10 @@ export default function RootLayout({ children }) {
         lang="en"
         className={`${poppins.variable} ${dancingScript.variable}`}
       >
-        <UserProvider
-          loginUrl={API_ROUTES.login}
-          profileUrl={API_ROUTES.userJson}
-        >
+        <UserProvider>
           <body className="antialiased">
             <ErrorBoundary customDialog={<ErrorPage />}>
-              <RootPage>{children}</RootPage>
+              {children}
             </ErrorBoundary>
           </body>
         </UserProvider>
