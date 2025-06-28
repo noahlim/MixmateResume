@@ -21,6 +21,7 @@ import {
   Paper,
   Button,
   Typography,
+  AlertColor,
 } from "@mui/material";
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import { useDispatch } from "react-redux";
@@ -157,7 +158,7 @@ function DefaultRecipesComponent({ applicationPage }) {
       const toastMessageObject = {
         title: "Authentication Required",
         message: "Please log in to access this page.",
-        severity: "warning",
+        severity: "warning" as AlertColor,
         open: true,
       };
       dispatch(pageStateActions.setToastMessage(toastMessageObject));
@@ -199,7 +200,7 @@ function DefaultRecipesComponent({ applicationPage }) {
         const toastMessageObject = {
           title: "Recipes",
           message: `Some recipes were not found and have been removed from the list.`,
-          severity: "warning",
+          severity: "warning" as AlertColor,
           open: true,
         };
         dispatch(pageStateActions.setToastMessage(toastMessageObject));
