@@ -241,7 +241,10 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
               borderRadius: 8,
               background: "#fff",
             }}
-            onError={(e) => (e.target.style.display = "none")}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+            }}
           />
           <Typography variant="body2" sx={{ color: "#fff" }}>
             {ingredient.strAlcoholic ? "Alcoholic" : "Non-Alcoholic"}
