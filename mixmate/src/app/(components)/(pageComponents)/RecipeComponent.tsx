@@ -696,10 +696,11 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
 
         {/* Sharing Dialog */}
         <SharingDialog
-          open={modalShareRecipeOpen}
-          onClose={() => setModalShareRecipeOpen(false)}
-          recipe={selectedRecipeToShare}
-          onVisibilityChange={handleRecipeVisibility}
+          modalShareRecipeOpen={modalShareRecipeOpen}
+          setModalShareRecipeOpen={setModalShareRecipeOpen}
+          selectedRecipeToShare={selectedRecipeToShare}
+          sharingUrl={sharingUrl}
+          setSharingUrl={setSharingUrl}
         />
       </Box>
       <RecipeDetailModal
