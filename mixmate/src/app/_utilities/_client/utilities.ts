@@ -3,41 +3,105 @@ import { END_POINT, SEVERITY } from "./constants";
 import { Dispatch } from "redux";
 
 type FetchOptions = {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
   body?: FormData | string;
 };
 
 const displayErrorSnackMessage = (error: any, dispatch: Dispatch) => {
-  dispatch(pageStateActions.setToastMessage({
-    title: "Error",
-    message: error.message,
-    severity: SEVERITY.Error,
-    open: true,
-  }));
-}
+  dispatch(
+    pageStateActions.setToastMessage({
+      title: "Error",
+      message: error.message,
+      severity: SEVERITY.Error,
+      open: true,
+    })
+  );
+};
 
-function jsonToQueryString(baseUrl: string, apiRoute: string, params: Record<string, string> | null = null): string {
+function jsonToQueryString(
+  baseUrl: string,
+  apiRoute: string,
+  params: Record<string, string> | null = null
+): string {
   const url = new URL("api" + apiRoute, baseUrl);
   url.search = new URLSearchParams(params).toString();
   return url.href;
 }
 
-async function executeFetch(url: string, options: RequestInit, funOk?: (data: any) => void, funErr?: (error: Error) => void): Promise<void> {
-  try {
-    const response = await fetch(url, options);
-    const responseData = await response.json();
-    if (!response.ok) {
-      throw new Error(responseData.message || responseData.error || 'Network response was not ok');
+async function executeFetch(
+  url: string,
+  options: RequestInit,
+  funOk?: (data: any) => void,
+  funErr?: (error: Error) => void
+): Promise<void> {
+  const maxRetries = 3;
+  let lastError: Error;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Don't retry on client errors (4xx) except 429
+        if (
+          response.status >= 400 &&
+          response.status < 500 &&
+          response.status !== 429
+        ) {
+          throw new Error(
+            responseData.message ||
+              responseData.error ||
+              "Network response was not ok"
+          );
+        }
+
+        // For 429 errors, wait before retrying
+        if (response.status === 429 && attempt < maxRetries) {
+          const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+          continue;
+        }
+
+        throw new Error(
+          responseData.message ||
+            responseData.error ||
+            "Network response was not ok"
+        );
+      }
+
+      funOk?.(responseData);
+      return; // Success, exit retry loop
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry on client errors (4xx) except 429
+      if (
+        error.message.includes("400") ||
+        error.message.includes("401") ||
+        error.message.includes("403") ||
+        error.message.includes("404")
+      ) {
+        break;
+      }
+
+      // For other errors, retry if we haven't exceeded max retries
+      if (attempt < maxRetries) {
+        const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
     }
-    funOk?.(responseData);
-  } catch (error) {
-    throw error;
   }
+
+  // If we get here, all retries failed
+  throw lastError;
 }
+
 const makeRequest = async (
   apiRoute: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: "GET" | "POST" | "PUT" | "DELETE",
   data: any,
   funOk?: (data: any) => void,
   funErr?: (error: Error) => void
@@ -62,7 +126,7 @@ const makeRequest = async (
         fullUrl = jsonToQueryString(END_POINT, apiRoute, data);
         break;
       default:
-        throw new Error('Unsupported HTTP method');
+        throw new Error("Unsupported HTTP method");
     }
   }
 
@@ -71,7 +135,7 @@ const makeRequest = async (
   } catch (error) {
     throw error;
   }
-}
+};
 
 const isSet = (value) => {
   if (value === undefined || value === null || value === false) return false;
@@ -86,7 +150,7 @@ const isNotSet = (value) => {
 
 function capitalizeWords(str) {
   // List of words to exclude from capitalization
-  if(!str || str === "") return str;
+  if (!str || str === "") return str;
   if (str === "Añejo rum" || str === "Aï¿½ejo rum" || str === "Aï¿½ejo Rum") {
     return "Añejo Rum";
   }
@@ -145,19 +209,25 @@ function formatDateTime(dateTimeString: string): string {
   try {
     const date = new Date(dateTimeString);
     const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
     };
-    const newDate = new Intl.DateTimeFormat('en-EN', options).format(date);
+    const newDate = new Intl.DateTimeFormat("en-EN", options).format(date);
     return newDate;
-  }catch (error) {
-    return 'N/A';
+  } catch (error) {
+    return "N/A";
   }
 }
 
-
-export { displayErrorSnackMessage, isSet, isNotSet, makeRequest, capitalizeWords, formatDateTime };
+export {
+  displayErrorSnackMessage,
+  isSet,
+  isNotSet,
+  makeRequest,
+  capitalizeWords,
+  formatDateTime,
+};

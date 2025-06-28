@@ -357,30 +357,32 @@ function FilterComponent({
   }, []);
 
   return (
-    <Box padding={2}>
-      <Accordion defaultExpanded sx={{ b: 2 }}>
+    <Box
+      sx={{
+        background: "rgba(255,255,255,0.85)",
+        backdropFilter: "blur(12px)",
+        borderRadius: 4,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+        p: 3,
+        mb: 3,
+        color: "#222",
+        minWidth: 260,
+        maxWidth: 370,
+        mx: "auto",
+      }}
+    >
+      <Accordion
+        defaultExpanded
+        sx={{ background: "transparent", boxShadow: "none" }}
+      >
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            "& .MuiAccordionSummary-content": {
-              display: "flex",
-              justifyContent: "center",
-              flex: "1 0 auto",
-              marginLeft: "24px",
-            },
-          }}
+          expandIcon={<ExpandMoreIcon sx={{ color: "#ffd700" }} />}
         >
-          <Typography
-            className={spaceGrotesk.className}
-            sx={{ textAlign: "center", fontWeight: "bold" }}
-          >
+          <Typography variant="h6" sx={{ fontWeight: 700, color: "#181a2e" }}>
             Search By..
           </Typography>
         </AccordionSummary>
-
-        <Box sx={{ p: 2.5 }}>
+        <CardContent sx={{ p: 0 }}>
           <FormControl>
             <RadioGroup row onChange={setFilteringLogic} value={filteringLogic}>
               <FormControlLabel value="Or" control={<Radio />} label="Or" />
@@ -531,45 +533,27 @@ function FilterComponent({
               ))}
             </Select>
           </FormControl>
-        </Box>
-        <CardContent
-          style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
-        >
-          <Button
-            onClick={handleClearFilter}
-            color="error"
-            variant="outlined"
-            startIcon={<ClearIcon />}
-          >
-            Clear
-          </Button>
         </CardContent>
-        {applicationPage === APPLICATION_PAGE.social && (
-          <CardContent
-            style={{ textAlign: "center", paddingTop: 10, paddingBottom: 25 }}
-          >
-            <Button
-              onClick={loadMyRecipes}
-              variant="outlined"
-              startIcon={<EditIcon />}
-              sx={{
-                marginRight: 0.7,
-                color: "#81E500",
-                backgroundColor: "#81E500",
-                "&:hover": {
-                  backgroundColor: "#F4FFE6",
-                  borderColor: "#81E500",
-                },
-                borderColor: "#81E500",
-              }}
-            >
-              {myRecipesFilterOnSocial
-                ? "Check All Recipes"
-                : "Curate My Recipes"}
-            </Button>
-          </CardContent>
-        )}
       </Accordion>
+      <Button
+        onClick={handleClearFilter}
+        variant="outlined"
+        startIcon={<ClearIcon />}
+        sx={{
+          color: "#ffd700",
+          borderColor: "#ffd700",
+          borderRadius: 99,
+          fontWeight: 600,
+          mt: 2,
+          width: "100%",
+          "&:hover": {
+            background: "rgba(255, 215, 0, 0.08)",
+            borderColor: "#ffd700",
+          },
+        }}
+      >
+        Clear
+      </Button>
     </Box>
   );
 }

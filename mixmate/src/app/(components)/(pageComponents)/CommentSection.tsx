@@ -12,7 +12,11 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { Sarabun } from "next/font/google";
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 
-const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
+const CommentSection = ({
+  reviews,
+  handleReviewRemoveClick,
+  textColor = "#fff",
+}) => {
   const [visibleReviews, setVisibleReviews] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleReviews = () => {
@@ -30,12 +34,14 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
     return (
       <>
         <Grid item xs={12}>
-          <Divider sx={{ margin: "20px 0px", width: "80%" }} />
+          <Divider
+            sx={{ margin: "20px 0px", width: "80%", borderColor: textColor }}
+          />
         </Grid>
         <Grid item xs={12}>
           <Typography
             fontWeight="bold"
-            sx={{ color: "black", fontSize: "25px" }}
+            sx={{ color: textColor, fontSize: "25px" }}
             className={sarabun.className}
           >
             {`Leave a Review (${reviews.length})`}
@@ -114,6 +120,7 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
                           marginRight: 1,
                           fontSize: "18px",
                           marginBottom: "5px",
+                          color: textColor,
                         }}
                       >
                         {review.userNickname}
@@ -137,14 +144,14 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
                     </Box>
                     <Typography
                       variant="caption"
-                      color="text.secondary"
+                      color={textColor}
                       marginBottom={1}
                     >
                       {displayDate}
                     </Typography>
                     <Typography
                       className={sarabun.className}
-                      color="text.primary"
+                      color={textColor}
                       sx={{ whiteSpace: "pre-line", fontSize: "16px" }}
                     >
                       {review.comment}
@@ -182,12 +189,14 @@ const CommentSection = ({ reviews, handleReviewRemoveClick }) => {
     return (
       <>
         <Grid item xs={12}>
-          <Divider sx={{ margin: "20px 0px", width: "80%" }} />
+          <Divider
+            sx={{ margin: "20px 0px", width: "80%", borderColor: textColor }}
+          />
         </Grid>
         <Grid item xs={12}>
           <Typography
             fontWeight="bold"
-            sx={{ color: "black", fontSize: "25px" }}
+            sx={{ color: textColor, fontSize: "25px" }}
             className={sarabun.className}
           >
             {`Leave a Review (0)`}

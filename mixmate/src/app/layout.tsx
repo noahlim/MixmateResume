@@ -2,20 +2,43 @@ import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { ErrorBoundary, HighlightInit } from "@highlight-run/next/client";
 import ErrorPage from "./(components)/global/ErrorPage";
-import { Poppins, Dancing_Script } from "next/font/google";
+import { Roboto, Pacifico, Open_Sans, Merriweather } from "next/font/google";
+import ReduxProvider from "../lib/redux/provider";
 
-const poppins = Poppins({
+const roboto = Roboto({
   subsets: ["latin"],
-  variable: "--font-poppins",
+  variable: "--font-primary",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "700"],
+  preload: true,
+  fallback: ["system-ui", "arial"],
 });
 
-const dancingScript = Dancing_Script({
+const pacifico = Pacifico({
   subsets: ["latin"],
-  variable: "--font-dancing-script",
+  variable: "--font-display",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400"],
+  preload: true,
+  fallback: ["Georgia", "serif"],
+});
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  variable: "--font-secondary",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  preload: true,
+  fallback: ["system-ui", "arial"],
+});
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+  weight: ["300", "400", "700", "900"],
+  preload: true,
+  fallback: ["Georgia", "serif"],
 });
 
 export const metadata = {
@@ -26,6 +49,11 @@ export const metadata = {
   authors: [{ name: "MixMate Team" }],
   viewport: "width=device-width, initial-scale=1",
   themeColor: "#1a1a2e",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -43,13 +71,38 @@ export default function RootLayout({ children }) {
       />
       <html
         lang="en"
-        className={`${poppins.variable} ${dancingScript.variable}`}
+        className={`${roboto.variable} ${pacifico.variable} ${openSans.variable} ${merriweather.variable}`}
       >
+        <head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="anonymous"
+          />
+        </head>
         <UserProvider>
-          <body className="antialiased">
+          <body className="antialiased font-primary">
             <ErrorBoundary customDialog={<ErrorPage />}>
-              {children}
+              <ReduxProvider>{children}</ReduxProvider>
             </ErrorBoundary>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  // Add fonts-loaded class when fonts are ready
+                  if (document.fonts) {
+                    document.fonts.ready.then(function() {
+                      document.documentElement.classList.add('fonts-loaded');
+                    });
+                  } else {
+                    // Fallback for browsers that don't support document.fonts
+                    setTimeout(function() {
+                      document.documentElement.classList.add('fonts-loaded');
+                    }, 1000);
+                  }
+                `,
+              }}
+            />
           </body>
         </UserProvider>
       </html>

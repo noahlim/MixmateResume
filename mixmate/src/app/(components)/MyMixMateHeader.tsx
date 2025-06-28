@@ -3,14 +3,15 @@ import MarqueeScroll from "./(shapeComponents)/MarqueeAnimation";
 import { Space_Grotesk } from "next/font/google";
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
-const MyMixMateHeader = ({title,children}) => {
+const MyMixMateHeader = ({ title, children }) => {
   return (
     <>
       <Box
         sx={{
           display: "flex",
-          backgroundColor: "#FFFFFF",
-          padding: { xs: "30px 0px", md: "80px 0px" },
+          background: "linear-gradient(90deg, #181a2e 60%, #ffd700 100%)",
+          py: { xs: 4, md: 8 },
+          px: 0,
         }}
         justifyContent="center"
         alignContent="center"
@@ -20,16 +21,36 @@ const MyMixMateHeader = ({title,children}) => {
           justifyContent="center"
           alignItems="center"
           spacing={3}
-          sx={{ padding: "20px" }}
+          sx={{ px: 2 }}
         >
           <Grid item xs={12} textAlign="center">
-            <Typography variant="h3" className={spaceGrotesk.className}>
+            <Typography
+              variant="h2"
+              className="font-heading"
+              sx={{
+                color: "#ffd700",
+                fontWeight: 800,
+                fontSize: { xs: "2rem", md: "3rem" },
+                textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                mb: 2,
+              }}
+            >
               {title}
             </Typography>
           </Grid>
 
           <Grid item xs={12} md={8} textAlign="center">
-            <Typography className={spaceGrotesk.className}>
+            <Typography
+              className="font-primary"
+              sx={{
+                color: "#fff",
+                fontWeight: 400,
+                maxWidth: 900,
+                mx: "auto",
+                fontSize: { xs: "1rem", md: "1.25rem" },
+                textShadow: "0 1px 4px rgba(0,0,0,0.18)",
+              }}
+            >
               {children}
             </Typography>
           </Grid>

@@ -190,7 +190,7 @@ const AvailableRecipes = ({
         dispatch(pageStateActions.setPageLoadingState(false));
       });
     //eslint-disable-next-line
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -203,14 +203,14 @@ const AvailableRecipes = ({
     <Dialog
       open={open}
       onClose={handleClose}
-      sx={{
-        "& .MuiDialog-paper": {
-          width: "100%",
-          maxWidth: "600px",
-          position: "relative",
-          "@media (min-width: 600px)": {
-            width: "60%",
-          },
+      PaperProps={{
+        sx: {
+          background: "rgba(26, 26, 46, 0.97)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid #ffd70044",
+          borderRadius: "20px",
+          color: "#fff",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.25)",
         },
       }}
     >
@@ -218,9 +218,11 @@ const AvailableRecipes = ({
         <Typography
           paddingRight="20px"
           sx={{
-            fontSize: "1em",
-            fontFamily: '"Arial", sans-serif',
-            color: "skyblue",
+            fontSize: "1.2em",
+            fontFamily: "inherit",
+            color: "#ffd700",
+            fontWeight: 700,
+            letterSpacing: 0.5,
           }}
         >
           {userIngredients.length === 0
@@ -237,7 +239,7 @@ const AvailableRecipes = ({
             position: "absolute",
             right: 8,
             top: 8,
-            color: (theme) => theme.palette.grey[500],
+            color: "#ffd700",
           }}
         >
           <CloseIcon />
@@ -248,6 +250,7 @@ const AvailableRecipes = ({
           paddingX: 2,
           overflowY: "auto",
           maxHeight: "calc(100vh - 96px)",
+          color: "#fff",
           "&:first-of-type": {
             paddingTop: 0,
           },
@@ -258,12 +261,21 @@ const AvailableRecipes = ({
             <Table aria-label="collapsible table" sx={{ width: "100%" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" colSpan={2}>
+                  <TableCell
+                    align="center"
+                    colSpan={2}
+                    sx={{
+                      background: "rgba(26,26,46,0.85)",
+                      borderBottom: "1px solid #ffd70044",
+                    }}
+                  >
                     <CardContent
                       style={{
                         textAlign: "center",
                         paddingTop: 10,
                         paddingBottom: 0,
+                        background: "none",
+                        color: "#fff",
                       }}
                     >
                       <Box
@@ -272,11 +284,19 @@ const AvailableRecipes = ({
                         alignItems="center"
                         margin={2}
                       >
-                        <Typography variant="h6">Recipes</Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ color: "#ffd700", fontWeight: 700 }}
+                        >
+                          Recipes
+                        </Typography>
                         <FormControl sx={{ m: 1, width: "100%" }}>
                           {!isSingleIngredient && (
                             <>
-                              <InputLabel id="demo-multiple-chip-label">
+                              <InputLabel
+                                id="demo-multiple-chip-label"
+                                sx={{ color: "#ffd700" }}
+                              >
                                 Filter by Ingredients
                               </InputLabel>
                               <Select
@@ -289,6 +309,7 @@ const AvailableRecipes = ({
                                   <OutlinedInput
                                     id="select-multiple-chip"
                                     label="Filter by Ingredients"
+                                    sx={{ color: "#fff" }}
                                   />
                                 }
                                 renderValue={(selected) => (
@@ -300,11 +321,27 @@ const AvailableRecipes = ({
                                     }}
                                   >
                                     {selected.map((value) => (
-                                      <Chip key={value} label={value} />
+                                      <Chip
+                                        key={value}
+                                        label={value}
+                                        sx={{
+                                          background: "#ffd700",
+                                          color: "#181a2e",
+                                          fontWeight: 700,
+                                        }}
+                                      />
                                     ))}
                                   </Box>
                                 )}
                                 MenuProps={MenuProps}
+                                sx={{
+                                  color: "#fff",
+                                  ".MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "#ffd700",
+                                  },
+                                  "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                    { borderColor: "#ffd700" },
+                                }}
                               >
                                 {userIngredients.map((ing) => (
                                   <MenuItem

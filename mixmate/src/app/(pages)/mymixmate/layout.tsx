@@ -12,11 +12,37 @@ import { LiaCocktailSolid } from "react-icons/lia";
 import { useDispatch } from "react-redux";
 import { pageStateActions } from "@lib/redux/pageStateSlice";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import MenuBar from "@/app/(components)/global/MenuBar";
+import Footer from "@/app/(components)/global/Footer";
+import { ThemeProvider, createTheme } from "@mui/material";
+import ReduxProvider from "../../../lib/redux/provider";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+  },
+  typography: {
+    fontFamily: [
+      "Roboto",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "sans-serif",
+    ].join(","),
+  },
+});
+
 const MyMixMate = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
   const [selectedTab, setSelectedTab] = useState(0);
+
   useEffect(() => {
     switch (pathname) {
       case APPLICATION_PAGE.favourites:
@@ -48,65 +74,72 @@ const MyMixMate = ({ children }) => {
   };
 
   return (
-    <>
-      {/* SubMenu */}
-      <Box sx={{ width: "100%" }}>
+    <ReduxProvider>
+      <ThemeProvider theme={theme}>
+        <MenuBar />
+        {/* SubMenu */}
         <Box
           sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            backgroundColor: "#B8FFF9",
-            borderTop: "divider",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            mt: 2,
           }}
         >
-          <Tabs
-            value={selectedTab}
-            onChange={handleTabChange}
-            scrollButtons={true}
-            variant="scrollable"
+          <Box
+            sx={{
+              borderRadius: 3,
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+              px: 2,
+              py: 1,
+              display: "inline-block",
+              minWidth: 340,
+            }}
           >
-            <Tab
-              icon={<FavoriteIcon />}
-              label="Favorites"
-              onClick={() => {
-                if (pathname !== APPLICATION_PAGE.favourites) {
-                  dispatch(pageStateActions.setPageLoadingState(true));
-                }
+            <Tabs
+              value={selectedTab}
+              onChange={handleTabChange}
+              scrollButtons={true}
+              variant="scrollable"
+              TabIndicatorProps={{
+                style: {
+                  display: "none",
+                },
               }}
-            />
-
-            <Tab
-              icon={<LiaCocktailSolid size={23} />}
-              label="My Recipes"
-              onClick={() => {
-                if (pathname !== APPLICATION_PAGE.myRecipes) {
-                  dispatch(pageStateActions.setPageLoadingState(true));
-                }
+              sx={{
+                ".MuiTab-root": {
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: "1rem",
+                  borderRadius: 2,
+                  px: 2,
+                  mx: 0.5,
+                  transition: "background 0.2s, color 0.2s",
+                },
+                ".Mui-selected": {
+                  color: "#1a1a2e",
+                  background: "#ffd700",
+                  borderRadius: 99,
+                  boxShadow: "0 2px 8px rgba(255,215,0,0.12)",
+                },
               }}
-            />
-
-            <Tab
-              icon={<FaEarthAmericas size={23} />}
-              label="Community Recipes"
-              onClick={() => {
-                if (pathname !== APPLICATION_PAGE.social)
-                  dispatch(pageStateActions.setPageLoadingState(true));
-              }}
-            />
-
-            <Tab
-              icon={<WineBarIcon />}
-              label="My Ingredients"
-              onClick={() => {
-                if (pathname !== APPLICATION_PAGE.social)
-                  dispatch(pageStateActions.setPageLoadingState(true));
-              }}
-            />
-          </Tabs>
+            >
+              <Tab icon={<FavoriteIcon />} label="Favorites" />
+              <Tab icon={<LiaCocktailSolid size={23} />} label="My Recipes" />
+              <Tab
+                icon={<FaEarthAmericas size={23} />}
+                label="Community Recipes"
+              />
+              <Tab icon={<WineBarIcon />} label="My Ingredients" />
+            </Tabs>
+          </Box>
         </Box>
         {children}
-      </Box>
-    </>
+        <Footer />
+      </ThemeProvider>
+    </ReduxProvider>
   );
 };
 

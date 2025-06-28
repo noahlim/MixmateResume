@@ -20,6 +20,7 @@ import {
   CardContent,
   Paper,
   Button,
+  Typography,
 } from "@mui/material";
 import NightlifeIcon from "@mui/icons-material/Nightlife";
 import { useDispatch } from "react-redux";
@@ -86,45 +87,87 @@ function DefaultRecipesComponent({ applicationPage }) {
   const [pageHeader, setPageHeader] = useState(null);
 
   const updatePageHeader = () => {
+    let title = "";
+    let description = "";
     if (applicationPage === APPLICATION_PAGE.favourites) {
-      setPageHeader(
-        <MyMixMateHeader title="Favorites">
-          The Favorites page is your personal collection where you can store and
-          access your most beloved recipes with ease, ensuring that your mixes
-          are always within reach whenever the craving strikes.
-        </MyMixMateHeader>
-      );
+      title = "Favorites";
+      description =
+        "The Favorites page is your personal collection where you can store and access your most beloved recipes with ease, ensuring that your mixes are always within reach whenever the craving strikes.";
     } else if (applicationPage === APPLICATION_PAGE.social) {
-      setPageHeader(
-        <MyMixMateHeader title="Community Recipes">
-          Embark on a mixing voyage of discovery through our vibrant community,
-          where creative minds converge to share their inspired recipes,
-          fostering a dynamic exchange of gastronomic artistry that transcends
-          boundaries and ignites a passion for cocktail innovation.
-        </MyMixMateHeader>
-      );
+      title = "Community Recipes";
+      description =
+        "Embark on a mixing voyage of discovery through our vibrant community, where creative minds converge to share their inspired recipes, fostering a dynamic exchange of gastronomic artistry that transcends boundaries and ignites a passion for cocktail innovation.";
     } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
-      setPageHeader(
-        <MyMixMateHeader title="My Recipes">
-          Explore your very own mixing canvas, a sanctuary where your inspired
-          creations take center stage, allowing you to meticulously refine and
-          perfect each recipe before unveiling your masterpieces to the world,
-          leaving an indelible mark on the palates of fellow epicureans.
-        </MyMixMateHeader>
-      );
+      title = "My Recipes";
+      description =
+        "Explore your very own mixing canvas, a sanctuary where your inspired creations take center stage, allowing you to meticulously refine and perfect each recipe before unveiling your masterpieces to the world, leaving an indelible mark on the palates of fellow epicureans.";
     } else {
-      setPageHeader(
-        <MyMixMateHeader title="Classic Recipes">
-          Step into the world of mixology with confidence! This curated
-          collection of classic and innovative cocktails serves as your personal
-          recipe starter pack, providing a foundation for endless exploration
-          and delicious experimentation.
-        </MyMixMateHeader>
-      );
+      title = "Classic Recipes";
+      description =
+        "Step into the world of mixology with confidence! This curated collection of classic and innovative cocktails serves as your personal recipe starter pack, providing a foundation for endless exploration and delicious experimentation.";
     }
+    setPageHeader(
+      <Box
+        sx={{
+          width: "100%",
+          background: "linear-gradient(90deg, #1a1a2e 60%, #ffd700 100%)",
+          py: 6,
+          textAlign: "center",
+          mb: 4,
+          boxShadow: "0 2px 16px 0 rgba(0,0,0,0.12)",
+        }}
+      >
+        <Typography
+          variant="h2"
+          sx={{
+            color: "#ffd700",
+            fontWeight: 800,
+            fontSize: { xs: "2rem", md: "3rem" },
+            textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+            mb: 2,
+          }}
+        >
+          {title}
+        </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            color: "#fff",
+            fontWeight: 400,
+            maxWidth: 900,
+            mx: "auto",
+            fontSize: { xs: "1rem", md: "1.25rem" },
+            textShadow: "0 1px 4px rgba(0,0,0,0.18)",
+          }}
+        >
+          {description}
+        </Typography>
+      </Box>
+    );
   };
 
   let loadAllRecipes = () => {
+    // Check if user is authenticated for protected pages
+    if (
+      (applicationPage === APPLICATION_PAGE.favourites ||
+        applicationPage === APPLICATION_PAGE.myRecipes ||
+        applicationPage === APPLICATION_PAGE.social) &&
+      !user
+    ) {
+      const toastMessageObject = {
+        title: "Authentication Required",
+        message: "Please log in to access this page.",
+        severity: "warning",
+        open: true,
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      setAllRecipes([]);
+      setRecipesFiltered([]);
+      setDisplayedRecipes([]);
+      dispatch(pageStateActions.setPageLoadingState(false));
+      return;
+    }
+
     dispatch(pageStateActions.setPageLoadingState(true));
     let apiRoute;
     let query;
@@ -143,21 +186,62 @@ function DefaultRecipesComponent({ applicationPage }) {
     }
 
     makeRequest(apiRoute, REQ_METHODS.get, query, (response) => {
-      setAllRecipes(response.data.allRecipes);
-      setRecipesFiltered(response.data.allRecipes);
-      setDisplayedRecipes(response.data.allRecipes.slice(0, itemsPerPage));
+      // Handle cases where recipes might be null or undefined
+      const recipes = response.data?.allRecipes || [];
+      const validRecipes = recipes.filter((recipe) => recipe && recipe._id); // Filter out invalid recipes
+
+      setAllRecipes(validRecipes);
+      setRecipesFiltered(validRecipes);
+      setDisplayedRecipes(validRecipes.slice(0, itemsPerPage));
+
+      // Show message if some recipes were filtered out
+      if (validRecipes.length < recipes.length) {
+        const toastMessageObject = {
+          title: "Recipes",
+          message: `Some recipes were not found and have been removed from the list.`,
+          severity: "warning",
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }
     })
       .catch((error) => {
-        displayErrorSnackMessage(error, dispatch);
+        // Handle specific error cases
+        if (error.message.includes("429")) {
+          displayErrorSnackMessage(
+            new Error("Too many requests. Please wait a moment and try again."),
+            dispatch
+          );
+        } else if (
+          error.message.includes("Recipe not found") ||
+          error.message.includes("does not exist")
+        ) {
+          displayErrorSnackMessage(
+            new Error(
+              "Some recipes are no longer available. Please refresh the page."
+            ),
+            dispatch
+          );
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("Unauthorized")
+        ) {
+          displayErrorSnackMessage(
+            new Error("Please log in to access this content."),
+            dispatch
+          );
+        } else {
+          displayErrorSnackMessage(error, dispatch);
+        }
+
+        // Set empty arrays to prevent UI errors
+        setAllRecipes([]);
+        setRecipesFiltered([]);
+        setDisplayedRecipes([]);
       })
       .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
       });
-    // } else {
-    //   dispatch(pageStateActions.setPageLoadingState(false));
-    //   setRecipesFiltered(allRecipes);
-    //   setDisplayedRecipes(allRecipes.slice(0, itemsPerPage));
-    // }
   };
 
   const loadMyRecipes = () => {
@@ -450,25 +534,41 @@ function DefaultRecipesComponent({ applicationPage }) {
         <Grid item xs={12} md={4} lg={3}>
           {(applicationPage === APPLICATION_PAGE.myRecipes ||
             applicationPage === APPLICATION_PAGE.social) && (
-            <Paper elevation={3} style={{ margin: 15 }}>
-              <CardContent
-                style={{
-                  textAlign: "center",
-                  paddingTop: 25,
-                  paddingBottom: 25,
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                my: 2,
+              }}
+            >
+              <Button
+                onClick={() => modalAddEditRecipe_onOpen(null)}
+                variant="contained"
+                startIcon={<NightlifeIcon />}
+                sx={{
+                  background:
+                    "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                  color: "#181a2e",
+                  fontWeight: 700,
+                  fontSize: 18,
+                  borderRadius: 99,
+                  px: 4,
+                  py: 1.5,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                  mt: 2,
+                  transition: "all 0.2s",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                    color: "#181a2e",
+                    boxShadow: "0 4px 16px rgba(255, 224, 102, 0.25)",
+                  },
                 }}
               >
-                <Button
-                  onClick={() => modalAddEditRecipe_onOpen(null)}
-                  color="success"
-                  variant="outlined"
-                  startIcon={<NightlifeIcon />}
-                  style={{ marginLeft: 7 }}
-                >
-                  Add a new recipe
-                </Button>
-              </CardContent>
-            </Paper>
+                Add a new recipe
+              </Button>
+            </Box>
           )}
           <FilterComponent
             allRecipes={allRecipes}
@@ -501,6 +601,12 @@ function DefaultRecipesComponent({ applicationPage }) {
           <div style={{ paddingLeft: 25, paddingRight: 25 }}>
             <>
               {filterAndCriteria.map((filter, index) => {
+                // Ensure filter.criteria is a string before passing to capitalizeWords
+                const criteriaString =
+                  typeof filter.criteria === "string"
+                    ? filter.criteria
+                    : JSON.stringify(filter.criteria);
+
                 return (
                   <Chip
                     onDelete={() => {
@@ -518,7 +624,7 @@ function DefaultRecipesComponent({ applicationPage }) {
                     key={index}
                     label={`${capitalizeWords(
                       filter.filter
-                    )} : ${capitalizeWords(filter.criteria)}`}
+                    )} : ${capitalizeWords(criteriaString)}`}
                     className={spaceGrotesk.className}
                   />
                 );

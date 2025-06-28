@@ -310,7 +310,7 @@ const MyIngredients = () => {
   }, [loadIngredients]);
 
   return (
-    <>
+    <Box sx={{ width: "100%" }}>
       <AvailableRecipes
         isSingleIngredient={false}
         open={availableRecipesModalOpen}
@@ -354,13 +354,26 @@ const MyIngredients = () => {
         }}
       >
         <Grid item xs={12} md={8} lg={6}>
-          <Paper elevation={3} style={{ margin: 15 }}>
+          <Paper
+            elevation={6}
+            style={{
+              margin: 15,
+              background: "rgba(26, 26, 46, 0.85)",
+              borderRadius: 24,
+              boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.25)",
+              color: "#fff",
+            }}
+          >
             <CardContent
               style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
             >
-              <Typography variant="h6">Search Ingredients</Typography>
+              <Typography
+                variant="h5"
+                sx={{ color: "#ffd700", fontWeight: 700, mb: 2 }}
+              >
+                Search Ingredients
+              </Typography>
             </CardContent>
-
             {/* Searchbox */}
             <Box sx={{ padding: 2 }}>
               <FormControl
@@ -368,7 +381,7 @@ const MyIngredients = () => {
                 sx={{ m: 1 }}
                 variant="standard"
               >
-                <FormLabel>
+                <FormLabel sx={{ color: "#fff", fontWeight: 500 }}>
                   Filter the ingredients By Alcoholic Content
                 </FormLabel>
                 <FormGroup>
@@ -378,9 +391,10 @@ const MyIngredients = () => {
                         checked={filterState.alcoholic}
                         onChange={handleAlcoholCheckboxChange}
                         name="Alcoholic"
+                        sx={{ color: "#ffd700" }}
                       />
                     }
-                    label="Alcoholic"
+                    label={<span style={{ color: "#fff" }}>Alcoholic</span>}
                   />
                   <FormControlLabel
                     control={
@@ -388,9 +402,10 @@ const MyIngredients = () => {
                         checked={filterState.nonAlcoholic}
                         onChange={handleAlcoholCheckboxChange}
                         name="Non_Alcoholic"
+                        sx={{ color: "#ffd700" }}
                       />
                     }
-                    label="Non-Alcoholic"
+                    label={<span style={{ color: "#fff" }}>Non-Alcoholic</span>}
                   />
                 </FormGroup>
               </FormControl>
@@ -402,14 +417,26 @@ const MyIngredients = () => {
                   value={filterState.searchText}
                   onChange={handleSearchboxChange}
                   margin="normal"
+                  InputLabelProps={{ style: { color: "#ffd700" } }}
+                  InputProps={{
+                    style: { color: "#fff", borderColor: "#ffd700" },
+                  }}
                 />
               </FormControl>
               <Button
                 onClick={handleUserListFilter}
                 sx={{
-                  color: filterState.isUserList ? "#5CC5E1" : "#ACCEFF",
-                  paddingTop: 2,
+                  color: "#fff",
+                  background: filterState.isUserList ? "#5CC5E1" : "#ffd700",
+                  fontWeight: 700,
                   fontSize: 16,
+                  borderRadius: 99,
+                  mt: 2,
+                  px: 3,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                  "&:hover": {
+                    background: filterState.isUserList ? "#009CC6" : "#e6c200",
+                  },
                 }}
               >
                 {filterState.isUserList
@@ -433,16 +460,26 @@ const MyIngredients = () => {
           variant="contained"
           onClick={handleAvailableRecipesModalOpen}
           sx={{
-            backgroundColor: "#FFFFFF !important",
+            background: "linear-gradient(90deg, #fffbe6 60%, #ffe066 100%)",
+            color: "#181a2e",
+            fontWeight: 700,
+            fontSize: 18,
+            borderRadius: 99,
+            px: 4,
+            py: 1.5,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+            mt: 2,
+            transition: "all 0.2s",
             "&:hover": {
-              backgroundColor: "#E8E8E8 !important",
-            },
-            "&:focus": {
-              backgroundColor: "#CDCDCD !important",
+              background: "linear-gradient(90deg, #ffe066 60%, #fffbe6 100%)",
+              color: "#181a2e",
+              boxShadow: "0 4px 16px rgba(255, 224, 102, 0.25)",
             },
           }}
         >
-          Check out the available recipes!
+          <span style={{ fontWeight: 800, letterSpacing: 0.5 }}>
+            Available Recipes with My Ingredients
+          </span>
         </Button>
       </Grid>
       <Grid item xs={12}>
@@ -475,7 +512,7 @@ const MyIngredients = () => {
         />
       </Box>
       <MarqueeAnimation direction="left" />
-    </>
+    </Box>
   );
 };
 

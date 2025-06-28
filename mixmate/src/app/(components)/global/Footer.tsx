@@ -62,10 +62,14 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        background: "var(--glass-bg)",
-        backdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--glass-border)",
+        background:
+          "linear-gradient(135deg, rgba(26,26,46,0.97) 60%, #23243a 100%)",
+        backdropFilter: "blur(24px)",
+        borderTop: "4px solid #ffd700",
+        boxShadow: "0 -8px 32px 0 #ffd70022",
         mt: "auto",
+        position: "relative",
+        zIndex: 10,
       }}
     >
       <Container maxWidth="xl">
@@ -76,16 +80,62 @@ const Footer = () => {
             <Grid item xs={12} md={4}>
               <Box sx={{ mb: 3 }}>
                 <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 2,
+                    position: "relative",
+                  }}
                 >
-                  <BiDrink size={32} color="var(--accent-gold)" />
+                  <BiDrink
+                    size={36}
+                    color="#ffd700"
+                    style={{
+                      filter: "drop-shadow(0 4px 16px #ffd70088)",
+                      animation: "bounce 2s infinite",
+                    }}
+                  />
                   <Typography
                     variant="h5"
                     className="text-gradient font-display font-bold"
-                    sx={{ fontWeight: 700 }}
+                    sx={{
+                      fontWeight: 700,
+                      color: "#ffd700",
+                      letterSpacing: 1,
+                      fontSize: "2rem",
+                      position: "relative",
+                    }}
                   >
                     MixMate
+                    <Box
+                      sx={{
+                        width: 80,
+                        height: 4,
+                        background:
+                          "linear-gradient(90deg, #ffd700 60%, #fffbe6 100%)",
+                        borderRadius: 99,
+                        mx: "auto",
+                        mt: 1,
+                      }}
+                    />
                   </Typography>
+                  {/* Fun confetti/cocktail icon */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      left: 80,
+                      top: -10,
+                      zIndex: 2,
+                      animation: "bounce 2s infinite",
+                    }}
+                  >
+                    <BiDrink
+                      size={24}
+                      color="#ffd700"
+                      style={{ filter: "drop-shadow(0 2px 8px #ffd70088)" }}
+                    />
+                  </Box>
                 </Box>
                 <Typography
                   className="text-base font-primary"
@@ -307,7 +357,7 @@ const Footer = () => {
         </Box>
 
         {/* Divider */}
-        <Divider sx={{ borderColor: "var(--glass-border)" }} />
+        <Divider sx={{ borderColor: "#ffd700", opacity: 0.3, my: 3 }} />
 
         {/* Bottom Section */}
         <Box sx={{ py: 3 }}>
@@ -316,9 +366,12 @@ const Footer = () => {
               <Typography
                 className="font-primary"
                 sx={{
-                  color: "var(--gray-400)",
-                  fontSize: "0.9rem",
+                  color: "#ffd700",
+                  fontSize: "1rem",
                   textAlign: { xs: "center", sm: "left" },
+                  fontWeight: 600,
+                  letterSpacing: 1,
+                  textShadow: "0 2px 8px #ffd70033",
                 }}
               >
                 © {currentYear} MixMate. All rights reserved. Created by Noah
@@ -342,16 +395,20 @@ const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                      color: "var(--gray-400)",
-                      background: "var(--glass-bg)",
-                      border: "1px solid var(--glass-border)",
-                      backdropFilter: "blur(16px)",
-                      transition: "all 0.2s ease",
+                      color: "#ffd700",
+                      background: "rgba(26,26,46,0.85)",
+                      border: "1.5px solid #ffd70033",
+                      boxShadow: "0 2px 8px #ffd70022",
+                      backdropFilter: "blur(12px)",
+                      fontSize: 28,
+                      mx: 0.5,
+                      transition: "all 0.2s",
                       "&:hover": {
-                        color: "var(--accent-gold)",
-                        background: "var(--glass-bg)",
-                        transform: "translateY(-2px)",
-                        boxShadow: "var(--shadow-md)",
+                        color: "#23243a",
+                        background:
+                          "linear-gradient(90deg, #ffd700 60%, #fffbe6 100%)",
+                        transform: "translateY(-2px) scale(1.15)",
+                        boxShadow: "0 4px 16px #ffd70044",
                       },
                     }}
                   >

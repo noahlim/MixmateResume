@@ -477,9 +477,44 @@ function AddEditRecipe_Component({
   return (
     <>
       {/* Add new recipe Modal */}
-      <Dialog onClose={() => closeNewRecipeModal_onClick()} open={openModal}>
-        <DialogTitle>About the recipe</DialogTitle>
-        <DialogContent>
+      <Dialog
+        onClose={() => closeNewRecipeModal_onClick()}
+        open={openModal}
+        maxWidth="sm"
+        fullWidth={false}
+        PaperProps={{
+          sx: {
+            background: "rgba(26, 26, 46, 0.97)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid #ffd70044",
+            borderRadius: "20px",
+            color: "#fff",
+            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.25)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            pr: 0,
+            color: "#ffd700",
+            fontWeight: 700,
+            fontSize: "1.4rem",
+            letterSpacing: 0.5,
+          }}
+        >
+          About the recipe
+          <IconButton
+            aria-label="close"
+            onClick={closeNewRecipeModal_onClick}
+            sx={{ ml: 2, color: "#ffd700" }}
+          >
+            <ClearIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ color: "#fff" }}>
           <TextField
             margin="dense"
             label="Name"
@@ -488,18 +523,26 @@ function AddEditRecipe_Component({
             variant="standard"
             value={currentRecipeName}
             onChange={(e) => setCurrentRecipeName(e.target.value)}
+            InputLabelProps={{ style: { color: "#ffd700" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
           <br />
           <br />
           {
             <>
               <FormControl variant="standard" fullWidth>
-                <InputLabel id="new-category-select-label">Category</InputLabel>
+                <InputLabel
+                  id="new-category-select-label"
+                  sx={{ color: "#ffd700" }}
+                >
+                  Category
+                </InputLabel>
                 <Select
                   value={currentRecipeCategory}
                   labelId="new-category-select-label"
                   label="Category"
                   onChange={(e) => setCurrentRecipeCategory(e.target.value)}
+                  sx={{ color: "#fff" }}
                 >
                   {categories?.map((cat, index) => {
                     return (
@@ -513,7 +556,10 @@ function AddEditRecipe_Component({
               <br />
               <br />
               <FormControl variant="standard" fullWidth>
-                <InputLabel id="new-alcoholic-type-select-label">
+                <InputLabel
+                  id="new-alcoholic-type-select-label"
+                  sx={{ color: "#ffd700" }}
+                >
                   Alcoholic type
                 </InputLabel>
                 <Select
@@ -523,6 +569,7 @@ function AddEditRecipe_Component({
                   onChange={(e) =>
                     setCurrentRecipeAlcoholicType(e.target.value)
                   }
+                  sx={{ color: "#fff" }}
                 >
                   {alcoholicTypes?.map((alc, index) => {
                     return (
@@ -536,12 +583,18 @@ function AddEditRecipe_Component({
               <br />
               <br />
               <FormControl variant="standard" fullWidth>
-                <InputLabel id="new-glass-select-label">Glass</InputLabel>
+                <InputLabel
+                  id="new-glass-select-label"
+                  sx={{ color: "#ffd700" }}
+                >
+                  Glass
+                </InputLabel>
                 <Select
                   value={currentRecipeGlass}
                   labelId="new-glass-select-label"
                   label="Glass"
                   onChange={(e) => setCurrentRecipeGlass(e.target.value)}
+                  sx={{ color: "#fff" }}
                 >
                   {glasses?.map((glass, index) => {
                     // const label =
@@ -571,8 +624,12 @@ function AddEditRecipe_Component({
           <Typography variant="caption" color="error">
             {imageTypeLimitationText}
           </Typography>
-          <Divider sx={{ m: "30px 10px 0px 0px" }} />
-          <DialogTitle>Preparation</DialogTitle>
+          <Divider sx={{ m: "30px 10px 0px 0px", borderColor: "#ffd70044" }} />
+          <DialogTitle
+            sx={{ color: "#ffd700", fontWeight: 700, fontSize: "1.2rem" }}
+          >
+            Preparation
+          </DialogTitle>
           <Table>
             <TableBody>
               <TableRow>
@@ -585,6 +642,8 @@ function AddEditRecipe_Component({
                     variant="standard"
                     value={newIngredient}
                     onChange={(e) => setNewIngredient(e.target.value)}
+                    InputLabelProps={{ style: { color: "#ffd700" } }}
+                    InputProps={{ style: { color: "#fff" } }}
                   />
                 </TableCell>
                 <TableCell>
@@ -596,12 +655,14 @@ function AddEditRecipe_Component({
                     variant="standard"
                     value={newMeasure}
                     onChange={(e) => setNewMeasure(e.target.value)}
+                    InputLabelProps={{ style: { color: "#ffd700" } }}
+                    InputProps={{ style: { color: "#fff" } }}
                   />
                 </TableCell>
                 <TableCell>
                   <IconButton
                     onClick={() => handleAddNewIngredientButtonClick()}
-                    color="primary"
+                    sx={{ color: "#ffd700" }}
                   >
                     <AddIcon />
                   </IconButton>
@@ -611,14 +672,20 @@ function AddEditRecipe_Component({
                 return (
                   <TableRow key={index}>
                     <TableCell colSpan={2}>
-                      <Typography className="margin-left-35px">
-                        {ingredient} <i>({currentRecipeMeasure[index]})</i>
+                      <Typography
+                        className="margin-left-35px"
+                        sx={{ color: "#fff" }}
+                      >
+                        {ingredient}{" "}
+                        <i style={{ color: "#ffd700" }}>
+                          ({currentRecipeMeasure[index]})
+                        </i>
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <IconButton
                         onClick={() => handleRemoveIngredientButtonClick(index)}
-                        color="error"
+                        sx={{ color: "#ec4899" }}
                       >
                         <ClearIcon />
                       </IconButton>
@@ -636,6 +703,8 @@ function AddEditRecipe_Component({
             variant="standard"
             value={currentRecipeInstructions}
             onChange={(e) => setCurrentRecipeInstructions(e.target.value)}
+            InputLabelProps={{ style: { color: "#ffd700" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
           <br />
           <br />
@@ -643,17 +712,39 @@ function AddEditRecipe_Component({
         <DialogActions>
           <Button
             onClick={() => handleAddNewOrEditRecipeButtonClick()}
-            color="success"
-            variant="outlined"
+            variant="contained"
             startIcon={<BorderColorIcon />}
+            sx={{
+              background: "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+              color: "#181a2e",
+              fontWeight: 700,
+              borderRadius: 99,
+              px: 3,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                color: "#181a2e",
+              },
+            }}
           >
             {recipeId ? "Save Changes" : "Add New Recipe"}
           </Button>
           <Button
             onClick={() => closeNewRecipeModal_onClick()}
-            color="error"
             variant="outlined"
             startIcon={<ClearIcon />}
+            sx={{
+              color: "#ec4899",
+              borderColor: "#ec4899",
+              fontWeight: 700,
+              borderRadius: 99,
+              px: 3,
+              "&:hover": {
+                background: "#ec4899",
+                color: "#fff",
+                borderColor: "#ec4899",
+              },
+            }}
           >
             Cancel
           </Button>

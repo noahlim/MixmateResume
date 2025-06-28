@@ -18,6 +18,8 @@ import {
   Backdrop,
   CircularProgress,
   Paper,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import TableCell from "@mui/material/TableCell";
@@ -29,15 +31,41 @@ import LocalBarIcon from "@mui/icons-material/LocalBar";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { notFound, useRouter } from "next/navigation";
+import MenuBar from "@/app/(components)/global/MenuBar";
+import Footer from "@/app/(components)/global/Footer";
+import ReduxProvider from "../../../../lib/redux/provider";
 // import Image from "next/image";
 import { Lilita_One, Sarabun, Vollkorn } from "next/font/google";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+  },
+  typography: {
+    fontFamily: [
+      "Roboto",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "sans-serif",
+    ].join(","),
+  },
+});
+
 const vollkorn = Vollkorn({ subsets: ["latin"], weight: "variable" });
 const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
+
 const RecipeById = ({ params }) => {
   const recipeId = params.recipeid;
   const router = useRouter();
   const [recipe, setRecipe] = useState(null);
   const [ingredients, setIngredients] = useState([]);
+
   const fetchRecipeDetails = useCallback(() => {
     makeRequest(
       API_ROUTES.sharedRecipeById,
@@ -62,6 +90,7 @@ const RecipeById = ({ params }) => {
       }
     );
   }, [recipeId]);
+
   const setRecipeAndIngredients = (drinkData) => {
     setRecipe(drinkData);
     if (drinkData.ingredients.length > 0) {
@@ -86,209 +115,229 @@ const RecipeById = ({ params }) => {
       );
     }
   };
-  // Format ingredients
 
   useEffect(() => {
     fetchRecipeDetails();
   }, [fetchRecipeDetails]);
+
   if (!recipe) {
     return (
-      <Backdrop sx={{ color: "#fff", zIndex: (theme) => 9999 }} open={!recipe}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+      <ReduxProvider>
+        <ThemeProvider theme={theme}>
+          <MenuBar />
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => 9999 }}
+            open={!recipe}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+          <Footer />
+        </ThemeProvider>
+      </ReduxProvider>
     );
   }
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignContent: "center",
-        m: 5,
-      }}
-    >
-      <Paper sx={{ width: { xs: "90%", md: "80%" }, p: 3 }}>
-        <Box>
-          <Grid
-            container
-            spacing={2}
-            sx={{
-              display: "flex",
-              justifyContent: { xs: "center", lg: "start" },
-              alignContent: { xs: "center", lg: "start" },
-            }}
-          >
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 4,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: "30px",
-                  textShadow: "3px 3px 3px #F8F8F8",
-                  wordBreak: "break-word",
-                  overflowWrap: "break-word",
-                  whiteSpace: "normal",
-                  maxWidth: "100%",
-                }}
-                className={vollkorn.className}
-              >
-                {recipe.strDrink}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={9} lg={4}>
-              <img
-                style={{ borderRadius: "7%" }}
-                src={
-                  recipe.strDrinkThumb
-                    ? recipe.strDrinkThumb
-                    : "/not-found-icon.png"
-                }
-                alt="Drink"
-                height={700}
-                width={700}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} lg={4}>
-              {/* Category */}
-              <Box
+    <ReduxProvider>
+      <ThemeProvider theme={theme}>
+        <MenuBar />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
+            m: 5,
+          }}
+        >
+          <Paper sx={{ width: { xs: "90%", md: "80%" }, p: 3 }}>
+            <Box>
+              <Grid
+                container
+                spacing={2}
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  width: { xs: "200px", md: "250px" },
-                  mb: 3,
+                  justifyContent: { xs: "center", lg: "start" },
+                  alignContent: { xs: "center", lg: "start" },
                 }}
               >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ mb: 0.5 }}
-                >
-                  Category
-                </Typography>
-                <Box
+                <Grid
+                  item
+                  xs={12}
                   sx={{
                     display: "flex",
+                    justifyContent: "center",
                     alignItems: "center",
-                    borderBottom: "2px solid #e0e0e0",
-                    pb: 0.5,
+                    padding: 4,
                   }}
                 >
-                  <ClassIcon
-                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                  <Typography
+                    sx={{
+                      fontSize: "30px",
+                      textShadow: "3px 3px 3px #F8F8F8",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      whiteSpace: "normal",
+                      maxWidth: "100%",
+                    }}
+                    className={vollkorn.className}
+                  >
+                    {recipe.strDrink}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={9} lg={4}>
+                  <img
+                    style={{ borderRadius: "7%" }}
+                    src={
+                      recipe.strDrinkThumb
+                        ? recipe.strDrinkThumb
+                        : "/not-found-icon.png"
+                    }
+                    alt="Drink"
+                    height={700}
+                    width={700}
                   />
-                  <Typography variant="body1">{recipe.strCategory}</Typography>
-                </Box>
-              </Box>
+                </Grid>
+                <Grid item xs={12} sm={12} lg={4}>
+                  {/* Category */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: { xs: "200px", md: "250px" },
+                      mb: 3,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mb: 0.5 }}
+                    >
+                      Category
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        borderBottom: "2px solid #e0e0e0",
+                        pb: 0.5,
+                      }}
+                    >
+                      <ClassIcon
+                        sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                      />
+                      <Typography variant="body1">
+                        {recipe.strCategory}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-              {/* Alcoholic type */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: { xs: "200px", md: "250px" },
-                  mb: 3,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ mb: 0.5 }}
-                >
-                  Alcoholic type
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    borderBottom: "2px solid #e0e0e0",
-                    pb: 0.5,
-                  }}
-                >
-                  <LocalBarIcon
-                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
-                  />
-                  <Typography variant="body1">{recipe.strAlcoholic}</Typography>
-                </Box>
-              </Box>
+                  {/* Alcoholic type */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: { xs: "200px", md: "250px" },
+                      mb: 3,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mb: 0.5 }}
+                    >
+                      Alcoholic type
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        borderBottom: "2px solid #e0e0e0",
+                        pb: 0.5,
+                      }}
+                    >
+                      <LocalBarIcon
+                        sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                      />
+                      <Typography variant="body1">
+                        {recipe.strAlcoholic}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-              {/* Glass type */}
-              <Box
+                  {/* Glass type */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: { xs: "200px", md: "250px" },
+                      mb: 5,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mb: 0.5 }}
+                    >
+                      Glass
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        borderBottom: "2px solid #e0e0e0",
+                        pb: 0.5,
+                      }}
+                    >
+                      <LocalDrinkIcon
+                        sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                      />
+                      <Typography variant="body1">{recipe.strGlass}</Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <InputLabel>Ingredients:</InputLabel>
+                  {ingredients}
+                  <br></br>
+                  <InputLabel>How to prepare:</InputLabel>
+                  <Typography
+                    className={sarabun.className}
+                    fontSize="18px"
+                    sx={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      whiteSpace: "normal",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    {recipe.strInstructions}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                item
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  width: { xs: "200px", md: "250px" },
-                  mb: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 4,
                 }}
               >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ mb: 0.5 }}
+                <Button
+                  onClick={() => router.push(APPLICATION_PAGE.home)}
+                  color="primary"
+                  variant="outlined"
+                  startIcon={<FavoriteIcon />}
                 >
-                  Glass
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    borderBottom: "2px solid #e0e0e0",
-                    pb: 0.5,
-                  }}
-                >
-                  <LocalDrinkIcon
-                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
-                  />
-                  <Typography variant="body1">{recipe.strGlass}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <InputLabel>Ingredients:</InputLabel>
-              {ingredients}
-              <br></br>
-              <InputLabel>How to prepare:</InputLabel>
-              <Typography
-                className={sarabun.className}
-                fontSize="18px"
-                sx={{
-                  wordBreak: "break-word",
-                  overflowWrap: "break-word",
-                  whiteSpace: "normal",
-                  maxWidth: "100%",
-                }}
-              >
-                {recipe.strInstructions}
-              </Typography>
-            </Grid>
-          </Grid>
-          <Grid
-            item
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 4,
-            }}
-          >
-            <Button
-              onClick={() => router.push(APPLICATION_PAGE.home)}
-              color="primary"
-              variant="outlined"
-              startIcon={<FavoriteIcon />}
-            >
-              Find More Exciting Recipes in MixMate!
-            </Button>
-          </Grid>
+                  Find More Exciting Recipes in MixMate!
+                </Button>
+              </Grid>
+            </Box>
+          </Paper>
         </Box>
-      </Paper>
-    </Box>
+        <Footer />
+      </ThemeProvider>
+    </ReduxProvider>
   );
 };
 

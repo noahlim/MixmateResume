@@ -1,15 +1,44 @@
-import { Box, Grid, Typography } from "@mui/material";
-import AboutPage from "./AboutPage"; // Import the client component
+"use client";
+import {
+  Box,
+  Grid,
+  Typography,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
+import AboutPage from "./AboutPage";
+import MenuBar from "@/app/(components)/global/MenuBar";
+import Footer from "@/app/(components)/global/Footer";
+import ReduxProvider from "../../../lib/redux/provider";
 
-export const metadata = {
-  title: "MixMate | About",
-  description: "Description test",
-};
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+  },
+  typography: {
+    fontFamily: [
+      "Roboto",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "sans-serif",
+    ].join(","),
+  },
+});
 
 export default function Page() {
   return (
-    <Box>
-      <AboutPage />
-    </Box>
+    <ReduxProvider>
+      <ThemeProvider theme={theme}>
+        <MenuBar />
+        <AboutPage />
+        <Footer />
+      </ThemeProvider>
+    </ReduxProvider>
   );
 }

@@ -37,15 +37,20 @@ import ShoppingItemCardGridDialog from "./ShoppingItemCard/ShoppingItemCardGrid"
 const StyledCard = styled(Card)<{ isalcoholic: string }>(
   ({ theme, isalcoholic }) => ({
     margin: theme.spacing(2),
-    boxShadow: theme.shadows[5],
+    boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
     transition: "box-shadow 0.3s ease, filter 0.3s ease, transform 0.3s ease",
-    background:
+    background: "rgba(26, 26, 46, 0.7)",
+    backdropFilter: "blur(12px)",
+    borderRadius: 18,
+    border:
       isalcoholic === "true"
-        ? "linear-gradient(to bottom, transparent, 50%, #67A1FF 70%)"
-        : "linear-gradient(to bottom, transparent, 50%, #A5D6A7 70%)",
+        ? "2px solid var(--accent-teal)"
+        : "2px solid var(--accent-gold)",
+    color: "#fff",
     "&:hover": {
-      boxShadow: theme.shadows[8],
-      transform: "translateY(-10px)",
+      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+      transform: "translateY(-8px) scale(1.03)",
+      borderColor: "var(--accent-purple)",
     },
   })
 );
@@ -185,135 +190,87 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
         ing={ingredient}
       />
       <StyledCard
-        sx={{
-          backgroundColor: "#F5F5F5",
-        }}
-        //to prevent error, convert boolean to string
         isalcoholic={
           ingredient.strAlcoholic ? ingredient.strAlcoholic.toString() : "false"
         }
+        sx={{
+          p: 2,
+          background: "rgba(26, 26, 46, 0.7)",
+          color: "#fff",
+          borderRadius: 3,
+          minHeight: 160,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
       >
-        <Box sx={{ display: "flex", justifyContent: "end", padding: "10px" }}>
-          <Tooltip
-            title={`This item is ${
-              ingredient.strAlcoholic ? "alcoholic." : "non-alcoholic."
-            }`}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {ingredient.strAlcoholic ? (
+              <WineBarIcon sx={{ color: "var(--accent-teal)" }} />
+            ) : (
+              <LuCupSoda size={24} color="var(--accent-gold)" />
+            )}
+            <Typography variant="h6" sx={{ fontWeight: 700, color: "#ffd700" }}>
+              {capitalizeWords(ingredient.strIngredient1)}
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => deleteIngredientFromList(ingredient)}
           >
-            <IconButton>
-              {ingredient.strAlcoholic ? (
-                <LiaCocktailSolid size={30} color="#B50000" />
-              ) : (
-                <LuCupSoda size={30} color="#419DFF" />
-              )}
-            </IconButton>
-          </Tooltip>
+            <ClearIcon sx={{ color: "#ec4899" }} />
+          </IconButton>
         </Box>
-        <img
-          src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
-            ingredient.strIngredient1 || ""
-          )}.png`}
-          alt={ingredient.strIngredient1 || "Ingredient"}
-          height={400}
-          width={400}
-        />
-        <StyledCardContent>
-          <Grid container style={{ marginTop: "60px" }}>
-            <Grid item xs={12}>
-              <Typography
-                color="#FBFBFB"
-                style={{ fontSize: "25px" }}
-                className={sarabun.className}
-              >
-                {capitalizeWords(
-                  ingredient.strIngredient1 || "Unknown Ingredient"
-                )}
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignContent: "center",
-                marginTop: "10px",
-              }}
-            >
-              <Stack direction={"column"}>
-                {userIngredients.find(
-                  (ing) => ing.strIngredient1 === ingredient.strIngredient1
-                ) ? (
-                  <Button
-                    onClick={() => deleteIngredientFromList(ingredient)}
-                    color="secondary"
-                    variant="outlined"
-                    startIcon={<ClearIcon />}
-                    sx={{
-                      width: "100%",
-                      backgroundColor: "#FF5B5B !important",
-                      "&:hover": {
-                        backgroundColor: "#FF4B4B !important",
-                      },
-                      "&:focus": {
-                        backgroundColor: "#FF7C7C !important",
-                      },
-                    }}
-                  >
-                    Remove From My List
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => addIngredientToList(ingredient)}
-                    color="primary"
-                    variant="outlined"
-                    startIcon={<AddIcon />}
-                    sx={{
-                      width: "100%",
-                      backgroundColor: "#FFFFFF !important",
-                      "&:hover": {
-                        backgroundColor: "#DFDFDF !important",
-                      },
-                      "&:focus": {
-                        backgroundColor: "#DADADA !important",
-                      },
-                    }}
-                  >
-                    Add To My List
-                  </Button>
-                )}
-                <Button
-                  onClick={() => {
-                    fetchStockInfoFromWeb();
-                  }}
-                  color="success"
-                  variant="outlined"
-                  startIcon={
-                    ingredient.strAlcoholic ? (
-                      <WineBarIcon />
-                    ) : (
-                      <ShoppingCartIcon />
-                    )
-                  }
-                  sx={{
-                    width: "100%",
-                    marginTop: 2,
-                    backgroundColor: "#FFFFFF !important",
-                    "&:hover": {
-                      backgroundColor: "#DFDFDF !important",
-                    },
-                    "&:focus": {
-                      backgroundColor: "#DADADA !important",
-                    },
-                  }}
-                >
-                  {ingredient.strAlcoholic
-                    ? "View Items on LCBO"
-                    : "View Items on No Frills"}
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-        </StyledCardContent>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+          <img
+            src={`https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
+              ingredient.strIngredient1 || ""
+            )}.png`}
+            alt={ingredient.strIngredient1}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              background: "#fff",
+            }}
+            onError={(e) => (e.target.style.display = "none")}
+          />
+          <Typography variant="body2" sx={{ color: "#fff" }}>
+            {ingredient.strAlcoholic ? "Alcoholic" : "Non-Alcoholic"}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{
+              color: "#fff",
+              borderColor: "var(--accent-gold)",
+              background: "rgba(255, 215, 0, 0.08)",
+              borderRadius: 99,
+              fontWeight: 600,
+              textTransform: "none",
+              "&:hover": {
+                background: "rgba(255, 215, 0, 0.18)",
+                borderColor: "var(--accent-gold)",
+              },
+            }}
+            startIcon={
+              <ShoppingCartIcon sx={{ color: "var(--accent-gold)" }} />
+            }
+            onClick={fetchStockInfoFromWeb}
+          >
+            Find in Store
+          </Button>
+        </Box>
       </StyledCard>
     </Grid>
   );
