@@ -184,11 +184,11 @@ function AboutPage() {
                 }}
               >
                 MixMate features an innovative tool that suggests recipes
-                tailored to users' available ingredients, fostering creativity
-                and experimentation. Users can craft and share original cocktail
-                recipes with a vibrant community, where enthusiasts connect,
-                rate recipes, and provide feedback that drives the platform's
-                continuous evolution.
+                tailored to users&apos; available ingredients, fostering
+                creativity and experimentation. Users can craft and share
+                original cocktail recipes with a vibrant community, where
+                enthusiasts connect, rate recipes, and provide feedback that
+                drives the platform&apos;s continuous evolution.
               </Typography>
             </Box>
           </Grid>
@@ -428,8 +428,9 @@ function AboutPage() {
                 From ingredient-based recipe suggestions to social sharing
                 capabilities, MixMate offers a comprehensive suite of tools
                 designed to enhance your cocktail-making experience. Whether
-                you're a seasoned bartender or a curious beginner, our platform
-                provides everything you need to explore the world of mixology.
+                you&apos;re a seasoned bartender or a curious beginner, our
+                platform provides everything you need to explore the world of
+                mixology.
               </Typography>
             </Box>
           </Grid>
@@ -491,8 +492,8 @@ function AboutPage() {
               opacity: 0.9,
             }}
           >
-            "MixMate makes it so easy to discover and create new cocktails. The
-            community is amazing and the design is beautiful!"
+            &quot;MixMate makes it so easy to discover and create new cocktails.
+            The community is amazing and the design is beautiful!&quot;
           </Typography>
         </Box>
         <Divider sx={{ my: 6, borderColor: "#ffd700", opacity: 0.3 }} />

@@ -650,8 +650,9 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
           <DialogTitle className="font-primary">Confirm Deletion</DialogTitle>
           <DialogContent>
             <Typography className="font-primary">
-              Are you sure you want to delete "{infoRecipeToDelete?.recipeName}
-              "? This action cannot be undone.
+              Are you sure you want to delete &quot;
+              {infoRecipeToDelete?.recipeName}
+              &quot;? This action cannot be undone.
             </Typography>
           </DialogContent>
           <DialogActions>
