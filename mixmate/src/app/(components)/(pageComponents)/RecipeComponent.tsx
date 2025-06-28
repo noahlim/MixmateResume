@@ -687,10 +687,11 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
 
         {/* Add/Edit Recipe Modal */}
         <AddEditRecipe_Component
-          open={openAddEditRecipeModal}
-          onClose={modalAddEditRecipe_onClose}
+          openModal={openAddEditRecipeModal}
+          closeModal={modalAddEditRecipe_onClose}
           recipeId={selectedRecipeIdAddEdit}
-          reloadRecipes={reloadRecipes}
+          reloadPage={reloadRecipes}
+          applicationPage={applicationPage}
         />
 
         {/* Sharing Dialog */}
