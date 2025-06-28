@@ -511,8 +511,9 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                     background: "#eee",
                   }}
                   onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/not-found-icon.png";
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = "/not-found-icon.png";
                   }}
                 />
                 <CardContent
