@@ -51,6 +51,8 @@ import StarIcon from "@mui/icons-material/Star";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CloseIcon from "@mui/icons-material/Close";
 import CommentSection from "./CommentSection";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import { FaEarthAmericas } from "react-icons/fa6";
 
 function RecipeDetailModal({ open, onClose, recipe }) {
   if (!recipe) return null;
@@ -63,13 +65,18 @@ function RecipeDetailModal({ open, onClose, recipe }) {
   const instructions = recipe.strInstructions || recipe.instructions || "";
   const userAvatar = recipe.userPictureUrl || recipe.authorAvatar || null;
   const userName =
-    recipe.userNickname || recipe.authorName || recipe.author || "Unknown";
+    recipe.userNickname || recipe.authorName || recipe.author || null;
   const reviews = recipe.reviews || [];
   const numRatings = reviews.length;
   const avgRating =
     numRatings > 0
       ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / numRatings
       : 0;
+
+  // Check if this is a user-created recipe (has user info)
+  const isUserRecipe =
+    userName && userName !== "Unknown" && userName !== "www.cocktaildb.com";
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <Box
@@ -94,36 +101,41 @@ function RecipeDetailModal({ open, onClose, recipe }) {
         >
           <CloseIcon />
         </IconButton>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            mb: 2,
-            gap: 2,
-          }}
-        >
-          <Avatar
-            src={userAvatar}
-            alt={userName}
-            sx={{ width: 48, height: 48, border: "2px solid #ffd700" }}
-          />
-          <Typography variant="h5" sx={{ color: "#ffd700", fontWeight: 700 }}>
-            {userName}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-            <StarIcon sx={{ color: "#ffd700", fontSize: 24 }} />
-            <Typography
-              variant="body1"
-              sx={{ color: "#ffd700", fontWeight: 600, ml: 0.5 }}
-            >
-              {avgRating.toFixed(1)}
+
+        {/* User info section - only show if it's a user recipe */}
+        {isUserRecipe && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 2,
+              gap: 2,
+            }}
+          >
+            <Avatar
+              src={userAvatar}
+              alt={userName}
+              sx={{ width: 48, height: 48, border: "2px solid #ffd700" }}
+            />
+            <Typography variant="h5" sx={{ color: "#ffd700", fontWeight: 700 }}>
+              {userName}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#fff", ml: 1 }}>
-              ({numRatings || "No ratings yet"})
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+              <StarIcon sx={{ color: "#ffd700", fontSize: 24 }} />
+              <Typography
+                variant="body1"
+                sx={{ color: "#ffd700", fontWeight: 600, ml: 0.5 }}
+              >
+                {avgRating.toFixed(1)}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#fff", ml: 1 }}>
+                ({numRatings || "No ratings yet"})
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
+
         <Typography
           variant="h4"
           sx={{ mb: 2, fontWeight: 700, textAlign: "center", color: "#ffd700" }}
@@ -191,11 +203,15 @@ function RecipeDetailModal({ open, onClose, recipe }) {
           How to prepare:
         </Typography>
         <Typography sx={{ mb: 2, color: "#fff" }}>{instructions}</Typography>
+
+        {/* Comments section - only show for user recipes */}
         <Box sx={{ mt: 4 }}>
           <CommentSection
             reviews={reviews}
             handleReviewRemoveClick={() => {}}
             textColor="#fff"
+            recipeId={recipe._id || recipe.id || recipe.recipeid}
+            reloadRecipes={() => {}}
           />
         </Box>
       </Box>
@@ -376,6 +392,71 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
+  // Add to favorites function
+  const handleAddToFavorite = (recipe) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+    makeRequest(
+      API_ROUTES.favourite,
+      REQ_METHODS.post,
+      { recipe },
+      (response) => {
+        const toastMessageObject: ToastMessage = {
+          title: "Favorites",
+          message: response.message,
+          severity: SEVERITY.Success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }
+    )
+      .catch((err) => {
+        displayErrorSnackMessage(err, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
+  };
+
+  // Share to community function
+  const handleShareToCommunity = (recipe) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+
+    // Prepare recipe data for sharing
+    const recipeToShare = {
+      ...recipe,
+      visibility: "public",
+      strDrinkThumb:
+        recipe.strDrinkThumb ||
+        recipe.image ||
+        "https://mixmate2.s3.us-east-2.amazonaws.com/not-found-icon.png",
+    };
+
+    makeRequest(
+      API_ROUTES.recipeShare,
+      REQ_METHODS.post,
+      {
+        recipe: recipeToShare,
+        filename: recipeToShare.strDrinkThumb,
+      },
+      (response) => {
+        const toastMessageObject: ToastMessage = {
+          title: "Community",
+          message: "Recipe shared to community successfully!",
+          severity: SEVERITY.Success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        reloadRecipes();
+      }
+    )
+      .catch((err) => {
+        displayErrorSnackMessage(err, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
+  };
+
   if (!recipes || recipes.length === 0) {
     return (
       <Box sx={{ textAlign: "center", py: 8, px: 4 }}>
@@ -423,10 +504,7 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
             const userAvatar =
               recipe.userPictureUrl || recipe.authorAvatar || null;
             const userName =
-              recipe.userNickname ||
-              recipe.authorName ||
-              recipe.author ||
-              "Unknown";
+              recipe.userNickname || recipe.authorName || recipe.author || null;
             const time = recipe.time || recipe.prepTime || "5 min";
             const category = recipe.category || "Cocktail";
             const difficulty = recipe.difficulty || "Easy";
@@ -449,6 +527,13 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                   ).toFixed(1)
                 : "0.0";
             const reviewCount = recipe.reviews ? recipe.reviews.length : 0;
+
+            // Check if this is a user-created recipe (has user info)
+            const isUserRecipe =
+              userName &&
+              userName !== "Unknown" &&
+              userName !== "www.cocktaildb.com";
+
             return (
               <Card
                 key={recipeId || idx}
@@ -474,31 +559,41 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                   setModalOpen(true);
                 }}
               >
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, p: 2 }}
-                >
-                  <Avatar
-                    src={userAvatar}
-                    alt={userName}
-                    sx={{ width: 32, height: 32, border: "2px solid #ffd700" }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#ffd700", fontWeight: 600 }}
+                {/* User info section - only show if it's a user recipe */}
+                {userName && (
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", gap: 1, p: 2 }}
                   >
-                    {userName}
-                  </Typography>
-                  <StarIcon sx={{ color: "#FFD700", fontSize: 18, ml: 1 }} />
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#FFD700", fontWeight: 600 }}
-                  >
-                    {averageRating}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#fff", ml: 0.5 }}>
-                    {reviewCount > 0 ? `(${reviewCount})` : "(No ratings yet)"}
-                  </Typography>
-                </Box>
+                    <Avatar
+                      src={userAvatar}
+                      alt={userName}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        border: "2px solid #ffd700",
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#ffd700", fontWeight: 600 }}
+                    >
+                      {userName}
+                    </Typography>
+                    <StarIcon sx={{ color: "#FFD700", fontSize: 18, ml: 1 }} />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#FFD700", fontWeight: 600 }}
+                    >
+                      {averageRating}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "#fff", ml: 0.5 }}>
+                      {reviewCount > 0
+                        ? `(${reviewCount})`
+                        : "(No ratings yet)"}
+                    </Typography>
+                  </Box>
+                )}
+
                 <CardMedia
                   component="img"
                   image={image}
@@ -506,8 +601,8 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                   sx={{
                     height: 180,
                     objectFit: "cover",
-                    borderTopLeftRadius: 16,
-                    borderTopRightRadius: 16,
+                    borderTopLeftRadius: isUserRecipe ? 0 : 16,
+                    borderTopRightRadius: isUserRecipe ? 0 : 16,
                     background: "#eee",
                   }}
                   onError={(e) => {
@@ -554,15 +649,20 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                       >
                         {time}
                       </Typography>
-                      <StarIcon
-                        sx={{ fontSize: 18, color: "var(--accent-gold)" }}
-                      />
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "var(--gray-300)" }}
-                      >
-                        {rating.toFixed(1)}
-                      </Typography>
+                      {/* Only show rating for user recipes */}
+                      {isUserRecipe && (
+                        <>
+                          <StarIcon
+                            sx={{ fontSize: 18, color: "var(--accent-gold)" }}
+                          />
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "var(--gray-300)" }}
+                          >
+                            {rating.toFixed(1)}
+                          </Typography>
+                        </>
+                      )}
                     </Box>
                     <Typography
                       variant="body2"
@@ -606,27 +706,148 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                       )}
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                    <Chip
-                      label={category}
-                      size="small"
-                      sx={{
-                        background: "rgba(139, 92, 246, 0.2)",
-                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                        color: "var(--accent-purple)",
-                        fontSize: "0.75rem",
-                      }}
-                    />
-                    <Chip
-                      label={difficulty}
-                      size="small"
-                      sx={{
-                        background: "rgba(20, 184, 166, 0.2)",
-                        border: "1px solid rgba(20, 184, 166, 0.3)",
-                        color: "var(--accent-teal)",
-                        fontSize: "0.75rem",
-                      }}
-                    />
+
+                  {/* Action buttons */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 2,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Chip
+                        label={category}
+                        size="small"
+                        sx={{
+                          background: "rgba(139, 92, 246, 0.2)",
+                          border: "1px solid rgba(139, 92, 246, 0.3)",
+                          color: "var(--accent-purple)",
+                          fontSize: "0.75rem",
+                        }}
+                      />
+                      <Chip
+                        label={difficulty}
+                        size="small"
+                        sx={{
+                          background: "rgba(20, 184, 166, 0.2)",
+                          border: "1px solid rgba(20, 184, 166, 0.3)",
+                          color: "var(--accent-teal)",
+                          fontSize: "0.75rem",
+                        }}
+                      />
+                    </Box>
+
+                    {/* Action buttons */}
+                    <Box sx={{ display: "flex", gap: 0.5 }}>
+                      {/* Favorite button */}
+                      <Tooltip title="Add to favorites">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToFavorite(recipe);
+                          }}
+                          sx={{
+                            color: "#ffd700",
+                            background: "rgba(255, 215, 0, 0.1)",
+                            "&:hover": {
+                              background: "rgba(255, 215, 0, 0.2)",
+                            },
+                          }}
+                        >
+                          <FavoriteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+
+                      {/* Share button */}
+                      <Tooltip title="Share recipe">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleModalShareRecipeOpen(recipe);
+                          }}
+                          sx={{
+                            color: "#ffd700",
+                            background: "rgba(255, 215, 0, 0.1)",
+                            "&:hover": {
+                              background: "rgba(255, 215, 0, 0.2)",
+                            },
+                          }}
+                        >
+                          <MdShare fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+
+                      {/* Share to Community button - only show on my recipes page for user recipes */}
+                      {applicationPage === APPLICATION_PAGE.myRecipes &&
+                        isUserRecipe && (
+                          <Tooltip title="Share to Community">
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShareToCommunity(recipe);
+                              }}
+                              sx={{
+                                color: "#10b981",
+                                background: "rgba(16, 185, 129, 0.1)",
+                                "&:hover": {
+                                  background: "rgba(16, 185, 129, 0.2)",
+                                },
+                              }}
+                            >
+                              <FaEarthAmericas fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                      {/* Edit button - only show on editable pages */}
+                      {isEditablePage && (
+                        <Tooltip title="Edit recipe">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddEditRecipeModalOpen(recipeId);
+                            }}
+                            sx={{
+                              color: "#ffd700",
+                              background: "rgba(255, 215, 0, 0.1)",
+                              "&:hover": {
+                                background: "rgba(255, 215, 0, 0.2)",
+                              },
+                            }}
+                          >
+                            <MdEdit fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+
+                      {/* Delete button - only show on editable pages */}
+                      {isEditablePage && (
+                        <Tooltip title="Delete recipe">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleModalDelteRecipeOpen(recipeId, name);
+                            }}
+                            sx={{
+                              color: "#ef4444",
+                              background: "rgba(239, 68, 68, 0.1)",
+                              "&:hover": {
+                                background: "rgba(239, 68, 68, 0.2)",
+                              },
+                            }}
+                          >
+                            <MdDelete fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>

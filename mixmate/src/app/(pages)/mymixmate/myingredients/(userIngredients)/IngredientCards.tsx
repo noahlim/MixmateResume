@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Container,
-} from "@mui/material";
+import { Grid, Container } from "@mui/material";
 
 import IngredientCard from "./IngredientCard";
 
-
-const IngredientCards = ({ ingredients, reloadIngredients }) => {
+const IngredientCards = ({
+  ingredients,
+  reloadIngredients,
+  isUserList = false,
+}) => {
   const [, setTrigger] = useState(0);
 
   useEffect(() => {
-    setTrigger((prevTrigger) => prevTrigger + 1);// Call the function when ingredients change
+    setTrigger((prevTrigger) => prevTrigger + 1); // Call the function when ingredients change
   }, [ingredients]);
   return (
     <Container maxWidth="lg">
@@ -21,7 +21,12 @@ const IngredientCards = ({ ingredients, reloadIngredients }) => {
         sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
       >
         {ingredients.map((ingredient, index) => (
-          <IngredientCard key={index} ingredient={ingredient} reloadIngredients={reloadIngredients}/>
+          <IngredientCard
+            key={index}
+            ingredient={ingredient}
+            reloadIngredients={reloadIngredients}
+            isUserList={isUserList}
+          />
         ))}
       </Grid>
     </Container>

@@ -113,6 +113,7 @@ const MyIngredients = () => {
       <IngredientCards
         ingredients={selectedIngredients}
         reloadIngredients={loadIngredients}
+        isUserList={filterState.isUserList}
       />
     );
     setDisplayedCardItems(selectedIngredientCards);
@@ -200,6 +201,7 @@ const MyIngredients = () => {
       <IngredientCards
         ingredients={selectedIngredients}
         reloadIngredients={loadIngredients}
+        isUserList={filterState.isUserList}
       />
     );
 
@@ -273,6 +275,7 @@ const MyIngredients = () => {
             <IngredientCards
               ingredients={displayedIngredients}
               reloadIngredients={loadIngredients}
+              isUserList={filterState.isUserList}
             />
           );
           setFilteredDisplayedIngredients(sortedIngredients);
@@ -296,6 +299,7 @@ const MyIngredients = () => {
           <IngredientCards
             ingredients={displayedIngredients}
             reloadIngredients={loadIngredients}
+            isUserList={filterState.isUserList}
           />
         );
         setDisplayedCardItems(displayedIngredientCards);
@@ -353,36 +357,45 @@ const MyIngredients = () => {
           alignContent: "center",
         }}
       >
-        <Grid item xs={12} md={8} lg={6}>
+        <Grid item xs={12} md={6} lg={4}>
           <Paper
             elevation={6}
-            style={{
+            sx={{
               margin: 15,
-              background: "rgba(26, 26, 46, 0.85)",
-              borderRadius: 24,
+              background: "rgba(26, 26, 46, 0.95)",
+              backdropFilter: "blur(20px)",
+              borderRadius: 20,
               boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.25)",
+              border: "1px solid rgba(255, 215, 0, 0.2)",
               color: "#fff",
             }}
           >
             <CardContent
-              style={{ textAlign: "center", paddingTop: 25, paddingBottom: 0 }}
+              sx={{ textAlign: "center", paddingTop: 20, paddingBottom: 0 }}
             >
               <Typography
-                variant="h5"
+                variant="h6"
                 sx={{ color: "#ffd700", fontWeight: 700, mb: 2 }}
               >
                 Search Ingredients
               </Typography>
             </CardContent>
             {/* Searchbox */}
-            <Box sx={{ padding: 2 }}>
+            <Box sx={{ padding: 2.5 }}>
               <FormControl
                 component="fieldset"
-                sx={{ m: 1 }}
+                sx={{ m: 1, mb: 2 }}
                 variant="standard"
               >
-                <FormLabel sx={{ color: "#fff", fontWeight: 500 }}>
-                  Filter the ingredients By Alcoholic Content
+                <FormLabel
+                  sx={{
+                    color: "#ffd700",
+                    fontWeight: 600,
+                    mb: 1,
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  Filter by Alcoholic Content
                 </FormLabel>
                 <FormGroup>
                   <FormControlLabel
@@ -391,10 +404,25 @@ const MyIngredients = () => {
                         checked={filterState.alcoholic}
                         onChange={handleAlcoholCheckboxChange}
                         name="Alcoholic"
-                        sx={{ color: "#ffd700" }}
+                        sx={{
+                          color: "#ffd700",
+                          "&.Mui-checked": {
+                            color: "#ffd700",
+                          },
+                        }}
                       />
                     }
-                    label={<span style={{ color: "#fff" }}>Alcoholic</span>}
+                    label={
+                      <span
+                        style={{
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        Alcoholic
+                      </span>
+                    }
                   />
                   <FormControlLabel
                     control={
@@ -402,24 +430,69 @@ const MyIngredients = () => {
                         checked={filterState.nonAlcoholic}
                         onChange={handleAlcoholCheckboxChange}
                         name="Non_Alcoholic"
-                        sx={{ color: "#ffd700" }}
+                        sx={{
+                          color: "#ffd700",
+                          "&.Mui-checked": {
+                            color: "#ffd700",
+                          },
+                        }}
                       />
                     }
-                    label={<span style={{ color: "#fff" }}>Non-Alcoholic</span>}
+                    label={
+                      <span
+                        style={{
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        Non-Alcoholic
+                      </span>
+                    }
                   />
                 </FormGroup>
               </FormControl>
               <FormControl variant="standard" fullWidth>
                 <TextField
-                  label="Search..."
+                  label="Search ingredients..."
                   type="string"
                   variant="outlined"
                   value={filterState.searchText}
                   onChange={handleSearchboxChange}
-                  margin="normal"
-                  InputLabelProps={{ style: { color: "#ffd700" } }}
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      height: "48px",
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      backdropFilter: "blur(10px)",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      color: "#ffd700",
+                      fontWeight: 600,
+                      fontSize: "0.9rem",
+                    },
+                    sx: { "&.Mui-focused": { color: "#ffd700" } },
+                  }}
                   InputProps={{
-                    style: { color: "#fff", borderColor: "#ffd700" },
+                    style: {
+                      color: "#fff",
+                      borderColor: "#ffd700",
+                      fontWeight: 500,
+                      fontSize: "0.9rem",
+                    },
+                    sx: {
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(255, 215, 0, 0.5)",
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#ffd700",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#ffd700",
+                      },
+                    },
                   }}
                 />
               </FormControl>
@@ -427,15 +500,23 @@ const MyIngredients = () => {
                 onClick={handleUserListFilter}
                 sx={{
                   color: "#fff",
-                  background: filterState.isUserList ? "#5CC5E1" : "#ffd700",
+                  background: filterState.isUserList
+                    ? "linear-gradient(90deg, #5CC5E1 60%, #009CC6 100%)"
+                    : "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
                   fontWeight: 700,
-                  fontSize: 16,
+                  fontSize: 14,
                   borderRadius: 99,
                   mt: 2,
                   px: 3,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                  py: 1,
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  transition: "all 0.3s ease",
                   "&:hover": {
-                    background: filterState.isUserList ? "#009CC6" : "#e6c200",
+                    background: filterState.isUserList
+                      ? "linear-gradient(90deg, #009CC6 60%, #5CC5E1 100%)"
+                      : "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
                   },
                 }}
               >
@@ -447,40 +528,40 @@ const MyIngredients = () => {
           </Paper>
         </Grid>
       </Grid>
-      <Grid
-        item
-        xs={9}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleAvailableRecipesModalOpen}
-          sx={{
-            background: "linear-gradient(90deg, #fffbe6 60%, #ffe066 100%)",
-            color: "#181a2e",
-            fontWeight: 700,
-            fontSize: 18,
-            borderRadius: 99,
-            px: 4,
-            py: 1.5,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
-            mt: 2,
-            transition: "all 0.2s",
-            "&:hover": {
-              background: "linear-gradient(90deg, #ffe066 60%, #fffbe6 100%)",
+
+      {/* Available Recipes Button - Made more prominent */}
+      <Grid container justifyContent="center" sx={{ mt: 4, mb: 3 }}>
+        <Grid item>
+          <Button
+            variant="contained"
+            onClick={handleAvailableRecipesModalOpen}
+            sx={{
+              background:
+                "linear-gradient(135deg, #ffd700 0%, #ffe066 50%, #ffd700 100%)",
               color: "#181a2e",
-              boxShadow: "0 4px 16px rgba(255, 224, 102, 0.25)",
-            },
-          }}
-        >
-          <span style={{ fontWeight: 800, letterSpacing: 0.5 }}>
-            Available Recipes with My Ingredients
-          </span>
-        </Button>
+              fontWeight: 800,
+              fontSize: 20,
+              borderRadius: 99,
+              px: 6,
+              py: 2,
+              boxShadow: "0 8px 32px rgba(255, 215, 0, 0.3)",
+              transition: "all 0.3s ease",
+              textTransform: "none",
+              letterSpacing: 1,
+              border: "2px solid rgba(255, 215, 0, 0.3)",
+              "&:hover": {
+                background:
+                  "linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #ffe066 100%)",
+                color: "#181a2e",
+                transform: "translateY(-4px) scale(1.05)",
+                boxShadow: "0 12px 40px rgba(255, 215, 0, 0.4)",
+                border: "2px solid rgba(255, 215, 0, 0.5)",
+              },
+            }}
+          >
+            🍹 Available Recipes with My Ingredients 🍹
+          </Button>
+        </Grid>
       </Grid>
       <Grid item xs={12}>
         {displayedCardItems}

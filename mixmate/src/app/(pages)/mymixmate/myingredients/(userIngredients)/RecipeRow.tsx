@@ -138,7 +138,9 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                       <Typography
                         sx={{
                           fontSize: "30px",
-                          textShadow: "3px 3px 3px #F8F8F8",
+                          textShadow: "3px 3px 3px rgba(0,0,0,0.5)",
+                          color: "#fff",
+                          fontWeight: 700,
                         }}
                         className={vollkorn.className}
                       >
@@ -156,8 +158,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                       >
                         <Typography
                           variant="caption"
-                          color="text.secondary"
-                          sx={{ mb: 0.5 }}
+                          sx={{ mb: 0.5, color: "#ffd700", fontWeight: 600 }}
                         >
                           Category
                         </Typography>
@@ -165,17 +166,17 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            borderBottom: "2px solid #e0e0e0",
+                            borderBottom: "2px solid #ffd700",
                           }}
                         >
                           <ClassIcon
                             sx={{
                               mr: 1,
-                              color: "text.secondary",
+                              color: "#ffd700",
                               fontSize: 20,
                             }}
                           />
-                          <Typography variant="body1">
+                          <Typography variant="body1" sx={{ color: "#fff" }}>
                             {drink.strCategory}
                           </Typography>
                         </Box>
@@ -192,8 +193,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                       >
                         <Typography
                           variant="caption"
-                          color="text.secondary"
-                          sx={{ mb: 0.5 }}
+                          sx={{ mb: 0.5, color: "#ffd700", fontWeight: 600 }}
                         >
                           Alcoholic type
                         </Typography>
@@ -201,18 +201,18 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            borderBottom: "2px solid #e0e0e0",
+                            borderBottom: "2px solid #ffd700",
                             pb: 0.5,
                           }}
                         >
                           <LocalBarIcon
                             sx={{
                               mr: 1,
-                              color: "text.secondary",
+                              color: "#ffd700",
                               fontSize: 20,
                             }}
                           />
-                          <Typography variant="body1">
+                          <Typography variant="body1" sx={{ color: "#fff" }}>
                             {drink.strAlcoholic}
                           </Typography>
                         </Box>
@@ -220,17 +220,32 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
 
                       {/* Glass type */}
                       <FormControl variant="standard">
-                        <InputLabel htmlFor="input-with-icon-adornment">
+                        <InputLabel
+                          htmlFor="input-with-icon-adornment"
+                          sx={{ color: "#ffd700" }}
+                        >
                           Glass
                         </InputLabel>
                         <Input
                           className={vollkorn.className}
                           startAdornment={
                             <InputAdornment position="start">
-                              <LocalDrinkIcon />
+                              <LocalDrinkIcon sx={{ color: "#ffd700" }} />
                             </InputAdornment>
                           }
                           value={drink.strGlass}
+                          sx={{
+                            color: "#fff",
+                            "& .MuiInput-input": {
+                              color: "#fff",
+                            },
+                            "& .MuiInput-underline:before": {
+                              borderBottomColor: "#ffd700",
+                            },
+                            "& .MuiInput-underline:after": {
+                              borderBottomColor: "#ffd700",
+                            },
+                          }}
                         />
                       </FormControl>
                       <br />
@@ -239,7 +254,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                     <Grid item xs={12}>
                       <Typography
                         fontWeight="bold"
-                        sx={{ color: "black", fontSize: "20px" }}
+                        sx={{ color: "#ffd700", fontSize: "20px" }}
                         className={sarabun.className}
                       >
                         Ingredients:
@@ -248,14 +263,17 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                       <br></br>
                       <Typography
                         fontWeight="bold"
-                        sx={{ color: "black", fontSize: "20px" }}
+                        sx={{ color: "#ffd700", fontSize: "20px" }}
                         className={sarabun.className}
                       >
                         Preparing Instructions
                       </Typography>
                       <Typography
-                        fontWeight="bold"
-                        sx={{ color: "black", fontSize: "15px" }}
+                        sx={{
+                          color: "#fff",
+                          fontSize: "15px",
+                          lineHeight: 1.6,
+                        }}
                         className={sarabun.className}
                       >
                         {drink.strInstructions}
@@ -270,16 +288,18 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                     >
                       <Button
                         onClick={() => handleAddToFavourites(drink)}
-                        variant="outlined"
+                        variant="contained"
                         startIcon={<FavoriteIcon />}
                         sx={{
-                          color: "black",
-                          backgroundColor: "#FFA1A1 !important",
+                          color: "#fff",
+                          background:
+                            "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                          fontWeight: 700,
+                          borderRadius: 99,
+                          px: 3,
                           "&:hover": {
-                            backgroundColor: "#FF5F5F !important",
-                          },
-                          "&:focus": {
-                            backgroundColor: "#E91A1A !important",
+                            background:
+                              "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
                           },
                         }}
                       >

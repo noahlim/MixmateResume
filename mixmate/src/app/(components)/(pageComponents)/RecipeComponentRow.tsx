@@ -206,6 +206,8 @@ const RecipeComponentRow = ({
       <CommentSection
         reviews={drink?.reviews}
         handleReviewRemoveClick={handleReviewRemoveClick}
+        recipeId={drink?.idDrink}
+        reloadRecipes={reloadRecipes}
       />
     );
   return (

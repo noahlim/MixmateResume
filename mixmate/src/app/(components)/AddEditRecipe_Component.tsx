@@ -71,6 +71,8 @@ function AddEditRecipe_Component({
     applicationPage === APPLICATION_PAGE.social ? "public" : "private"
   );
   const [imageTypeLimitationText, setImageTypeLimitationText] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+
   useEffect(() => {
     // Load data if recipe ID exist
     let loadRecipeIfExist = () => {
@@ -135,27 +137,11 @@ function AddEditRecipe_Component({
     dispatch(pageStateActions.setPageLoadingState(false));
     closeModal();
   };
-  let fileSelectImage_onChange = (file) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
     if (file) {
-      // Check if the file type starts with 'image/'
-
-      if (!file.type.startsWith("image/")) {
-        setImageTypeLimitationText("Please select an image file.");
-        dispatch(pageStateActions.setPageLoadingState(false));
-      }
-
-      // Optional: Check file size (e.g., max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        setImageTypeLimitationText(
-          "File is too large. Please select an image smaller than 5MB."
-        );
-        dispatch(pageStateActions.setPageLoadingState(false));
-      }
-      setImageTypeLimitationText("");
+      setPreviewUrl(URL.createObjectURL(file));
       setCurrentRecipeImage(file);
-    } else {
-      setImageTypeLimitationText("");
     }
   };
 
@@ -616,9 +602,16 @@ function AddEditRecipe_Component({
               type="file"
               accept="image/*"
               className="file-input"
-              onChange={(e) => fileSelectImage_onChange(e.target.files[0])}
+              onChange={handleImageChange}
             />
           </label>
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{ width: 200, borderRadius: 8, marginTop: 8 }}
+            />
+          )}
           <br />
 
           <Typography variant="caption" color="error">

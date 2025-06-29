@@ -359,16 +359,17 @@ function FilterComponent({
   return (
     <Box
       sx={{
-        background: "rgba(255,255,255,0.85)",
+        background: "rgba(26, 26, 46, 0.9)",
         backdropFilter: "blur(12px)",
-        borderRadius: 4,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+        borderRadius: 16,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
         p: 3,
         mb: 3,
-        color: "#222",
+        color: "#fff",
         minWidth: 260,
         maxWidth: 370,
         mx: "auto",
+        border: "1px solid rgba(255, 215, 0, 0.3)",
       }}
     >
       <Accordion
@@ -378,15 +379,37 @@ function FilterComponent({
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: "#ffd700" }} />}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700, color: "#181a2e" }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: "#ffd700" }}>
             Search By..
           </Typography>
         </AccordionSummary>
         <CardContent sx={{ p: 0 }}>
           <FormControl>
             <RadioGroup row onChange={setFilteringLogic} value={filteringLogic}>
-              <FormControlLabel value="Or" control={<Radio />} label="Or" />
-              <FormControlLabel value="And" control={<Radio />} label="And" />
+              <FormControlLabel
+                value="Or"
+                control={
+                  <Radio
+                    sx={{
+                      color: "#ffd700",
+                      "&.Mui-checked": { color: "#ffd700" },
+                    }}
+                  />
+                }
+                label={<span style={{ color: "#fff" }}>Or</span>}
+              />
+              <FormControlLabel
+                value="And"
+                control={
+                  <Radio
+                    sx={{
+                      color: "#ffd700",
+                      "&.Mui-checked": { color: "#ffd700" },
+                    }}
+                  />
+                }
+                label={<span style={{ color: "#fff" }}>And</span>}
+              />
             </RadioGroup>
           </FormControl>
           <FormControl fullWidth sx={{ mb: 3 }}>
@@ -404,7 +427,32 @@ function FilterComponent({
               }
               getOptionLabel={(option) => option.strDrink}
               renderInput={(params) => (
-                <TextField {...params} label="Recipe Name" />
+                <TextField
+                  {...params}
+                  label="Recipe Name"
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      height: "48px",
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      backdropFilter: "blur(10px)",
+                      color: "#fff",
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "#ffd700",
+                      fontWeight: 600,
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 215, 0, 0.5)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#ffd700",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#ffd700",
+                    },
+                  }}
+                />
               )}
               onChange={(event, newValue) => {
                 onFilterChange(
@@ -422,14 +470,36 @@ function FilterComponent({
             <TextField
               label="Ingredients, separated by commas"
               variant="outlined"
+              size="small"
               onChange={(event) => {
                 onFilterChange(event, FILTER_CRITERIA.ingredient);
               }}
               value={selectedIngredientsInput}
               error={!isIngredientStringValid}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  height: "48px",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  backdropFilter: "blur(10px)",
+                  color: "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#ffd700",
+                  fontWeight: 600,
+                },
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "rgba(255, 215, 0, 0.5)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+              }}
             />
             {!isIngredientStringValid && (
-              <FormHelperText sx={{ color: "red" }}>
+              <FormHelperText sx={{ color: "#ff6b6b" }}>
                 Ingredient can only Latin alphabets, numbers, and commas -
                 separate them with commas when adding multiple. (e.g.
                 &quot;Vodka, Gin&quot;)
@@ -437,7 +507,7 @@ function FilterComponent({
             )}
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel>Glass</InputLabel>
+            <InputLabel sx={{ color: "#ffd700" }}>Glass</InputLabel>
 
             <Select
               multiple
@@ -445,22 +515,38 @@ function FilterComponent({
               onChange={(event) => {
                 onFilterChange(event, FILTER_CRITERIA.glass);
               }}
-              input={<OutlinedInput sx={{ color: "black" }} label="Glass" />}
+              input={<OutlinedInput sx={{ color: "#fff" }} label="Glass" />}
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => (
-                    <Chip key={value} label={value} />
+                    <Chip
+                      key={value}
+                      label={value}
+                      sx={{ backgroundColor: "#ffd700", color: "#181a2e" }}
+                    />
                   ))}
                 </Box>
               )}
               MenuProps={MenuProps}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "rgba(255, 215, 0, 0.5)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+              }}
             >
               {glasses.map((gl, index) => (
                 <MenuItem
                   key={index}
                   value={gl}
                   style={getStyles(gl, selectedCategories, theme)}
+                  sx={{ color: "#fff" }}
                 >
                   {gl}
                 </MenuItem>
@@ -468,7 +554,7 @@ function FilterComponent({
             </Select>
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel>Category</InputLabel>
+            <InputLabel sx={{ color: "#ffd700" }}>Category</InputLabel>
 
             <Select
               multiple
@@ -476,22 +562,38 @@ function FilterComponent({
               onChange={(event) => {
                 onFilterChange(event, FILTER_CRITERIA.category);
               }}
-              input={<OutlinedInput sx={{ color: "black" }} label="Category" />}
+              input={<OutlinedInput sx={{ color: "#fff" }} label="Category" />}
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => (
-                    <Chip key={value} label={value} />
+                    <Chip
+                      key={value}
+                      label={value}
+                      sx={{ backgroundColor: "#ffd700", color: "#181a2e" }}
+                    />
                   ))}
                 </Box>
               )}
               MenuProps={MenuProps}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "rgba(255, 215, 0, 0.5)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+              }}
             >
               {categories.map((cat, index) => (
                 <MenuItem
                   key={index}
                   value={cat}
                   style={getStyles(cat, selectedCategories, theme)}
+                  sx={{ color: "#fff" }}
                 >
                   {cat}
                 </MenuItem>
@@ -499,7 +601,9 @@ function FilterComponent({
             </Select>
           </FormControl>
           <FormControl fullWidth>
-            <InputLabel id="demo-multiple-chip-label">Alcoholic</InputLabel>
+            <InputLabel id="demo-multiple-chip-label" sx={{ color: "#ffd700" }}>
+              Alcoholic
+            </InputLabel>
 
             <Select
               labelId="demo-multiple-chip-label"
@@ -511,7 +615,7 @@ function FilterComponent({
               }}
               input={
                 <OutlinedInput
-                  sx={{ color: "black" }}
+                  sx={{ color: "#fff" }}
                   id="select-multiple-chip"
                   label="Alcoholic"
                 />
@@ -519,15 +623,30 @@ function FilterComponent({
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => (
-                    <Chip key={value} label={value} />
+                    <Chip
+                      key={value}
+                      label={value}
+                      sx={{ backgroundColor: "#ffd700", color: "#181a2e" }}
+                    />
                   ))}
                 </Box>
               )}
               MenuProps={MenuProps}
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "rgba(255, 215, 0, 0.5)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ffd700",
+                },
+              }}
             >
               {alcoholicTypes.map((alc, index) => (
-                <MenuItem key={index} value={alc.label}>
+                <MenuItem key={index} value={alc.label} sx={{ color: "#fff" }}>
                   {alc.label}
                 </MenuItem>
               ))}

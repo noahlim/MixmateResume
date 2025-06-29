@@ -393,6 +393,26 @@ const AvailableRecipes = ({
             defaultPage={1}
             boundaryCount={10}
             onChange={onPageIndexChange}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "#ffd700",
+                fontWeight: 600,
+                border: "1px solid rgba(255, 215, 0, 0.3)",
+                "&:hover": {
+                  backgroundColor: "#ffd700",
+                  color: "#181a2e",
+                },
+                "&.Mui-selected": {
+                  backgroundColor: "#ffd700",
+                  color: "#181a2e",
+                  fontWeight: 700,
+                },
+              },
+              "& .MuiPaginationItem-icon": {
+                color: "#ffd700",
+              },
+            }}
           />
         </Box>
       </DialogContent>

@@ -9,6 +9,7 @@ import {
   IconButton,
   Button,
   Stack,
+  Chip,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import {
@@ -58,7 +59,11 @@ const sarabun = Sarabun({ subsets: ["latin"], weight: "400" });
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
   paddingInlineStart: "1rem",
 }));
-const IngredientCard = ({ ingredient, reloadIngredients }) => {
+const IngredientCard = ({
+  ingredient,
+  reloadIngredients,
+  isUserList = false,
+}) => {
   const [ingredientProducts, setIngredientProducts] = useState([]);
   const [shoppingListDialogOpen, setShoppingListDialogOpen] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -222,12 +227,6 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
               {capitalizeWords(ingredient.strIngredient1)}
             </Typography>
           </Box>
-          <IconButton
-            size="small"
-            onClick={() => deleteIngredientFromList(ingredient)}
-          >
-            <ClearIcon sx={{ color: "#ec4899" }} />
-          </IconButton>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
           <img
@@ -250,7 +249,62 @@ const IngredientCard = ({ ingredient, reloadIngredients }) => {
             {ingredient.strAlcoholic ? "Alcoholic" : "Non-Alcoholic"}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+        {isUserList && (
+          <Box sx={{ mb: 1 }}>
+            <Chip
+              label="In My List"
+              sx={{ background: "#ffd700", color: "#181a2e", fontWeight: 700 }}
+            />
+          </Box>
+        )}
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          {/* Add to My List button - only show for non-user ingredients */}
+          {!isUserList && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#181a2e",
+                background: "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                borderRadius: 99,
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                },
+              }}
+              startIcon={<AddIcon sx={{ color: "#181a2e" }} />}
+              onClick={() => addIngredientToList(ingredient)}
+            >
+              Add to My List
+            </Button>
+          )}
+
+          {/* Remove from My List button - only show for user ingredients */}
+          {isUserList && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                background: "linear-gradient(90deg, #ef4444 60%, #dc2626 100%)",
+                borderRadius: 99,
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #dc2626 60%, #ef4444 100%)",
+                },
+              }}
+              startIcon={<ClearIcon sx={{ color: "#fff" }} />}
+              onClick={() => deleteIngredientFromList(ingredient)}
+            >
+              Remove from My List
+            </Button>
+          )}
+
+          {/* Find in Store button */}
           <Button
             variant="outlined"
             size="small"
