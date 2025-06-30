@@ -309,7 +309,20 @@ const AvailableRecipes = ({
                                   <OutlinedInput
                                     id="select-multiple-chip"
                                     label="Filter by Ingredients"
-                                    sx={{ color: "#fff" }}
+                                    sx={{
+                                      color: "#fff",
+                                      "& .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#ffd700",
+                                      },
+                                      "&:hover .MuiOutlinedInput-notchedOutline":
+                                        {
+                                          borderColor: "#ffd700",
+                                        },
+                                      "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                        {
+                                          borderColor: "#ffd700",
+                                        },
+                                    }}
                                   />
                                 }
                                 renderValue={(selected) => (
@@ -336,11 +349,22 @@ const AvailableRecipes = ({
                                 MenuProps={MenuProps}
                                 sx={{
                                   color: "#fff",
-                                  ".MuiOutlinedInput-notchedOutline": {
+                                  "&& .MuiSelect-icon": {
+                                    color: "#ffd700 !important",
+                                    background: "rgba(26,26,46,0.7)",
+                                    borderRadius: "50%",
+                                    padding: "2px",
+                                  },
+                                  "& .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "#ffd700",
+                                  },
+                                  "&:hover .MuiOutlinedInput-notchedOutline": {
                                     borderColor: "#ffd700",
                                   },
                                   "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                    { borderColor: "#ffd700" },
+                                    {
+                                      borderColor: "#ffd700",
+                                    },
                                 }}
                               >
                                 {userIngredients.map((ing) => (
@@ -352,6 +376,19 @@ const AvailableRecipes = ({
                                       ingredientName,
                                       theme
                                     )}
+                                    sx={{
+                                      color: "#fff !important",
+                                      backgroundColor: "rgba(26, 26, 46, 0.9)",
+                                      "&:hover": {
+                                        backgroundColor:
+                                          "rgba(255, 215, 0, 0.1)",
+                                      },
+                                      "&.Mui-selected": {
+                                        backgroundColor:
+                                          "rgba(255, 215, 0, 0.2)",
+                                        color: "#ffd700 !important",
+                                      },
+                                    }}
                                   >
                                     {ing.strIngredient1}
                                   </MenuItem>

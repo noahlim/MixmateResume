@@ -53,8 +53,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import CommentSection from "./CommentSection";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { FaEarthAmericas } from "react-icons/fa6";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-function RecipeDetailModal({ open, onClose, recipe }) {
+function RecipeDetailModal({ open, onClose, recipe, applicationPage }) {
   if (!recipe) return null;
   const image = recipe.strDrinkThumb || recipe.image || "/not-found-icon.png";
   const name = recipe.strDrink || recipe.name || "Unnamed Recipe";
@@ -65,7 +66,13 @@ function RecipeDetailModal({ open, onClose, recipe }) {
   const instructions = recipe.strInstructions || recipe.instructions || "";
   const userAvatar = recipe.userPictureUrl || recipe.authorAvatar || null;
   const userName =
-    recipe.userNickname || recipe.authorName || recipe.author || null;
+    recipe.userNickname ||
+    recipe.authorName ||
+    recipe.author ||
+    recipe.userName ||
+    recipe.nickname ||
+    recipe.strAuthor ||
+    "Unknown";
   const reviews = recipe.reviews || [];
   const numRatings = reviews.length;
   const avgRating =
@@ -102,34 +109,71 @@ function RecipeDetailModal({ open, onClose, recipe }) {
           <CloseIcon />
         </IconButton>
 
-        {/* User info section - only show if it's a user recipe */}
-        {isUserRecipe && (
+        {/* User info section - always show nickname/author if available */}
+        {applicationPage === APPLICATION_PAGE.social && userName && (
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              mb: 2,
-              gap: 2,
+              gap: 1,
+              p: 2,
+              background:
+                "linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)",
+              borderBottom: "2px solid rgba(255, 215, 0, 0.3)",
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
             }}
           >
             <Avatar
               src={userAvatar}
               alt={userName}
-              sx={{ width: 48, height: 48, border: "2px solid #ffd700" }}
+              sx={{
+                width: 36,
+                height: 36,
+                border: "2px solid #ffd700",
+                boxShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
+              }}
             />
-            <Typography variant="h5" sx={{ color: "#ffd700", fontWeight: 700 }}>
-              {userName}
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-              <StarIcon sx={{ color: "#ffd700", fontSize: 24 }} />
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography
-                variant="body1"
-                sx={{ color: "#ffd700", fontWeight: 600, ml: 0.5 }}
+                variant="caption"
+                sx={{
+                  color: "#ffd700",
+                  fontWeight: 700,
+                  fontSize: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                Posted by
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#ffd700",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                }}
+              >
+                {userName}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
+              <StarIcon sx={{ color: "#FFD700", fontSize: 20, ml: 1 }} />
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                }}
               >
                 {avgRating.toFixed(1)}
               </Typography>
-              <Typography variant="body2" sx={{ color: "#fff", ml: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: "#fff", ml: 0.5, fontSize: "0.8rem" }}
+              >
                 ({numRatings || "No ratings yet"})
               </Typography>
             </Box>
@@ -205,15 +249,17 @@ function RecipeDetailModal({ open, onClose, recipe }) {
         <Typography sx={{ mb: 2, color: "#fff" }}>{instructions}</Typography>
 
         {/* Comments section - only show for user recipes */}
-        <Box sx={{ mt: 4 }}>
-          <CommentSection
-            reviews={reviews}
-            handleReviewRemoveClick={() => {}}
-            textColor="#fff"
-            recipeId={recipe._id || recipe.id || recipe.recipeid}
-            reloadRecipes={() => {}}
-          />
-        </Box>
+        {applicationPage === APPLICATION_PAGE.social && (
+          <Box sx={{ mt: 4 }}>
+            <CommentSection
+              reviews={reviews}
+              handleReviewRemoveClick={() => {}}
+              textColor="#fff"
+              recipeId={recipe._id || recipe.id || recipe.recipeid}
+              reloadRecipes={() => {}}
+            />
+          </Box>
+        )}
       </Box>
     </Dialog>
   );
@@ -234,7 +280,20 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   const [modalDeleteRecipeOpen, setModalDeleteRecipeOpen] = useState(false);
   const [infoRecipeToDelete, setInfoRecipeToDelete] = useState(null);
   let handleModalDelteRecipeOpen = (id, recipeName) => {
-    setInfoRecipeToDelete({ _id: id, recipeName });
+    console.log("Opening delete modal for recipe:", { id, recipeName });
+    console.log("Recipe ID type:", typeof id);
+    console.log("Recipe ID value:", id);
+
+    // Find the complete recipe data from the recipes
+    const recipe = recipes.find((r) => r._id === id || r.id === id);
+    console.log("Found recipe data:", recipe);
+
+    if (recipe) {
+      setInfoRecipeToDelete(recipe);
+    } else {
+      // Fallback to just the ID if recipe not found
+      setInfoRecipeToDelete({ _id: id, recipeName });
+    }
     setModalDeleteRecipeOpen(true);
   };
   const [openAddEditRecipeModal, setOpenAddEditRecipemodal] = useState(false);
@@ -251,103 +310,76 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   };
 
   let handleRemoveRecipeClick = () => {
+    console.log("Delete clicked for recipe:", infoRecipeToDelete);
+    console.log("Recipe data:", {
+      _id: infoRecipeToDelete._id,
+      id: infoRecipeToDelete.id,
+      recipeid: infoRecipeToDelete.recipeid,
+      strDrink: infoRecipeToDelete.strDrink,
+      name: infoRecipeToDelete.name,
+    });
+    dispatch(pageStateActions.setPageLoadingState(true));
+
+    // Different API endpoints for different pages
+    let apiEndpoint;
+    let requestData;
+
     if (applicationPage === APPLICATION_PAGE.favourites) {
-      dispatch(pageStateActions.setPageLoadingState(true));
-
-      makeRequest(
-        API_ROUTES.favourite,
-        REQ_METHODS.delete,
-        { recipeId: infoRecipeToDelete._id },
-        (response) => {
-          const toastMessageObject: ToastMessage = {
-            title: "Favorites",
-            message: response.message,
-            severity: SEVERITY.Success,
-            open: true,
-          };
-          dispatch(pageStateActions.setToastMessage(toastMessageObject));
-          setInfoRecipeToDelete(null);
-          setModalDeleteRecipeOpen(false);
-          reloadRecipes();
-        }
-      )
-        .catch((err) => {
-          // Handle specific error cases
-          if (
-            err.message.includes("Recipe not found") ||
-            err.message.includes("does not exist")
-          ) {
-            displayErrorSnackMessage(
-              new Error(
-                "This recipe has already been removed or no longer exists."
-              ),
-              dispatch
-            );
-            // Refresh the recipe list to sync with server state
-            reloadRecipes();
-          } else if (err.message.includes("429")) {
-            displayErrorSnackMessage(
-              new Error(
-                "Too many requests. Please wait a moment and try again."
-              ),
-              dispatch
-            );
-          } else {
-            displayErrorSnackMessage(err, dispatch);
-          }
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
-    } else if (applicationPage === APPLICATION_PAGE.myRecipes) {
-      dispatch(pageStateActions.setPageLoadingState(true));
-      makeRequest(
-        API_ROUTES.recipeShare,
-        REQ_METHODS.delete,
-        { _id: infoRecipeToDelete._id },
-        (response) => {
-          const toastMessageObject: ToastMessage = {
-            title: "Recipes",
-            message: response.message,
-            severity: SEVERITY.Success,
-            open: true,
-          };
-
-          dispatch(pageStateActions.setToastMessage(toastMessageObject));
-          setInfoRecipeToDelete(null);
-          setModalDeleteRecipeOpen(false);
-          reloadRecipes();
-        }
-      )
-        .catch((err) => {
-          // Handle specific error cases
-          if (
-            err.message.includes("Recipe not found") ||
-            err.message.includes("does not exist")
-          ) {
-            displayErrorSnackMessage(
-              new Error(
-                "This recipe has already been removed or no longer exists."
-              ),
-              dispatch
-            );
-            // Refresh the recipe list to sync with server state
-            reloadRecipes();
-          } else if (err.message.includes("429")) {
-            displayErrorSnackMessage(
-              new Error(
-                "Too many requests. Please wait a moment and try again."
-              ),
-              dispatch
-            );
-          } else {
-            displayErrorSnackMessage(err, dispatch);
-          }
-        })
-        .finally(() => {
-          dispatch(pageStateActions.setPageLoadingState(false));
-        });
+      // For favorites, use the favorites delete endpoint
+      const recipeId =
+        infoRecipeToDelete._id?.toString() || infoRecipeToDelete._id;
+      console.log("Deleting from favorites with ID:", recipeId);
+      apiEndpoint = API_ROUTES.favourite;
+      requestData = { recipeId: recipeId };
+    } else {
+      // For my recipes and social, use the recipe share delete endpoint
+      const recipeId =
+        infoRecipeToDelete._id?.toString() || infoRecipeToDelete._id;
+      console.log("Deleting from recipes with ID:", recipeId);
+      apiEndpoint = API_ROUTES.recipeShare;
+      requestData = { _id: recipeId };
     }
+
+    console.log(
+      "Making delete request to:",
+      apiEndpoint,
+      "with data:",
+      requestData
+    );
+
+    makeRequest(
+      apiEndpoint,
+      REQ_METHODS.delete,
+      requestData,
+      (response) => {
+        console.log("Delete successful:", response);
+        const toastMessageObject = {
+          title: "Recipes",
+          message: response.message,
+          severity: SEVERITY.Success,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        setInfoRecipeToDelete(null);
+        setModalDeleteRecipeOpen(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
+        // Refresh the page to show updated data
+        window.location.reload();
+      },
+      (error) => {
+        console.error("Delete failed:", error);
+        const toastMessageObject = {
+          title: "Error",
+          message: error.message || "Failed to delete recipe",
+          severity: SEVERITY.Error,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        setInfoRecipeToDelete(null);
+        setModalDeleteRecipeOpen(false);
+        dispatch(pageStateActions.setPageLoadingState(false));
+      }
+    );
   };
 
   // Share recipes
@@ -393,28 +425,39 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   // Add to favorites function
-  const handleAddToFavorite = (recipe) => {
+  let handleAddToFavorite = (recipe) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
       API_ROUTES.favourite,
       REQ_METHODS.post,
-      { recipe },
+      { recipeId: recipe._id || recipe.id },
       (response) => {
-        const toastMessageObject: ToastMessage = {
+        const toastMessageObject = {
           title: "Favorites",
           message: response.message,
           severity: SEVERITY.Success,
           open: true,
         };
         dispatch(pageStateActions.setToastMessage(toastMessageObject));
-      }
-    )
-      .catch((err) => {
-        displayErrorSnackMessage(err, dispatch);
-      })
-      .finally(() => {
         dispatch(pageStateActions.setPageLoadingState(false));
-      });
+
+        // Refresh the page to show the updated favorites list
+        if (applicationPage === APPLICATION_PAGE.favourites) {
+          window.location.reload();
+        }
+      },
+      (error) => {
+        console.error("Add to favorites failed:", error);
+        const toastMessageObject = {
+          title: "Error",
+          message: error.message || "Failed to add to favorites",
+          severity: SEVERITY.Error,
+          open: true,
+        };
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+        dispatch(pageStateActions.setPageLoadingState(false));
+      }
+    );
   };
 
   // Share to community function
@@ -429,6 +472,16 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
         recipe.strDrinkThumb ||
         recipe.image ||
         "https://mixmate2.s3.us-east-2.amazonaws.com/not-found-icon.png",
+      sub: user?.sub || recipe.sub,
+      nickname: user?.nickname || user?.name || recipe.nickname || "Unknown",
+      strAuthor: user?.nickname || user?.name || recipe.strAuthor || "Unknown",
+      strDrink:
+        recipe.strDrink || recipe.name || recipe.label || "Unnamed Recipe",
+      strCategory: recipe.strCategory || recipe.category || "Uncategorized",
+      strAlcoholic: recipe.strAlcoholic || recipe.alcoholic || "Alcoholic",
+      strGlass: recipe.strGlass || recipe.glass || "Cocktail glass",
+      strInstructions: recipe.strInstructions || recipe.instructions || "",
+      ingredients: recipe.ingredients || [],
     };
 
     makeRequest(
@@ -439,14 +492,20 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
         filename: recipeToShare.strDrinkThumb,
       },
       (response) => {
-        const toastMessageObject: ToastMessage = {
+        const toastMessageObject = {
           title: "Community",
           message: "Recipe shared to community successfully!",
           severity: SEVERITY.Success,
           open: true,
         };
         dispatch(pageStateActions.setToastMessage(toastMessageObject));
-        reloadRecipes();
+        if (reloadRecipes) reloadRecipes();
+        else if (setAllRecipes)
+          setAllRecipes((prev) =>
+            prev.map((r) =>
+              r._id === recipe._id ? { ...r, visibility: "public" } : r
+            )
+          );
       }
     )
       .catch((err) => {
@@ -479,6 +538,9 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
     );
   }
 
+  // Filter out public recipes from My Recipes
+  const filteredRecipes = recipes;
+
   return (
     <>
       <Box className="font-primary">
@@ -493,8 +555,23 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
             alignItems: "stretch",
           }}
         >
-          {recipes.map((recipe, idx) => {
+          {filteredRecipes.map((recipe, idx) => {
             const recipeId = recipe._id || recipe.id || recipe.recipeid;
+
+            // Debug recipe ID
+            if (
+              applicationPage === APPLICATION_PAGE.myRecipes ||
+              applicationPage === APPLICATION_PAGE.favourites
+            ) {
+              console.log(`Recipe ${recipe.strDrink || recipe.name}:`, {
+                recipeId,
+                recipeIdType: typeof recipeId,
+                _id: recipe._id,
+                id: recipe.id,
+                recipeid: recipe.recipeid,
+              });
+            }
+
             const image =
               recipe.strDrinkThumb || recipe.image || "/not-found-icon.png";
             const name = recipe.strDrink || recipe.name || "Unnamed Recipe";
@@ -504,11 +581,81 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
             const userAvatar =
               recipe.userPictureUrl || recipe.authorAvatar || null;
             const userName =
-              recipe.userNickname || recipe.authorName || recipe.author || null;
-            const time = recipe.time || recipe.prepTime || "5 min";
-            const category = recipe.category || "Cocktail";
-            const difficulty = recipe.difficulty || "Easy";
+              recipe.userNickname ||
+              recipe.authorName ||
+              recipe.author ||
+              recipe.userName ||
+              recipe.nickname ||
+              recipe.strAuthor ||
+              "Unknown";
+
+            // Calculate recipe time and difficulty based on complexity
+            const calculateRecipeTime = (ingredients, instructions) => {
+              const ingredientCount = ingredients.length;
+              const instructionLength = instructions ? instructions.length : 0;
+
+              // Base time: 2 minutes for basic setup
+              let baseTime = 2;
+
+              // Add time for each ingredient (30 seconds each)
+              baseTime += ingredientCount * 0.5;
+
+              // Add time for complex instructions (1 minute per 100 characters)
+              baseTime += Math.floor(instructionLength / 100);
+
+              // Round to nearest 5 minutes, minimum 3 minutes
+              const totalTime = Math.max(3, Math.ceil(baseTime / 5) * 5);
+              return `${totalTime} min`;
+            };
+
+            const calculateDifficulty = (ingredients, instructions) => {
+              const ingredientCount = ingredients.length;
+              const instructionLength = instructions ? instructions.length : 0;
+
+              if (ingredientCount <= 3 && instructionLength <= 200)
+                return "Easy";
+              if (ingredientCount <= 5 && instructionLength <= 400)
+                return "Medium";
+              return "Hard";
+            };
+
+            const generateDescription = (recipe) => {
+              if (recipe.description) return recipe.description;
+
+              const category =
+                recipe.strCategory || recipe.category || "Cocktail";
+              const alcoholic =
+                recipe.strAlcoholic || recipe.alcoholic || "Alcoholic";
+              const difficulty = calculateDifficulty(
+                recipe.ingredients || [],
+                recipe.strInstructions || recipe.instructions
+              );
+
+              const descriptions = {
+                Easy: `A refreshing ${category.toLowerCase()} that's perfect for beginners.`,
+                Medium: `A balanced ${category.toLowerCase()} with complex flavors.`,
+                Hard: `An advanced ${category.toLowerCase()} for experienced mixologists.`,
+              };
+
+              return (
+                descriptions[difficulty] ||
+                `A delicious ${category.toLowerCase()} to enjoy.`
+              );
+            };
+
+            const time = calculateRecipeTime(
+              recipe.ingredients || [],
+              recipe.strInstructions || recipe.instructions
+            );
+            const category =
+              recipe.strCategory || recipe.category || "Cocktail";
+            const difficulty = calculateDifficulty(
+              recipe.ingredients || [],
+              recipe.strInstructions || recipe.instructions
+            );
+            const description = generateDescription(recipe);
             const ingredients = recipe.ingredients || [];
+
             // Only show first 3 key ingredients
             const keyIngredients = ingredients.slice(0, 3).map((ing) => {
               if (typeof ing === "string") return ing;
@@ -516,7 +663,9 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                 return ing.name || ing.ingredient || JSON.stringify(ing);
               return String(ing);
             });
+
             // Calculate average rating from reviews
+            console.log("Recipe:", name, "Reviews:", recipe.reviews);
             const averageRating =
               recipe.reviews && recipe.reviews.length > 0
                 ? (
@@ -530,9 +679,30 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
 
             // Check if this is a user-created recipe (has user info)
             const isUserRecipe =
-              userName &&
-              userName !== "Unknown" &&
-              userName !== "www.cocktaildb.com";
+              (userName &&
+                userName !== "Unknown" &&
+                userName !== "www.cocktaildb.com") ||
+              (user && recipe.sub === user.sub) ||
+              recipe.sub; // If recipe has a sub field, it's a user recipe
+
+            // Check if this is the current user's recipe
+            const isCurrentUserRecipe = user && recipe.sub === user.sub;
+
+            // Debug logging
+            if (
+              applicationPage === APPLICATION_PAGE.myRecipes ||
+              applicationPage === APPLICATION_PAGE.favourites
+            ) {
+              console.log(`Recipe: ${name}`, {
+                isUserRecipe,
+                isCurrentUserRecipe,
+                userName,
+                recipeSub: recipe.sub,
+                userSub: user?.sub,
+                applicationPage,
+                isEditablePage,
+              });
+            }
 
             return (
               <Card
@@ -559,38 +729,80 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                   setModalOpen(true);
                 }}
               >
-                {/* User info section - only show if it's a user recipe */}
-                {userName && (
+                {/* User info section - always show nickname/author if available */}
+                {applicationPage === APPLICATION_PAGE.social && userName && (
                   <Box
-                    sx={{ display: "flex", alignItems: "center", gap: 1, p: 2 }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      p: 2,
+                      background:
+                        "linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)",
+                      borderBottom: "2px solid rgba(255, 215, 0, 0.3)",
+                      borderTopLeftRadius: 16,
+                      borderTopRightRadius: 16,
+                    }}
                   >
                     <Avatar
                       src={userAvatar}
                       alt={userName}
                       sx={{
-                        width: 32,
-                        height: 32,
+                        width: 36,
+                        height: 36,
                         border: "2px solid #ffd700",
+                        boxShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
                       }}
                     />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#ffd700", fontWeight: 600 }}
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#ffd700",
+                          fontWeight: 700,
+                          fontSize: "0.75rem",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        Posted by
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#ffd700",
+                          fontWeight: 700,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {userName}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", ml: "auto" }}
                     >
-                      {userName}
-                    </Typography>
-                    <StarIcon sx={{ color: "#FFD700", fontSize: 18, ml: 1 }} />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#FFD700", fontWeight: 600 }}
-                    >
-                      {averageRating}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "#fff", ml: 0.5 }}>
-                      {reviewCount > 0
-                        ? `(${reviewCount})`
-                        : "(No ratings yet)"}
-                    </Typography>
+                      <StarIcon
+                        sx={{ color: "#FFD700", fontSize: 20, ml: 1 }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#FFD700",
+                          fontWeight: 700,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {averageRating}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#fff", ml: 0.5, fontSize: "0.8rem" }}
+                      >
+                        {reviewCount > 0
+                          ? `(${reviewCount})`
+                          : "(No ratings yet)"}
+                      </Typography>
+                    </Box>
                   </Box>
                 )}
 
@@ -607,8 +819,13 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                   }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
+                    console.log(`Image failed to load: ${image}`);
                     target.onerror = null;
                     target.src = "/not-found-icon.png";
+                  }}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    console.log(`Image loaded successfully: ${image}`);
                   }}
                 />
                 <CardContent
@@ -668,8 +885,7 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                       variant="body2"
                       sx={{ color: "var(--gray-200)", mb: 1 }}
                     >
-                      {recipe.description ||
-                        "A delicious cocktail recipe to enjoy."}
+                      {description}
                     </Typography>
                     <Typography
                       variant="subtitle2"
@@ -742,24 +958,26 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                     {/* Action buttons */}
                     <Box sx={{ display: "flex", gap: 0.5 }}>
                       {/* Favorite button */}
-                      <Tooltip title="Add to favorites">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToFavorite(recipe);
-                          }}
-                          sx={{
-                            color: "#ffd700",
-                            background: "rgba(255, 215, 0, 0.1)",
-                            "&:hover": {
-                              background: "rgba(255, 215, 0, 0.2)",
-                            },
-                          }}
-                        >
-                          <FavoriteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                      {applicationPage !== APPLICATION_PAGE.favourites && (
+                        <Tooltip title="Add to favorites">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToFavorite(recipe);
+                            }}
+                            sx={{
+                              color: "#ffd700",
+                              background: "rgba(255, 215, 0, 0.1)",
+                              "&:hover": {
+                                background: "rgba(255, 215, 0, 0.2)",
+                              },
+                            }}
+                          >
+                            <FavoriteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
 
                       {/* Share button */}
                       <Tooltip title="Share recipe">
@@ -781,54 +999,92 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                         </IconButton>
                       </Tooltip>
 
-                      {/* Share to Community button - only show on my recipes page for user recipes */}
-                      {applicationPage === APPLICATION_PAGE.myRecipes &&
-                        isUserRecipe && (
+                      {/* Share to Community button - show on my recipes page and social page for user recipes */}
+                      {(applicationPage === APPLICATION_PAGE.myRecipes ||
+                        applicationPage === APPLICATION_PAGE.social) &&
+                        recipe.visibility !== "public" &&
+                        !recipe.isApiRecipe && (
                           <Tooltip title="Share to Community">
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleShareToCommunity(recipe);
-                              }}
-                              sx={{
-                                color: "#10b981",
-                                background: "rgba(16, 185, 129, 0.1)",
-                                "&:hover": {
-                                  background: "rgba(16, 185, 129, 0.2)",
-                                },
-                              }}
-                            >
-                              <FaEarthAmericas fontSize="small" />
-                            </IconButton>
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShareToCommunity(recipe);
+                                }}
+                                sx={{
+                                  color: "#10b981",
+                                  background: "rgba(16, 185, 129, 0.1)",
+                                  "&:hover": {
+                                    background: "rgba(16, 185, 129, 0.2)",
+                                  },
+                                }}
+                                disabled={recipe.visibility === "public"}
+                              >
+                                <FaEarthAmericas fontSize="small" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                         )}
 
                       {/* Edit button - only show on editable pages */}
-                      {isEditablePage && (
-                        <Tooltip title="Edit recipe">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddEditRecipeModalOpen(recipeId);
-                            }}
-                            sx={{
-                              color: "#ffd700",
-                              background: "rgba(255, 215, 0, 0.1)",
-                              "&:hover": {
-                                background: "rgba(255, 215, 0, 0.2)",
-                              },
-                            }}
-                          >
-                            <MdEdit fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
+                      {isEditablePage &&
+                        isUserRecipe &&
+                        !recipe.isApiRecipe && (
+                          <Tooltip title="Edit recipe">
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddEditRecipeModalOpen(recipeId);
+                              }}
+                              sx={{
+                                color: "#ffd700",
+                                background: "rgba(255, 215, 0, 0.1)",
+                                "&:hover": {
+                                  background: "rgba(255, 215, 0, 0.2)",
+                                },
+                              }}
+                            >
+                              <MdEdit fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
 
-                      {/* Delete button - only show on editable pages */}
-                      {isEditablePage && (
-                        <Tooltip title="Delete recipe">
+                      {/* Delete button - show on editable pages, favourites page, and social page for user's own recipes */}
+                      {(() => {
+                        const shouldShowDelete =
+                          (isEditablePage &&
+                            isUserRecipe &&
+                            !recipe.isApiRecipe) ||
+                          applicationPage === APPLICATION_PAGE.favourites ||
+                          (applicationPage === APPLICATION_PAGE.social &&
+                            isCurrentUserRecipe);
+
+                        // Debug logging for delete button
+                        if (
+                          applicationPage === APPLICATION_PAGE.myRecipes ||
+                          applicationPage === APPLICATION_PAGE.favourites
+                        ) {
+                          console.log(`Delete button for ${name}:`, {
+                            shouldShowDelete,
+                            isEditablePage,
+                            isUserRecipe,
+                            isApiRecipe: recipe.isApiRecipe,
+                            applicationPage,
+                            isCurrentUserRecipe,
+                          });
+                        }
+
+                        return shouldShowDelete;
+                      })() && (
+                        <Tooltip
+                          title={
+                            applicationPage === APPLICATION_PAGE.favourites
+                              ? "Remove from Favourites"
+                              : "Delete recipe"
+                          }
+                        >
                           <IconButton
                             size="small"
                             onClick={(e) => {
@@ -843,7 +1099,7 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
                               },
                             }}
                           >
-                            <MdDelete fontSize="small" />
+                            <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       )}
@@ -928,6 +1184,7 @@ const RecipeComponent = ({ applicationPage, recipes, reloadRecipes }) => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         recipe={selectedRecipe}
+        applicationPage={applicationPage}
       />
     </>
   );

@@ -74,6 +74,11 @@ const IngredientCard = ({
     (state: any) => state.userInfo.userIngredients
   );
 
+  // Check if this ingredient is in the user's list
+  const isInUserList = userIngredients.some(
+    (userIng) => userIng.strIngredient1 === ingredient.strIngredient1
+  );
+
   const fetchStockInfoFromWeb = async () => {
     if (!isDataFetched) {
       dispatch(pageStateActions.setPageLoadingState(true));
@@ -249,17 +254,35 @@ const IngredientCard = ({
             {ingredient.strAlcoholic ? "Alcoholic" : "Non-Alcoholic"}
           </Typography>
         </Box>
-        {isUserList && (
+        {isInUserList && (
           <Box sx={{ mb: 1 }}>
             <Chip
-              label="In My List"
+              label="In My Cart"
               sx={{ background: "#ffd700", color: "#181a2e", fontWeight: 700 }}
             />
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                background: "linear-gradient(90deg, #ef4444 60%, #dc2626 100%)",
+                borderRadius: 99,
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #dc2626 60%, #ef4444 100%)",
+                },
+              }}
+              startIcon={<ClearIcon sx={{ color: "#fff" }} />}
+              onClick={() => deleteIngredientFromList(ingredient)}
+            >
+              Remove from My Cart
+            </Button>
           </Box>
         )}
-        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          {/* Add to My List button - only show for non-user ingredients */}
-          {!isUserList && (
+        {!isInUserList && (
+          <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
             <Button
               variant="contained"
               size="small"
@@ -279,31 +302,9 @@ const IngredientCard = ({
             >
               Add to My List
             </Button>
-          )}
-
-          {/* Remove from My List button - only show for user ingredients */}
-          {isUserList && (
-            <Button
-              variant="contained"
-              size="small"
-              sx={{
-                color: "#fff",
-                background: "linear-gradient(90deg, #ef4444 60%, #dc2626 100%)",
-                borderRadius: 99,
-                fontWeight: 600,
-                textTransform: "none",
-                "&:hover": {
-                  background:
-                    "linear-gradient(90deg, #dc2626 60%, #ef4444 100%)",
-                },
-              }}
-              startIcon={<ClearIcon sx={{ color: "#fff" }} />}
-              onClick={() => deleteIngredientFromList(ingredient)}
-            >
-              Remove from My List
-            </Button>
-          )}
-
+          </Box>
+        )}
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
           {/* Find in Store button */}
           <Button
             variant="outlined"

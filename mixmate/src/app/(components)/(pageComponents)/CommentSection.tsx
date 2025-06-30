@@ -185,14 +185,26 @@ const CommentSection = ({
               variant="contained"
               onClick={handleSubmitReview}
               sx={{
-                background: "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                background:
+                  "linear-gradient(135deg, #ffd700 0%, #ffe066 50%, #ffd700 100%)",
                 color: "#181a2e",
-                fontWeight: 700,
+                fontWeight: 800,
+                fontSize: 16,
                 borderRadius: 99,
-                px: 3,
+                px: 4,
+                py: 1.5,
+                boxShadow: "0 8px 32px rgba(255, 215, 0, 0.5)",
+                transition: "all 0.3s ease",
+                textTransform: "none",
+                letterSpacing: 1,
+                border: "2px solid rgba(255, 215, 0, 0.6)",
                 "&:hover": {
                   background:
-                    "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                    "linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #ffe066 100%)",
+                  color: "#181a2e",
+                  transform: "translateY(-2px) scale(1.05)",
+                  boxShadow: "0 12px 40px rgba(255, 215, 0, 0.7)",
+                  border: "2px solid rgba(255, 215, 0, 0.8)",
                 },
               }}
             >

@@ -185,17 +185,63 @@ function NoFrillsShoppingItemCard({ product }) {
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ p: 0 }}>
-          <Box sx={{ height: "500px", width: "100%" }}>
-            <iframe
-              src={productLink}
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-                borderRadius: "0 0 16px 16px",
-              }}
-              title={`Preview of ${productTitle}`}
+          <Box
+            sx={{
+              height: "320px",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "linear-gradient(135deg, #fffbe6 0%, #ffe066 100%)",
+              borderRadius: "0 0 16px 16px",
+              boxShadow: "0 4px 24px rgba(255, 215, 0, 0.12)",
+              p: 4,
+              gap: 2,
+            }}
+          >
+            <img
+              src="/nofrills-logo.png"
+              alt="No Frills Logo"
+              style={{ width: 120, marginBottom: 16 }}
             />
+            <Typography
+              variant="h6"
+              sx={{ color: "#181a2e", fontWeight: 700, mb: 1 }}
+            >
+              NoFrills Ingredient Search
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "#333", mb: 2, textAlign: "center" }}
+            >
+              View this ingredient on NoFrills.ca. Click below to see the latest
+              prices and availability for <b>{productTitle}</b>.
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                background: "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                color: "#181a2e",
+                fontWeight: 700,
+                borderRadius: 99,
+                px: 4,
+                py: 1.5,
+                fontSize: 16,
+                boxShadow: "0 4px 16px rgba(255, 215, 0, 0.18)",
+                textTransform: "none",
+                letterSpacing: 1,
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #ffe066 0%, #ffd700 100%)",
+                  color: "#181a2e",
+                  transform: "translateY(-2px) scale(1.04)",
+                },
+              }}
+              onClick={() => window.open(productLink, "_blank")}
+            >
+              Open in NoFrills.ca
+            </Button>
           </Box>
         </DialogContent>
       </Dialog>

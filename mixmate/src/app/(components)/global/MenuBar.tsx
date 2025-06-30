@@ -125,6 +125,16 @@ function MenuBar() {
     setAnchorEl(null);
   };
 
+  const handleLogout = async () => {
+    try {
+      dispatch(userInfoActions.setUserInfo(null));
+      window.location.href = "/api/auth/logout";
+    } catch (error) {
+      console.error("Logout error:", error);
+      window.location.href = "/api/auth/logout";
+    }
+  };
+
   useEffect(() => {
     //if logged in successfully using Auth0, sync with MongoDB
     const loginHandleMongo = async (userInfoData) => {
@@ -266,43 +276,35 @@ function MenuBar() {
           <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.1)", my: 2 }} />
           <List>
             <ListItem disablePadding>
-              <a
-                href={API_ROUTES.logout}
-                style={{ width: "100%", textDecoration: "none" }}
+              <ListItemButton
+                onClick={handleLogout}
+                sx={{
+                  mx: 2,
+                  borderRadius: "12px",
+                  color: "var(--accent-orange)",
+                  "&:hover": {
+                    background: "rgba(255, 107, 53, 0.1)",
+                    transform: "translateX(4px)",
+                  },
+                  transition: "all 0.3s ease",
+                  py: 2,
+                }}
               >
-                <ListItemButton
-                  onClick={() => {
-                    dispatch(userInfoActions.setUserInfo(null));
-                    handleDrawerToggle();
-                  }}
+                <ListItemIcon sx={{ color: "inherit", minWidth: 40 }}>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Logout"
+                  className="font-primary"
                   sx={{
-                    mx: 2,
-                    borderRadius: "12px",
-                    color: "var(--accent-orange)",
-                    "&:hover": {
-                      background: "rgba(255, 107, 53, 0.1)",
-                      transform: "translateX(4px)",
+                    "& .MuiListItemText-primary": {
+                      fontWeight: 500,
+                      fontFamily: "var(--font-primary)",
+                      fontSize: "1rem",
                     },
-                    transition: "all 0.3s ease",
-                    py: 2,
                   }}
-                >
-                  <ListItemIcon sx={{ color: "inherit", minWidth: 40 }}>
-                    <LogoutIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Logout"
-                    className="font-primary"
-                    sx={{
-                      "& .MuiListItemText-primary": {
-                        fontWeight: 500,
-                        fontFamily: "var(--font-primary)",
-                        fontSize: "1rem",
-                      },
-                    }}
-                  />
-                </ListItemButton>
-              </a>
+                />
+              </ListItemButton>
             </ListItem>
           </List>
         </>
@@ -475,10 +477,7 @@ function MenuBar() {
                   </MenuItem>
                   <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
                   <MenuItem
-                    onClick={() => {
-                      dispatch(userInfoActions.setUserInfo(null));
-                      handleProfileMenuClose();
-                    }}
+                    onClick={handleLogout}
                     sx={{
                       fontFamily: "var(--font-primary)",
                       color: "var(--accent-orange)",

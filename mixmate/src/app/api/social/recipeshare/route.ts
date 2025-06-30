@@ -41,8 +41,82 @@ const isValidMixmateUrl = (url) => {
       return false;
     }
 
-    // Check if the hostname matches the required domain
-    if (parsedUrl.hostname !== "mixmate2.s3.us-east-2.amazonaws.com") {
+    // Allow common image hosting domains and our S3 bucket
+    const allowedDomains = [
+      "mixmate2.s3.us-east-2.amazonaws.com",
+      "images.unsplash.com",
+      "picsum.photos",
+      "via.placeholder.com",
+      "placehold.co",
+      "dummyimage.com",
+      "imgur.com",
+      "i.imgur.com",
+      "cloudinary.com",
+      "res.cloudinary.com",
+      "firebasestorage.googleapis.com",
+      "storage.googleapis.com",
+      "amazonaws.com",
+      "s3.amazonaws.com",
+      "s3.us-east-1.amazonaws.com",
+      "s3.us-east-2.amazonaws.com",
+      "s3.us-west-1.amazonaws.com",
+      "s3.us-west-2.amazonaws.com",
+      "s3.eu-west-1.amazonaws.com",
+      "s3.eu-central-1.amazonaws.com",
+      "s3.ap-southeast-1.amazonaws.com",
+      "s3.ap-northeast-1.amazonaws.com",
+      "localhost",
+      "127.0.0.1",
+      // Additional common image hosting domains
+      "postimages.org",
+      "imgbb.com",
+      "tinypic.com",
+      "photobucket.com",
+      "flickr.com",
+      "500px.com",
+      "deviantart.com",
+      "artstation.com",
+      "behance.net",
+      "dribbble.com",
+      "pinterest.com",
+      "facebook.com",
+      "instagram.com",
+      "twitter.com",
+      "tumblr.com",
+      "reddit.com",
+      "imgur.com",
+      "giphy.com",
+      "tenor.com",
+      "media.giphy.com",
+      "cdn.discordapp.com",
+      "media.discordapp.net",
+      "i.redd.it",
+      "preview.redd.it",
+      "external-preview.redd.it",
+      "i.ibb.co",
+      "i.postimg.cc",
+      "i.imgur.com",
+      "media.tenor.com",
+      "media1.tenor.com",
+      "media2.tenor.com",
+      "media3.tenor.com",
+      "media4.tenor.com",
+      "media5.tenor.com",
+      "media6.tenor.com",
+      "media7.tenor.com",
+      "media8.tenor.com",
+      "media9.tenor.com",
+      "media10.tenor.com",
+    ];
+
+    // Check if the hostname matches any of the allowed domains
+    const isAllowed = allowedDomains.some(
+      (domain) =>
+        parsedUrl.hostname === domain ||
+        parsedUrl.hostname.endsWith("." + domain)
+    );
+
+    if (!isAllowed) {
       return false;
     }
 
@@ -362,11 +436,12 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(
     );
   }
 
-  const drinkId = new ObjectId(req.nextUrl.searchParams.get("_id"));
+  const drinkId = req.nextUrl.searchParams.get("_id");
+  console.log("Recipe Share DELETE - Received _id:", drinkId);
 
   if (!drinkId) {
     return NextResponse.json(
-      { error: "Error : Body is Empty" },
+      { error: "Error : Recipe ID is missing" },
       { status: 404 }
     );
   }
@@ -374,10 +449,39 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(
 
   try {
     let db = await dbRtns.getDBInstance();
+
+    // Try to find the recipe - handle both string and ObjectId formats
     let response = await dbRtns.findOne(db, sharedRecipeCollection, {
-      _id: drinkId,
+      _id: new ObjectId(drinkId),
     });
+
+    // If not found with ObjectId, try with string
     if (!response) {
+      response = await dbRtns.findOne(db, sharedRecipeCollection, {
+        _id: drinkId,
+      });
+    }
+
+    console.log(
+      "Found recipe:",
+      response
+        ? { _id: response._id, strDrink: response.strDrink, sub: response.sub }
+        : "Not found"
+    );
+
+    if (!response) {
+      // Let's also check if there are any recipes in the collection
+      const allRecipes = await dbRtns.findAll(
+        db,
+        sharedRecipeCollection,
+        {},
+        {}
+      );
+      console.log(
+        "All recipes in shared collection:",
+        allRecipes.map((r) => ({ _id: r._id, strDrink: r.strDrink }))
+      );
+
       return NextResponse.json(
         { error: "Selected recipe does not exist on your list." },
         { status: 404 }
@@ -394,8 +498,16 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(
 
     //response is the object deleted
     response = await dbRtns.deleteOne(db, sharedRecipeCollection, {
-      _id: drinkId,
+      _id: new ObjectId(drinkId),
     });
+
+    // If not deleted with ObjectId, try with string
+    if (!response) {
+      response = await dbRtns.deleteOne(db, sharedRecipeCollection, {
+        _id: drinkId,
+      });
+    }
+
     if (response) {
       const fileName = response.strDrinkThumb.split("/").pop();
 
@@ -410,6 +522,7 @@ export const DELETE = withApiAuthRequired(async function deleteSocialRecipe(
       return NextResponse.json(result, { status: 200 });
     }
   } catch (err) {
+    console.error("Recipe Share DELETE error:", err);
     return NextResponse.json({ error: err }, { status: 400 });
   }
 });

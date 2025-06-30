@@ -12,6 +12,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import AddIcon from "@mui/icons-material/Add";
 import FormControl from "@mui/material/FormControl";
 import Input from "@mui/material/Input";
 import InputLabel from "@mui/material/InputLabel";
@@ -33,6 +34,7 @@ import {
 } from "@/app/_utilities/_client/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { pageStateActions } from "lib/redux/pageStateSlice";
+import { userInfoActions } from "lib/redux/userInfoSlice";
 // import Image from "next/image";
 import { ToastMessage } from "interface/toastMessage";
 import { Sarabun, Vollkorn } from "next/font/google";
@@ -47,6 +49,7 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
   const userIngredients = useSelector(
     (state: any) => state.userInfo.userIngredients
   );
+
   const isIngredientInList = (ingredient) => {
     for (let word of userIngredients) {
       if (word.strIngredient1.toLowerCase() == ingredient.toLowerCase()) {
@@ -55,6 +58,62 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
     }
     return false;
   };
+
+  const handleAddIngredientToList = async (ingredient) => {
+    dispatch(pageStateActions.setPageLoadingState(true));
+
+    // Check if ingredient already exists
+    const matchedIngredients = userIngredients.find(
+      (ing) => ing.strIngredient1.toLowerCase() === ingredient.toLowerCase()
+    );
+
+    if (matchedIngredients !== undefined) {
+      const toastMessageObject: ToastMessage = {
+        open: true,
+        message: "Selected Ingredient already exists on your list!",
+        severity: SEVERITY.Warning,
+        title: "Ingredients",
+      };
+      dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      dispatch(pageStateActions.setPageLoadingState(false));
+      return;
+    }
+
+    // Add the new ingredient to the database
+    const ingredientToAdd = {
+      strIngredient1: ingredient,
+      strIngredientThumb: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(
+        ingredient
+      )}.png`,
+      strAlcoholic: false, // Default to non-alcoholic, can be updated later
+    };
+
+    makeRequest(
+      API_ROUTES.userIngredients,
+      REQ_METHODS.post,
+      { ingredient: ingredientToAdd },
+      (response) => {
+        const toastMessageObject: ToastMessage = {
+          open: true,
+          message: response.message,
+          severity: SEVERITY.Success,
+          title: "Ingredients",
+        };
+        const tempIngredients = [...userIngredients];
+        tempIngredients.push(ingredientToAdd);
+        // Add the new item to the redux state
+        dispatch(userInfoActions.setUserIngredients(tempIngredients));
+        dispatch(pageStateActions.setToastMessage(toastMessageObject));
+      }
+    )
+      .catch((error) => {
+        displayErrorSnackMessage(error, dispatch);
+      })
+      .finally(() => {
+        dispatch(pageStateActions.setPageLoadingState(false));
+      });
+  };
+
   const handleAddToFavourites = (recipe) => {
     dispatch(pageStateActions.setPageLoadingState(true));
     makeRequest(
@@ -79,10 +138,10 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
       });
   };
   useEffect(() => {
-    let loadDrinkInfo = () => {
-      if (isNotSet(drinkInfo)) {
+    // Only fetch if drinkInfo is not already set
+    if (!drinkInfo) {
+      let loadDrinkInfo = () => {
         dispatch(pageStateActions.setPageLoadingState(true));
-        // Load drink info
         makeRequest(
           API_ROUTES.drinkbyid,
           REQ_METHODS.get,
@@ -91,7 +150,6 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
             let drinkDetails = null;
             if (isSet(response.data)) {
               let drink = response.data;
-
               // Format ingredients
               let drinkIngredients = [];
               drink.ingredients.forEach((ingredient) => {
@@ -101,23 +159,44 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
                 let txtMesurement = ingredient.measure
                   ? ingredient.measure
                   : "N/A";
-
-                let ingredientTypography = isIngredientInList(txtIngredient) ? (
-                  <Typography
-                    className={vollkorn.className}
-                    sx={{ backgroundColor: "orange" }}
+                let ingredientTypography = (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 1,
+                    }}
                   >
-                    {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
-                  </Typography>
-                ) : (
-                  <Typography className={vollkorn.className}>
-                    {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
-                  </Typography>
+                    <Typography
+                      className={vollkorn.className}
+                      sx={{ color: "#fff" }}
+                    >
+                      {capitalizeWords(txtIngredient)} <i>({txtMesurement})</i>
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<AddIcon />}
+                      onClick={() => handleAddIngredientToList(txtIngredient)}
+                      sx={{
+                        color: "#ffd700",
+                        borderColor: "#ffd700",
+                        fontSize: "0.75rem",
+                        padding: "2px 8px",
+                        minWidth: "auto",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 215, 0, 0.1)",
+                          borderColor: "#ffd700",
+                        },
+                      }}
+                    >
+                      Add to My List
+                    </Button>
+                  </Box>
                 );
-
                 drinkIngredients.push(ingredientTypography);
               });
-
               drinkDetails = (
                 <Box marginTop={2}>
                   <Grid container spacing={2}>
@@ -328,14 +407,11 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
           .finally(() => {
             dispatch(pageStateActions.setPageLoadingState(false));
           });
-      }
-
-      // Done
-      setRowOpen(!rowOpen);
-    };
-    loadDrinkInfo();
+      };
+      loadDrinkInfo();
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [isOpen]);
 
   return (
     <React.Fragment>
@@ -345,7 +421,11 @@ function RecipeRow({ drink, isOpen, onRowOpen }) {
             {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell
+          component="th"
+          scope="row"
+          sx={{ color: "#fff", fontWeight: 600 }}
+        >
           {capitalizeWords(drink.strDrink)}
         </TableCell>
       </TableRow>

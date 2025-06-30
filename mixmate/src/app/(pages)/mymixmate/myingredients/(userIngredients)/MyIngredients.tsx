@@ -240,9 +240,7 @@ const MyIngredients = () => {
 
   const loadIngredients = useCallback(() => {
     dispatch(pageStateActions.setPageLoadingState(true));
-    //when the page has not been loaded before and the
-    //ingredients are not in the redux store
-    if (!allIngredients || allIngredients.length === 0)
+    if (!allIngredients || allIngredients.length === 0) {
       makeRequest(
         API_ROUTES.drinks,
         REQ_METHODS.get,
@@ -255,7 +253,6 @@ const MyIngredients = () => {
             return item;
           });
           setPageIndexCount(Math.ceil(response.data.length / 9));
-
           const sortedIngredients: Ingredient[] = updatedIngredients.sort(
             (a, b) => {
               const ingredientA = a.strIngredient1.toUpperCase();
@@ -270,7 +267,6 @@ const MyIngredients = () => {
             }
           );
           const displayedIngredients = sortedIngredients.slice(0, 9);
-
           const displayedIngredientCards = (
             <IngredientCards
               ingredients={displayedIngredients}
@@ -279,7 +275,10 @@ const MyIngredients = () => {
             />
           );
           setFilteredDisplayedIngredients(sortedIngredients);
+          updateIngredientsState(sortedIngredients);
           setDisplayedCardItems(displayedIngredientCards);
+          console.log("Ingredients loaded:", sortedIngredients);
+          console.log("Displayed card items:", displayedIngredientCards);
           dispatch(recipeActions.setIngredients(sortedIngredients));
         }
       )
@@ -289,25 +288,10 @@ const MyIngredients = () => {
         .finally(() => {
           loadUserIngredients();
         });
-    //when the page has been loaded before and the ingredients
-    //are already in the redux store
-    else {
-      if (!displayedCardItems || displayedCardItems.length === 0) {
-        const displayedIngredients = allIngredients.slice(0, 9);
-
-        const displayedIngredientCards = (
-          <IngredientCards
-            ingredients={displayedIngredients}
-            reloadIngredients={loadIngredients}
-            isUserList={filterState.isUserList}
-          />
-        );
-        setDisplayedCardItems(displayedIngredientCards);
-      }
+    } else {
       loadUserIngredients();
     }
-    //eslint-disable-next-line
-  }, [allIngredients, displayedCardItems, dispatch, loadUserIngredients]);
+  }, [allIngredients, dispatch, filterState.isUserList, loadUserIngredients]);
 
   useEffect(() => {
     loadIngredients();
@@ -544,18 +528,18 @@ const MyIngredients = () => {
               borderRadius: 99,
               px: 6,
               py: 2,
-              boxShadow: "0 8px 32px rgba(255, 215, 0, 0.3)",
+              boxShadow: "0 8px 32px rgba(255, 215, 0, 0.4)",
               transition: "all 0.3s ease",
               textTransform: "none",
               letterSpacing: 1,
-              border: "2px solid rgba(255, 215, 0, 0.3)",
+              border: "2px solid rgba(255, 215, 0, 0.5)",
               "&:hover": {
                 background:
                   "linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #ffe066 100%)",
                 color: "#181a2e",
                 transform: "translateY(-4px) scale(1.05)",
-                boxShadow: "0 12px 40px rgba(255, 215, 0, 0.4)",
-                border: "2px solid rgba(255, 215, 0, 0.5)",
+                boxShadow: "0 12px 40px rgba(255, 215, 0, 0.6)",
+                border: "2px solid rgba(255, 215, 0, 0.7)",
               },
             }}
           >
@@ -563,6 +547,40 @@ const MyIngredients = () => {
           </Button>
         </Grid>
       </Grid>
+
+      {/* Status Indicator - Made more prominent */}
+      <Grid container justifyContent="center" sx={{ mb: 3 }}>
+        <Grid item>
+          <Box
+            sx={{
+              background: filterState.isUserList
+                ? "linear-gradient(90deg, #5CC5E1 60%, #009CC6 100%)"
+                : "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+              color: "#181a2e",
+              fontWeight: 700,
+              fontSize: 18,
+              borderRadius: 99,
+              px: 4,
+              py: 2,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            {filterState.isUserList ? (
+              <>
+                🛒 Currently viewing: <strong>My Ingredients Cart</strong>
+              </>
+            ) : (
+              <>
+                📋 Currently viewing: <strong>All Available Ingredients</strong>
+              </>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+
       <Grid item xs={12}>
         {displayedCardItems}
       </Grid>

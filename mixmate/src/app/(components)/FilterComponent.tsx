@@ -11,7 +11,7 @@ import {
   Radio,
   FormControlLabel,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -106,6 +106,7 @@ function FilterComponent({
     (state: any) => state.recipe.alcoholicTypes
   );
   const theme = useTheme();
+  const hasFetchedRef = useRef(false);
 
   const onFilterChange = (event: any, filter: string) => {
     switch (filter) {
@@ -320,6 +321,8 @@ function FilterComponent({
   };
 
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
     let loadCategories = () => {
       dispatch(pageStateActions.setPageLoadingState(true));
       if (categories.length === 0) {

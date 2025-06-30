@@ -186,14 +186,92 @@ function DefaultRecipesComponent({ applicationPage }) {
       query = { publicflag: true, socialflag: true };
     }
 
-    makeRequest(apiRoute, REQ_METHODS.get, query, (response) => {
+    makeRequest(apiRoute, REQ_METHODS.get, query, async (response) => {
       // Handle cases where recipes might be null or undefined
-      const recipes = response.data?.allRecipes || [];
-      const validRecipes = recipes.filter((recipe) => recipe && recipe._id); // Filter out invalid recipes
+      let recipes = response.data?.allRecipes || [];
+      let validRecipes = recipes.filter((recipe) => recipe && recipe._id); // Filter out invalid recipes
 
-      setAllRecipes(validRecipes);
-      setRecipesFiltered(validRecipes);
-      setDisplayedRecipes(validRecipes.slice(0, itemsPerPage));
+      // For My Recipes, merge in community reviews/ratings if available
+      if (
+        applicationPage === APPLICATION_PAGE.myRecipes &&
+        validRecipes.length > 0
+      ) {
+        // Fetch all community recipes
+        let communityRecipes = [];
+        await makeRequest(
+          API_ROUTES.recipeShare,
+          REQ_METHODS.get,
+          { publicflag: true, socialflag: true },
+          (communityResponse) => {
+            communityRecipes = communityResponse.data?.allRecipes || [];
+          }
+        );
+        // Merge reviews/ratings from community recipes
+        validRecipes = validRecipes.map((userRecipe) => {
+          const match = communityRecipes.find(
+            (cr) =>
+              (cr.idDrink &&
+                userRecipe.idDrink &&
+                cr.idDrink === userRecipe.idDrink) ||
+              (cr.strDrink &&
+                userRecipe.strDrink &&
+                cr.strDrink === userRecipe.strDrink)
+          );
+          if (match && match.reviews) {
+            console.log(
+              "Merging community reviews for",
+              userRecipe.strDrink,
+              match.reviews
+            );
+            return { ...userRecipe, reviews: match.reviews };
+          }
+          return userRecipe;
+        });
+      }
+
+      if (applicationPage === APPLICATION_PAGE.social) {
+        // For community/social page, use allRecipes from API response
+        if (Array.isArray(response.data?.allRecipes)) {
+          setAllRecipes(response.data.allRecipes);
+          setRecipesFiltered(response.data.allRecipes);
+          setDisplayedRecipes(response.data.allRecipes.slice(0, itemsPerPage));
+        } else if (Array.isArray(response.data)) {
+          setAllRecipes(response.data);
+          setRecipesFiltered(response.data);
+          setDisplayedRecipes(response.data.slice(0, itemsPerPage));
+        } else {
+          setAllRecipes([]);
+          setRecipesFiltered([]);
+          setDisplayedRecipes([]);
+        }
+        dispatch(pageStateActions.setPageLoadingState(false));
+        return;
+      }
+
+      // Apply client-side pagination for Recipes page
+      if (applicationPage === APPLICATION_PAGE.recipes) {
+        setAllRecipes(validRecipes);
+        setRecipesFiltered(validRecipes);
+        setDisplayedRecipes(
+          validRecipes.slice(
+            (pageIndex - 1) * itemsPerPage,
+            pageIndex * itemsPerPage
+          )
+        );
+      } else if (applicationPage === APPLICATION_PAGE.favourites) {
+        setAllRecipes(validRecipes);
+        setRecipesFiltered(validRecipes);
+        setDisplayedRecipes(
+          validRecipes.slice(
+            (pageIndex - 1) * itemsPerPage,
+            pageIndex * itemsPerPage
+          )
+        );
+      } else {
+        setAllRecipes(validRecipes);
+        setRecipesFiltered(validRecipes);
+        setDisplayedRecipes(validRecipes.slice(0, itemsPerPage));
+      }
 
       // Show message if some recipes were filtered out
       if (validRecipes.length < recipes.length) {
@@ -358,7 +436,7 @@ function DefaultRecipesComponent({ applicationPage }) {
     updatePageHeader();
     window.scrollTo(0, 0);
     //eslint-disable-next-line
-  }, []);
+  }, [pageIndex]);
 
   const onFilterClear = () => {
     setRecipesFiltered(allRecipes || []);
@@ -518,6 +596,7 @@ function DefaultRecipesComponent({ applicationPage }) {
     if (filterAndCriteria.length > 0)
       filterUpdate(newLogic, FILTER_CRITERIA.filterLogic, false);
   };
+
   return (
     <>
       {(applicationPage === APPLICATION_PAGE.social ||
@@ -549,21 +628,26 @@ function DefaultRecipesComponent({ applicationPage }) {
                 startIcon={<NightlifeIcon />}
                 sx={{
                   background:
-                    "linear-gradient(90deg, #ffd700 60%, #ffe066 100%)",
+                    "linear-gradient(135deg, #ffd700 0%, #ffe066 50%, #ffd700 100%)",
                   color: "#181a2e",
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: 18,
                   borderRadius: 99,
                   px: 4,
                   py: 1.5,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                  boxShadow: "0 8px 32px rgba(255, 215, 0, 0.5)",
                   mt: 2,
-                  transition: "all 0.2s",
+                  transition: "all 0.3s ease",
+                  textTransform: "none",
+                  letterSpacing: 1,
+                  border: "2px solid rgba(255, 215, 0, 0.6)",
                   "&:hover": {
                     background:
-                      "linear-gradient(90deg, #ffe066 60%, #ffd700 100%)",
+                      "linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #ffe066 100%)",
                     color: "#181a2e",
-                    boxShadow: "0 4px 16px rgba(255, 224, 102, 0.25)",
+                    transform: "translateY(-2px) scale(1.05)",
+                    boxShadow: "0 12px 40px rgba(255, 215, 0, 0.7)",
+                    border: "2px solid rgba(255, 215, 0, 0.8)",
                   },
                 }}
               >
